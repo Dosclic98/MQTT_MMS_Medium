@@ -1,0 +1,4 @@
+#!/bin/sh
+cd `dirname $0`
+../src/tx_medium_exp -n .:../src $*
+# for shared lib, use: opp_run -l ../src/tx_medium_exp -n .:../src $*
