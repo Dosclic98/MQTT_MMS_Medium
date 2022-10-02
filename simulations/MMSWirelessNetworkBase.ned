@@ -28,11 +28,11 @@ network MMSWirelessNetworkBase {
         int numClients = default(1);
     
 	submodules:
-	    visualizer: IntegratedCanvasVisualizer;
+	    visualizer: IntegratedCanvasVisualizer { @display("p=450,50"); }
 	    configurator: Ipv4NetworkConfigurator;
-	    radioMedium: Ieee80211ScalarRadioMedium;
+	    radioMedium: Ieee80211ScalarRadioMedium { @display("p=300,50"); }
 	    client[numClients]: WirelessHost { @display("p=200,200"); }
 	    evilClient: WirelessHost { @display("p=200,200"); }
-	    server: WirelessHost { @display("p=500,200"); }
-	    accessPoint: AccessPoint { @display("p=374,200"); }
+	    server: WirelessHost { @display("p=550,215"); }
+	    accessPoint: AccessPoint { @display("p=374,215"); }
 }
