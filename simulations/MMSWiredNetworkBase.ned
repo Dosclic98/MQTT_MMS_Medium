@@ -39,9 +39,9 @@ network MMSWiredNetworkBase {
         }
     
     connections:
-        switch.ethg++ <--> { datarate = 1Gbps; } <--> router.ethg++;
-        router.pppg++ <--> Eth1G <--> server.pppg++;
-        evilClient.ethg++ <--> Eth1G <--> switch.ethg++;
+        switch.ethg++ <--> Eth1G <--> router.ethg++;
+        router.pppg++ <--> { datarate = 1Gbps; } <--> server.pppg++;
+        evilClient.ethg++ <--> Eth1G <--> router.ethg++;
         for i = 0..numClients-1 {
         	client[i].ethg++ <--> Eth1G <--> switch.ethg++;
         }

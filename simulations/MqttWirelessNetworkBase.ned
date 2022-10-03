@@ -19,7 +19,7 @@ import inet.node.inet.WirelessHost;
 import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 import inet.node.inet.Router;
 import inet.node.wireless.AccessPoint;
-import inet.physicallayer.wireless.ieee80211.packetlevel.Ieee80211ScalarRadioMedium;
+import inet.physicallayer.wireless.ieee80211.packetlevel.Ieee80211RadioMedium;
 import inet.node.ethernet.*;
 import inet.visualizer.canvas.integrated.IntegratedCanvasVisualizer;
 
@@ -31,7 +31,7 @@ network MqttWirelessNetworkBase {
 	submodules:
 	    visualizer: IntegratedCanvasVisualizer;
 	    configurator: Ipv4NetworkConfigurator;
-	    radioMedium: Ieee80211ScalarRadioMedium;
+	    radioMedium: Ieee80211RadioMedium;
 	    client[numClients]: WirelessHost { @display("p=200,200"); }
 	    broker: WirelessHost { @display("p=500,200"); }
 	    accessPoint: AccessPoint { @display("p=374,200"); }

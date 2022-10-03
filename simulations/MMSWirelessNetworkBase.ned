@@ -19,20 +19,20 @@ import inet.node.inet.WirelessHost;
 import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 import inet.node.inet.Router;
 import inet.node.wireless.AccessPoint;
-import inet.physicallayer.wireless.ieee80211.packetlevel.Ieee80211ScalarRadioMedium;
+import inet.physicallayer.wireless.ieee80211.packetlevel.Ieee80211RadioMedium;
 import inet.node.ethernet.*;
-import inet.visualizer.canvas.integrated.IntegratedCanvasVisualizer;
+import inet.visualizer.common.IntegratedMultiVisualizer;
 
 network MMSWirelessNetworkBase {
     parameters:
         int numClients = default(1);
     
 	submodules:
-	    visualizer: IntegratedCanvasVisualizer { @display("p=450,50"); }
+	    visualizer: IntegratedMultiVisualizer { @display("p=450,50"); }
 	    configurator: Ipv4NetworkConfigurator;
-	    radioMedium: Ieee80211ScalarRadioMedium { @display("p=300,50"); }
+	    radioMedium: Ieee80211RadioMedium { @display("p=300,50"); }
 	    client[numClients]: WirelessHost { @display("p=200,200"); }
 	    evilClient: WirelessHost { @display("p=200,200"); }
-	    server: WirelessHost { @display("p=550,215"); }
+	    server: WirelessHost { @display("p=600,215"); }
 	    accessPoint: AccessPoint { @display("p=374,215"); }
 }

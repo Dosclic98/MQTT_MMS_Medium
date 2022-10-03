@@ -173,6 +173,7 @@ void EvilServer::handleDeparture()
     delete packet;
 
     if (doClose) {
+    	EV << "CLOOOOOSE";
         auto request = new Request("close", TCP_C_CLOSE);
         TcpCommand *cmd = new TcpCommand();
         request->addTag<SocketReq>()->setSocketId(connId);

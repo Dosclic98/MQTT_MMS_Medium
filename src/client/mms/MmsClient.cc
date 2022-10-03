@@ -84,6 +84,7 @@ void MmsClient::sendRequest()
     payload->setServerClose(false);
     payload->addTag<CreationTimeTag>()->setCreationTime(simTime());
     if(!isListening) {
+    	// Connect kind
         payload->setMessageKind(0);
         isListening = true;
     }
