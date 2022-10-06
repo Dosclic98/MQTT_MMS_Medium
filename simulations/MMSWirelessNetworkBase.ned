@@ -20,7 +20,6 @@ import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 import inet.node.inet.Router;
 import inet.node.wireless.AccessPoint;
 import inet.physicallayer.wireless.ieee80211.packetlevel.Ieee80211RadioMedium;
-//import inet.physicallayer.wireless.unitdisk.UnitDiskRadioMedium;
 import inet.node.ethernet.*;
 import inet.physicallayer.wireless.noise.NoiseSource;
 import inet.visualizer.canvas.integrated.IntegratedCanvasVisualizer;
