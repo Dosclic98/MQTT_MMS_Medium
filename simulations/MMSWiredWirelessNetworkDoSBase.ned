@@ -28,8 +28,8 @@ import inet.node.inet.StandardHost;
 network MMSWiredWirelessNetworkDoSBase
 {
     parameters:
-        int numGoodClient = default(3);
-		int numBadClient = default(0);
+        int numWiredGoodClient = default(3);
+		int numWirelessBadClient = default(0);
 
     submodules:
         visualizer: IntegratedCanvasVisualizer {
@@ -41,8 +41,8 @@ network MMSWiredWirelessNetworkDoSBase
         radioMedium: Ieee80211RadioMedium {
             @display("p=49,32");
         }
-        wiredClient[numGoodClient]: StandardHost;
-        wirelessClient[numBadClient]: WirelessHost;
+        wiredClient[numWiredGoodClient]: StandardHost;
+        wirelessClient[numWirelessBadClient]: WirelessHost;
         server: StandardHost {
             @display("p=589,142");
         }
@@ -60,7 +60,7 @@ network MMSWiredWirelessNetworkDoSBase
         switch.ethg++ <--> Eth1G <--> router.ethg++;
         router.pppg++ <--> {  datarate = 1Gbps; } <--> server.pppg++;
         accessPoint.ethg++ <--> Eth1G <--> router.ethg++;
-        for i=0..numWiredClients-1 {
+        for i=0..numWiredGoodClient-1 {
             wiredClient[i].ethg++ <--> Eth1G <--> switch.ethg++;
         }
 }

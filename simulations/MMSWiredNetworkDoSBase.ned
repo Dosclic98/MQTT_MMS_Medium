@@ -22,8 +22,8 @@ import inet.node.ethernet.*;
 
 network MMSWiredNetworkDoSBase {
 	parameters:
-		int numGoodClient = default(3);
-		int numBadClient = default(0);
+		int numGoodClient = default(1);
+		int numBadClient = default(1);
 		
 	submodules:
 	    configurator: Ipv4NetworkConfigurator;
@@ -41,7 +41,7 @@ network MMSWiredNetworkDoSBase {
     connections:
         switch.ethg++ <--> Eth1G <--> router.ethg++;
         router.pppg++ <--> { datarate = 1Gbps; } <--> server.pppg++;
-        for i = 0..numClients-1 {
+        for i = 0..(numGoodClient + numBadClient)-1 {
         	client[i].ethg++ <--> Eth1G <--> switch.ethg++;
         }
 	
