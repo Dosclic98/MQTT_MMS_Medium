@@ -24,7 +24,7 @@ import inet.node.ethernet.*;
 import inet.physicallayer.wireless.noise.NoiseSource;
 import inet.visualizer.canvas.integrated.IntegratedCanvasVisualizer;
 
-network MMSWirelessNetworkBase {
+network MMSWirelessNetworkMIMTBase {
     parameters:
         int numClients = default(1);
     

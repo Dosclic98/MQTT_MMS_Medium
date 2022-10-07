@@ -20,7 +20,7 @@ import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 import inet.node.inet.Router;
 import inet.node.ethernet.*;
 
-network MMSWiredNetworkBase {
+network MMSWiredNetworkMIMTBase {
 	parameters:
 		int numClients = default(3);
 		
