@@ -30,6 +30,7 @@ network MMSWirelessNetworkDoSHandoverBase
     parameters:
         int numGoodClient = default(3);
         int numBadClient = default(0);
+        int numServers = default(1);
 
     submodules:
         visualizer: IntegratedCanvasVisualizer {
@@ -44,7 +45,7 @@ network MMSWirelessNetworkDoSHandoverBase
         client[numGoodClient + numBadClient]: WirelessHost {
             @display("p=199,224");
         }
-        server: StandardHost {
+        server[numServers]: StandardHost {
             @display("p=315,635");
         }
         accessPoint1: AccessPoint {
@@ -60,6 +61,8 @@ network MMSWirelessNetworkDoSHandoverBase
     connections:
         accessPoint1.ethg++ <--> Eth1G <--> router.ethg++;
         accessPoint2.ethg++ <--> Eth1G <--> router.ethg++;
-        server.ethg++ <--> Eth1G <--> router.ethg++;
+        for j = 0..(numServers-1) {
+        	router.ethg++ <--> Eth1G <--> server[j].ethg++;
+        }
         
 }

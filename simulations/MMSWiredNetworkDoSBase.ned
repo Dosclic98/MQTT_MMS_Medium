@@ -25,10 +25,12 @@ network MMSWiredNetworkDoSBase {
 		int numGoodClient = default(1);
 		int numBadClient = default(1);
 		
+		int numServers = default(1);
+		
 	submodules:
 	    configurator: Ipv4NetworkConfigurator;
 	    client[numGoodClient + numBadClient]: StandardHost;
-	    server: StandardHost {
+	    server[numServers]: StandardHost {
             @display("p=157,30");
         }
         router: Router {
@@ -40,7 +42,9 @@ network MMSWiredNetworkDoSBase {
     
     connections:
         switch.ethg++ <--> Eth1G <--> router.ethg++;
-        router.pppg++ <--> { datarate = 1Gbps; } <--> server.pppg++;
+        for j = 0..(numServers-1) {
+        	router.ethg++ <--> Eth1G <--> server[j].ethg++;
+        }
         for i = 0..(numGoodClient + numBadClient)-1 {
         	client[i].ethg++ <--> Eth1G <--> switch.ethg++;
         }

@@ -28,12 +28,14 @@ network MMSWirelessNetworkDoSBase {
     parameters:
         int numGoodClient = default(3);
 		int numBadClient = default(0);
+		
+		int numServers = default(1);
     
 	submodules:
 	    visualizer: IntegratedCanvasVisualizer { @display("p=450,50"); }
 	    configurator: Ipv4NetworkConfigurator;
 	    radioMedium: Ieee80211RadioMedium { @display("p=300,50"); }
 	    client[numGoodClient + numBadClient]: WirelessHost { @display("p=200,200"); }
-	    server: WirelessHost { @display("p=600,215"); }
+	    server[numServers]: WirelessHost { @display("p=600,215"); }
 	    accessPoint: AccessPoint { @display("p=374,215"); }
 }
