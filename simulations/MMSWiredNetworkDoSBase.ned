@@ -20,33 +20,32 @@ import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 import inet.node.inet.Router;
 import inet.node.ethernet.*;
 
-network MMSWiredNetworkDoSBase {
-	parameters:
-		int numGoodClient = default(1);
-		int numBadClient = default(1);
-		
-		int numServers = default(1);
-		
-	submodules:
-	    configurator: Ipv4NetworkConfigurator;
-	    client[numGoodClient + numBadClient]: StandardHost;
-	    server[numServers]: StandardHost {
-            @display("p=157,30");
-        }
+network MMSWiredNetworkDoSBase
+{
+    parameters:
+        int numGoodClient = default(1);
+        int numBadClient = default(1);
+
+        int numServers = default(1);
+
+    submodules:
+        configurator: Ipv4NetworkConfigurator;
+        client[numGoodClient + numBadClient]: StandardHost;
+        server[numServers]: StandardHost;
         router: Router {
             @display("p=157,128");
         }
         switch: EthernetSwitch {
-            @display("p=157,213");
+            @display("p=157,339");
         }
-    
+
     connections:
         switch.ethg++ <--> Eth1G <--> router.ethg++;
-        for j = 0..(numServers-1) {
-        	router.ethg++ <--> Eth1G <--> server[j].ethg++;
+        for j=0..(numServers-1) {
+            router.ethg++ <--> Eth1G <--> server[j].ethg++;
         }
-        for i = 0..(numGoodClient + numBadClient)-1 {
-        	client[i].ethg++ <--> Eth1G <--> switch.ethg++;
+        for i=0..(numGoodClient + numBadClient)-1 {
+            client[i].ethg++ <--> Eth1G <--> switch.ethg++;
         }
-	
+
 }

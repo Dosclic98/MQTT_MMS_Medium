@@ -29,8 +29,8 @@ network MMSWiredWirelessNetworkDoSBase
 {
     parameters:
         int numWiredGoodClient = default(3);
-		int numWirelessBadClient = default(0);
-		int numServers = default(1);
+        int numWirelessBadClient = default(0);
+        int numServers = default(1);
 
     submodules:
         visualizer: IntegratedCanvasVisualizer {
@@ -44,14 +44,12 @@ network MMSWiredWirelessNetworkDoSBase
         }
         wiredClient[numWiredGoodClient]: StandardHost;
         wirelessClient[numWirelessBadClient]: WirelessHost;
-        server[numServers]: StandardHost {
-            @display("p=589,142");
-        }
+        server[numServers]: StandardHost;
         accessPoint: AccessPoint {
-            @display("p=364,235");
+            @display("p=359,240");
         }
         router: Router {
-            @display("p=374,142");
+            @display("p=500,142");
         }
         switch: EthernetSwitch {
             @display("p=250,141");
@@ -60,8 +58,8 @@ network MMSWiredWirelessNetworkDoSBase
     connections:
         switch.ethg++ <--> Eth1G <--> router.ethg++;
         accessPoint.ethg++ <--> Eth1G <--> router.ethg++;
-        for j = 0..(numServers-1) {
-        	router.ethg++ <--> Eth1G <--> server[j].ethg++;
+        for j=0..(numServers-1) {
+            router.ethg++ <--> Eth1G <--> server[j].ethg++;
         }
         for i=0..numWiredGoodClient-1 {
             wiredClient[i].ethg++ <--> Eth1G <--> switch.ethg++;
