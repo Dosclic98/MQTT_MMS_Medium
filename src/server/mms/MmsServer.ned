@@ -34,7 +34,7 @@ simple MmsServer like IApp
         @statistic[endToEndDelay](title="end-to-end delay"; source="dataAge(packetReceived)"; unit=s; record=histogram,weightedHistogram,vector; interpolationmode=none);
         
         volatile int serviceTime @unit(ms) = default(intuniform(2ms, 4ms));
-        volatile int emitInterval @unit(ms) = default(intuniform(47ms, 52ms));
+        volatile int emitInterval @unit(ms) = default(4s);
     gates:
         input socketIn @labels(TcpCommand/up);
         output socketOut @labels(TcpCommand/down);
