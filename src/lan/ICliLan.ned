@@ -15,33 +15,11 @@
 
 package tx_medium_exp.lan;
 
-import inet.node.inet.StandardHost;
-import inet.node.inet.Router;
-import inet.node.ethernet.*;
-
-
-module CliLan {
-
+moduleinterface ICliLan {
     parameters:
-        int numGoodClient = default(1);
-        int numBadClient = default(1);
-
+        int numGoodClient;
+        int numBadClient;
+    
     gates:
         inout gate;
-
-    submodules:
-        client[numGoodClient + numBadClient]: StandardHost;
-        router: Router {
-            @display("p=476,289");
-        }
-        switch: EthernetSwitch {
-            @display("p=343,288");
-        }
-	
-	connections:
-	    switch.ethg++ <--> Eth1G <--> router.ethg++;
-	    router.ethg++ <--> gate;
-	    for i=0..(numGoodClient+numBadClient)-1{
-	    	client[i].ethg++ <--> Eth1G <--> switch.ethg++;
-	    }
 }

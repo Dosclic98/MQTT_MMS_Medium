@@ -13,27 +13,28 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package tx_medium_exp.simulations;
+package tx_medium_exp.lan.wireless;
 
-import inet.node.inet.Router;
-import tx_medium_exp.lan.CliLan;
-import tx_medium_exp.lan.DerLan;
-import inet.node.ethernet.*;
-import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
+import inet.node.wireless.AccessPoint;
+import inet.node.inet.WirelessHost;
+import tx_medium_exp.lan.ICliLan;
 
+module WirelessCliLan like ICliLan {
+    parameters:
+        int numGoodClient = default(1);
+        int numBadClient = default(1);
 
-network MMSWiredNetworkDosLanBase {
-	
-	submodules:
-	    configurator: Ipv4NetworkConfigurator;
-	    router: Router;
-	    goodCliLan: CliLan;
-	    badCliLan: CliLan;
-	    derLan: DerLan;
-	
-	connections:
-	    goodCliLan.gate <--> Eth1G <--> router.ethg++;
-	    badCliLan.gate <--> Eth1G <--> router.ethg++;
-	    derLan.gate <--> Eth1G <--> router.ethg++;
-	   	
+    gates:
+        inout gate;
+
+    submodules:
+        client[numGoodClient + numBadClient]: WirelessHost {
+            @display("p=106,157");
+        }
+        accessPoint: AccessPoint {
+            @display("p=258,156");
+        }
+        
+    connections:
+        accessPoint.ethg++ <--> gate;
 }

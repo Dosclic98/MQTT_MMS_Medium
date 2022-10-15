@@ -13,15 +13,13 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package tx_medium_exp.lan;
+package tx_medium_exp.lan.wired;
 
 import inet.node.inet.StandardHost;
 import inet.node.inet.Router;
 import inet.node.ethernet.*;
 
-
-module DerLan
-{
+module WiredDerLan {
     parameters:
         int numServers = default(1);
     gates:
