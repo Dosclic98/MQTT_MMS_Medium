@@ -9,7 +9,7 @@ simple EvilServer like IApp
         @class("inet::EvilServer");
         string localAddress = default(""); // local address; may be left empty ("")
         int localPort = default(1000);     // localPort number to listen on
-        volatile int replyDelay @unit(ms) = default(0ms);
+        double replyDelay @unit(s) = default(0s);
         @display("i=block/app");
         @lifecycleSupport;
         double stopOperationExtraTime @unit(s) = default(-1s);    // extra time after lifecycle stop operation finished

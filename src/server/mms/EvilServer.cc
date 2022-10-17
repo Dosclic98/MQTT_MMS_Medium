@@ -115,7 +115,7 @@ void EvilServer::sendPacketDeparture(int connId, B requestedBytes, B replyLength
     payload->setConnId(clientConnId);
     payload->setServerClose(false);
     outPacket->insertAtBack(payload);
-    sendOrSchedule(outPacket, SimTime(par("replyDelay").intValue(), SIMTIME_MS));
+    sendOrSchedule(outPacket, SimTime(round(par("replyDelay").doubleValue()), SIMTIME_MS));
 }
 
 void EvilServer::handleDeparture()
@@ -178,7 +178,7 @@ void EvilServer::handleDeparture()
         TcpCommand *cmd = new TcpCommand();
         request->addTag<SocketReq>()->setSocketId(connId);
         request->setControlInfo(cmd);
-        sendOrSchedule(request, SimTime(par("replyDelay").intValue(), SIMTIME_MS));
+        sendOrSchedule(request, SimTime(round(par("replyDelay").doubleValue()), SIMTIME_MS));
     }
 
     if(serverQueue.getLength() > 0) {
@@ -201,7 +201,7 @@ void EvilServer::handleMessage(cMessage *msg)
         delete msg;
         auto request = new Request("close", TCP_C_CLOSE);
         request->addTag<SocketReq>()->setSocketId(connId);
-        sendOrSchedule(request, SimTime(par("replyDelay").intValue(), SIMTIME_MS));
+        sendOrSchedule(request, SimTime(round(par("replyDelay").doubleValue()), SIMTIME_MS));
     }
     else if (msg->getKind() == TCP_I_DATA || msg->getKind() == TCP_I_URGENT_DATA) {
         if(!evilServerStatus) {
