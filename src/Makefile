@@ -43,6 +43,8 @@ OBJS = \
     $O/customApp/CustomClient.o \
     $O/server/mms/EvilServer.o \
     $O/server/mms/MmsServer.o \
+    $O/server/mms/multi/ClientEvilComp.o \
+    $O/server/mms/multi/ServerEvilComp.o \
     $O/message/mms/MmsMessage_m.o \
     $O/message/mqtt/MqttMessage_m.o
 
