@@ -212,12 +212,29 @@ void ServerEvilComp::handleMessage(cMessage *msg)
 
 void ServerEvilComp::handleForward() {
 	Packet* packet = check_and_cast<Packet*>(forwardQueue->pop());
-	emit(pcktFromClientSignal, packet);
-	bubble("Sent to internal client!");
+	int connId = packet->getTag<SocketInd>()->getSocketId();
+	auto chunk = packet->peekDataAt(B(0), packet->getTotalLength());
+	ChunkQueue &queue = socketQueue[connId];
+	queue.push(chunk);
+	while (const auto& appmsg = queue.pop<MmsMessage>(b(-1), Chunk::PF_ALLOW_NULLPTR)) {
+		const auto& msg = makeShared<MmsMessage>();
+		Packet *packet = new Packet("data");
+		msg->setMessageKind(appmsg->getMessageKind());
+		msg->setConnId(connId);
+		msg->setExpectedReplyLength(appmsg->getExpectedReplyLength());
+		msg->setChunkLength(appmsg->getChunkLength());
+		msg->setEvilServerConnId(connId);
+		msg->setServerClose(false);
+		msg->addTag<CreationTimeTag>()->setCreationTime(packet->getCreationTime());
+		packet->insertAtBack(msg);
+		emit(pcktFromClientSignal, packet);
+		bubble("Sent to internal client!");
+		EV_INFO << "Conn ID:" << msg->getEvilServerConnId();
 
-	if(forwardQueue->getLength() > 0) {
-		scheduleAt(simTime() + SimTime(par("forwardDelay").intValue(), SIMTIME_US), forwardEvent);
-	} else forwardStatus = false;
+		if(forwardQueue->getLength() > 0) {
+			scheduleAt(simTime() + SimTime(par("forwardDelay").intValue(), SIMTIME_US), forwardEvent);
+		} else forwardStatus = false;
+	}
 }
 
 void ServerEvilComp::finish()

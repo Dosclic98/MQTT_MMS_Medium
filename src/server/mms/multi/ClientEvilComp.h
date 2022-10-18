@@ -17,22 +17,22 @@
 #define __TX_MEDIUM_EXP_CLIENTEVILCOMP_H_
 
 #include <omnetpp.h>
-
 #include "inet/applications/tcpapp/TcpBasicClientApp.h"
 
 namespace inet {
 
+class FromClientListener;
 /**
  * TODO - Generated class
  */
-class ClientEvilComp : public TcpBasicClientApp
-{
+class ClientEvilComp : public TcpBasicClientApp {
 	protected:
 		//Gestione conteggio pacchetti nel range temporale
 		int counter;
 		cMessage* topicAmountEvent;
 		simsignal_t topicAmount;
 		ChunkQueue queue;
+		FromClientListener* serverCompListener;
 
 		//Gestione richiesta di misure e risposta casuale
 		bool isListening;

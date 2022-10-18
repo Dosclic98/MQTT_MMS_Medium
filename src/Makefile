@@ -45,6 +45,7 @@ OBJS = \
     $O/server/mms/MmsServer.o \
     $O/server/mms/multi/ClientEvilComp.o \
     $O/server/mms/multi/ServerEvilComp.o \
+    $O/server/mms/multi/listeners/FromClientListener.o \
     $O/message/mms/MmsMessage_m.o \
     $O/message/mqtt/MqttMessage_m.o
 

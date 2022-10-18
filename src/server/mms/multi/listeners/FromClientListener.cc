@@ -11,29 +11,27 @@
 // 
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see http://www.gnu.org/licenses/.
-//
-import inet.common.INETDefs;
-import inet.common.Units;
-import inet.common.packet.chunk.Chunk;
+// 
 
-namespace inet;
+#include "FromClientListener.h"
 
-//
-// MESSAGEKIND CLIENT
-// SEND: [0 listen to measures (register on server)] [2 generic request]
-// MESSAGEKIND SERVER 
-// SEND [1 send data to listeners] 
-// RESPOND [3 generic response]
-//
-//GENERAL
-//[999 I AM THE SERVER]
-class MmsMessage extends FieldsChunk
-{
-    B expectedReplyLength;         
-    bool serverClose;      
-    int messageKind;
-    int connId;
-    // Used just for the MMS MIMT Attack
-    int evilServerConnId = 0;
-    int serverIndex = 0;
+namespace inet {
+
+FromClientListener::FromClientListener() {
+	// TODO Auto-generated constructor stub
+}
+
+FromClientListener::FromClientListener(ClientEvilComp* parent) {
+	this->parent = parent;
+	FromClientListener();
+}
+
+FromClientListener::~FromClientListener() {
+	// TODO Auto-generated destructor stub
+}
+
+void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID, cObject* value, cObject *obj){
+	parent->bubble("Lolloso!");
+}
+
 }

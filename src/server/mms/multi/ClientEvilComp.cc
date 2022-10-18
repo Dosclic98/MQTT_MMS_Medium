@@ -13,8 +13,9 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#include "ClientEvilComp.h"
 
+#include "ClientEvilComp.h"
+#include "./listeners/FromClientListener.h"
 #include "../../../message/mms/MmsMessage_m.h"
 #include "inet/common/ModuleAccess.h"
 #include "inet/common/lifecycle/ModuleOperations.h"
@@ -49,6 +50,9 @@ void ClientEvilComp::initialize(int stage)
         counter = 0;
         isListening = false;
         previousResponseSent = true;
+        // Initialize listener and subscribe to the serverComp forwarding signal
+        serverCompListener = new FromClientListener(this);
+        getSimulation()->getSystemModule()->subscribe("pcktFromClientSignal", serverCompListener);
         scheduleAt(simTime() + SimTime(3, SIMTIME_S), topicAmountEvent);
     }
 }
@@ -70,7 +74,7 @@ void ClientEvilComp::sendRequest()
     payload->addTag<CreationTimeTag>()->setCreationTime(simTime());
     if(!isListening) {
     	// Connect kind
-        payload->setMessageKind(MSGKIND_CONNECT);
+        payload->setMessageKind(0);
         isListening = true;
     }
     else {
@@ -91,17 +95,16 @@ void ClientEvilComp::socketEstablished(TcpSocket *socket)
     numRequestsToSend = par("numRequestsPerSession");
     if (numRequestsToSend < 1)
         numRequestsToSend = 1;
-
+    // TODO When the connection is established wait for the ServerComp to forward packets the forward them
     // perform first request if not already done (next one will be sent when reply arrives)
+    /*
     if (!earlySend)
-        // TODO Remove comment after testing
-    	//sendRequest();
-
+    	sendRequest();
+	*/
     numRequestsToSend--;
 }
 
-void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent)
-{
+void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent) {
     TcpAppBase::socketDataArrived(socket, msg, urgent);
 
     if (socket->getState() == TcpSocket::LOCALLY_CLOSED) {
@@ -115,6 +118,8 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *msg, bool urge
         counter++;
         if (appmsg->getMessageKind() == 3) emit(genericResponseSignal, true);
     }
+    // TODO When some data arrives, forward it to the server
+    /*
     if (numRequestsToSend > 0) {
         if (previousResponseSent) {
             simtime_t d = simTime() + SimTime(par("thinkTime").intValue(), SIMTIME_MS);
@@ -124,6 +129,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *msg, bool urge
     } else {
         close();
     }
+    */
 }
 
 }
