@@ -17,6 +17,7 @@
 #define __TX_MEDIUM_EXP_CLIENTEVILCOMP_H_
 
 #include <omnetpp.h>
+#include <queue>
 #include "inet/applications/tcpapp/TcpBasicClientApp.h"
 
 namespace inet {
@@ -26,24 +27,31 @@ class FromClientListener;
  * TODO - Generated class
  */
 class ClientEvilComp : public TcpBasicClientApp {
-	protected:
-		//Gestione conteggio pacchetti nel range temporale
-		int counter;
-		cMessage* topicAmountEvent;
-		simsignal_t topicAmount;
-		ChunkQueue queue;
-		FromClientListener* serverCompListener;
+public:
+	cQueue msgQueue;
+	bool previousResponseSent;
+	cMessage* sendMsgEvent;
+	virtual void rescheduleAfterOrDeleteTimer(simtime_t d, short int msgKind) override;
 
-		//Gestione richiesta di misure e risposta casuale
-		bool isListening;
-		bool previousResponseSent;
-		simsignal_t genericResponseSignal;
 
-	protected:
-		virtual void initialize(int stage) override;
-		virtual void sendRequest() override;
-		virtual void socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent) override;
-		virtual void socketEstablished(TcpSocket *socket) override;
+protected:
+	//Gestione conteggio pacchetti nel range temporale
+	int counter;
+	cMessage* topicAmountEvent;
+	simsignal_t topicAmount;
+	ChunkQueue queue;
+	FromClientListener* serverCompListener;
+
+	//Gestione richiesta di misure e risposta casuale
+	bool isListening;
+	simsignal_t genericResponseSignal;
+
+protected:
+	virtual void initialize(int stage) override;
+	virtual void sendRequest() override;
+	virtual void handleTimer(cMessage* msg) override;
+	virtual void socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent) override;
+	virtual void socketEstablished(TcpSocket *socket) override;
 
 };
 

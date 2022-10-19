@@ -83,6 +83,7 @@ void MmsClient::sendRequest()
     payload->setExpectedReplyLength(B(replyLength));
     payload->setServerClose(false);
     payload->addTag<CreationTimeTag>()->setCreationTime(simTime());
+    payload->setServerIndex(this->getIndex());
     if(!isListening) {
     	// Connect kind
         payload->setMessageKind(0);

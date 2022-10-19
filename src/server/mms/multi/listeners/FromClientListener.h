@@ -21,6 +21,8 @@
 namespace inet {
 
 class FromClientListener : public cListener {
+protected:
+	ChunkQueue queue;
 public:
 	FromClientListener();
 	FromClientListener(ClientEvilComp* parent);

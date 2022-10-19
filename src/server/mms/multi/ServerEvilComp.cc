@@ -210,6 +210,8 @@ void ServerEvilComp::handleMessage(cMessage *msg)
     }
 }
 
+// Extracts the packet from the queue and unpack the MMS encapsulated packet inserting the connId
+// before forwarding it to the ClientEvilComp
 void ServerEvilComp::handleForward() {
 	Packet* packet = check_and_cast<Packet*>(forwardQueue->pop());
 	int connId = packet->getTag<SocketInd>()->getSocketId();
@@ -226,10 +228,11 @@ void ServerEvilComp::handleForward() {
 		msg->setEvilServerConnId(connId);
 		msg->setServerClose(false);
 		msg->addTag<CreationTimeTag>()->setCreationTime(packet->getCreationTime());
+		msg->setServerIndex(appmsg->getServerIndex());
 		packet->insertAtBack(msg);
 		emit(pcktFromClientSignal, packet);
 		bubble("Sent to internal client!");
-		EV_INFO << "Conn ID:" << msg->getEvilServerConnId();
+		EV_INFO << "Conn ID:" << msg->getEvilServerConnId() << "\n";
 
 		if(forwardQueue->getLength() > 0) {
 			scheduleAt(simTime() + SimTime(par("forwardDelay").intValue(), SIMTIME_US), forwardEvent);
