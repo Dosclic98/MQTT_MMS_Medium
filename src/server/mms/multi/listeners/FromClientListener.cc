@@ -37,7 +37,7 @@ FromClientListener::~FromClientListener() {
 }
 
 void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID, cObject* value, cObject *obj){
-	parent->bubble("Packet received from fwd signal!");
+	this->parent->bubble("Packet received from fwd signal!");
 	Packet* pckt = check_and_cast<Packet*>(value);
     auto chunk = pckt->peekDataAt(B(0), pckt->getTotalLength());
     queue.push(chunk);

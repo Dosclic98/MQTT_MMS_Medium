@@ -105,7 +105,7 @@ void ClientEvilComp::sendRequest()
 
 void ClientEvilComp::rescheduleAfterOrDeleteTimer(simtime_t d, short int msgKind) {
 	// Necessary because called from another module
-	Enter_Method("Message");
+	Enter_Method("");
     cancelEvent(timeoutMsg);
 
     if (stopTime < SIMTIME_ZERO || d < stopTime) {
