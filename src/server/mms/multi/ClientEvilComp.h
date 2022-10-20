@@ -42,6 +42,9 @@ protected:
 	ChunkQueue queue;
 	FromClientListener* serverCompListener;
 
+	// Gestione segnali canali interni
+	simsignal_t pcktFromServerSignal;
+
 	//Gestione richiesta di misure e risposta casuale
 	bool isListening;
 	simsignal_t genericResponseSignal;

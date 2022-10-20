@@ -27,10 +27,16 @@
 
 namespace inet {
 
+class FromServerListener;
 /**
  * TODO - Generated class
  */
 class INET_API ServerEvilComp : public TcpGenericServerApp {
+	public:
+		//Gestione servitore e coda
+		bool evilServerStatus;
+		cQueue serverQueue;
+		cMessage* departureEvent;
 
 	protected:
 		int serverConnId;
@@ -45,13 +51,11 @@ class INET_API ServerEvilComp : public TcpGenericServerApp {
 
 		// Gestione segnali canali interni
 		simsignal_t pcktFromClientSignal;
+		FromServerListener* clientCompListener;
 
 		//Gestione servitore e coda
-		bool evilServerStatus;
 		bool forwardStatus;
-		cQueue serverQueue;
 		cQueue* forwardQueue;
-		cMessage* departureEvent;
 		cMessage* forwardEvent;
 
 		//Gestione pacchetti da inviare al server

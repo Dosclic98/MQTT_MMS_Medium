@@ -13,21 +13,25 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package tx_medium_exp.server.mms.multi;
+#ifndef SERVER_MMS_MULTI_LISTENERS_FROMSERVERLISTENER_H_
+#define SERVER_MMS_MULTI_LISTENERS_FROMSERVERLISTENER_H_
 
-import inet.applications.tcpapp.TcpBasicClientApp;
+#include "../ServerEvilComp.h"
 
-//
-// TODO auto-generated module
-//
-simple ClientEvilComp extends TcpBasicClientApp {
-	parameters:
-	    @class("inet::ClientEvilComp");
-	    
-	    @signal[topicAmount](type=int);
-        @statistic[topicAmountStat](source=topicAmount; record=vector);
-        @signal[genericResponseSignal](type=bool);
-        @statistic[genericResponse](source=genericResponseSignal; record=count);
-		
-		@signal[pcktFromServerSignal](type=cObject*);
+namespace inet {
+
+class FromServerListener : public cListener {
+
+public:
+	FromServerListener();
+	FromServerListener(ServerEvilComp* parent);
+	virtual ~FromServerListener();
+
+	virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject* value, cObject *obj);
+
+	ServerEvilComp* parent;
+};
+
+#endif /* SERVER_MMS_MULTI_LISTENERS_FROMSERVERLISTENER_H_ */
+
 }

@@ -14,6 +14,7 @@
 // 
 
 #include "ServerEvilComp.h"
+#include "./listeners/FromServerListener.h"
 
 namespace inet {
 
@@ -51,6 +52,9 @@ void ServerEvilComp::initialize(int stage) {
         genericResponseBlockSignal = registerSignal("genericResponseBlockSignal");
         genericResponseCompromisedSignal = registerSignal("genericResponseCompromisedSignal");
         pcktFromClientSignal = registerSignal("pcktFromClientSignal");
+        // Initialize the listener for the incoming server messages
+        FromServerListener* clientCompListener = new FromServerListener(this);
+        getSimulation()->getSystemModule()->subscribe("pcktFromServerSignal", clientCompListener);
         cModule *node = findContainingNode(this);
         NodeStatus *nodeStatus = node ? check_and_cast_nullable<NodeStatus *>(node->getSubmodule("status")) : nullptr;
         bool isOperational = (!nodeStatus) || nodeStatus->getState() == NodeStatus::UP;

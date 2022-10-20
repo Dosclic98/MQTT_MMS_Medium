@@ -43,7 +43,7 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
     queue.push(chunk);
     while (const auto& appmsg = queue.pop<MmsMessage>(b(-1), Chunk::PF_ALLOW_NULLPTR)) {
         if(appmsg->getServerIndex() == this->parent->getIndex()) {
-        	// TODO Add to the forward to the server queue
+        	// Add to the forward to the server queue
     		MmsMessage* msg = new MmsMessage();
     		msg->setMessageKind(appmsg->getMessageKind());
     		msg->setConnId(appmsg->getConnId());

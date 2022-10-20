@@ -47,6 +47,7 @@ void ClientEvilComp::initialize(int stage)
         topicAmountEvent = new cMessage("Topic Amount Event");
         topicAmount = registerSignal("topicAmount");
         genericResponseSignal = registerSignal("genericResponseSignal");
+        pcktFromServerSignal = registerSignal("pcktFromServerSignal");
         counter = 0;
         isListening = false;
         previousResponseSent = true;
@@ -164,18 +165,8 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *msg, bool urge
     }
     bubble("Message arrived from server");
     // TODO Understand why the ClientEvilComp disconnects after the last connect message is sent (even with 3 clients)
-    // TODO When some data arrives, forward it to the ServerEvilComp
-    /*
-    if (numRequestsToSend > 0) {
-        if (previousResponseSent) {
-            simtime_t d = simTime() + SimTime(par("thinkTime").intValue(), SIMTIME_MS);
-            rescheduleAfterOrDeleteTimer(d, MSGKIND_SEND);
-            previousResponseSent = false;
-        }
-    } else {
-        close();
-    }
-    */
+    // When some data arrives, forward it to the ServerEvilComp
+    emit(pcktFromServerSignal, msg);
 }
 
 }
