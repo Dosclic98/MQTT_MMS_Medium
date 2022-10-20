@@ -76,7 +76,7 @@ void MmsServer::sendBack(cMessage *msg)
     send(msg, "socketOut");
 }
 
-void MmsServer::sendPacketDeparture(int connId, B requestedBytes, B replyLength, int messageKind) {
+void MmsServer::sendPacketDeparture(int connId, int evilConnId, B requestedBytes, B replyLength, int messageKind) {
     Packet *outPacket = new Packet("Generic Data", TCP_C_SEND);
     outPacket->addTag<SocketReq>()->setSocketId(connId);
     const auto& payload = makeShared<MmsMessage>();
@@ -102,18 +102,19 @@ void MmsServer::handleDeparture()
         bytesRcvd += B(appmsg->getChunkLength()).get();
         B requestedBytes = appmsg->getExpectedReplyLength();
         if(appmsg->getMessageKind() == 0) { // Register a listener
-            clientConnIdList.push_back(connId);
+            //clientConnIdList.push_back(connId);
+            clientConnIdList.push_back({connId, appmsg->getEvilServerConnId()});
         }
         else if(appmsg->getMessageKind() == 1) { // Send data to listeners
-            for (auto const& listenerConnId : clientConnIdList) {
+            for (auto const& listener : clientConnIdList) {
                 if (requestedBytes > B(0)) {
-                    sendPacketDeparture(listenerConnId, B(100), B(0), 1);
+                    sendPacketDeparture(listener.first, listener.second, B(100), B(0), 1);
                 }
             }
         }
         else if (appmsg->getMessageKind() == 2) { // Response to Generic Request
             if (requestedBytes > B(0)) {
-                sendPacketDeparture(connId, requestedBytes, B(0), 3);
+                sendPacketDeparture(connId, appmsg->getEvilServerConnId(), requestedBytes, B(0), 3);
             }
         }
         else {
@@ -131,7 +132,10 @@ void MmsServer::handleDeparture()
         TcpCommand *cmd = new TcpCommand();
         request->addTag<SocketReq>()->setSocketId(connId);
         request->setControlInfo(cmd);
-        clientConnIdList.remove(connId);
+        //clientConnIdList.remove(connId);
+        clientConnIdList.remove_if([&](std::pair<int, int>& p) {
+            return p.first == connId;
+        });
         sendOrSchedule(request, SimTime(par("replyDelay").intValue(), SIMTIME_MS));
     }
 
@@ -177,7 +181,10 @@ void MmsServer::handleMessage(cMessage *msg)
         delete msg;
         auto request = new Request("close", TCP_C_CLOSE);
         request->addTag<SocketReq>()->setSocketId(connId);
-        clientConnIdList.remove(connId);
+        //clientConnIdList.remove(connId);
+        clientConnIdList.remove_if([&](std::pair<int, int>& p) {
+        	return p.first == connId;
+        });
         sendOrSchedule(request, SimTime(par("replyDelay").intValue(), SIMTIME_MS));
     }
     else if (msg->getKind() == TCP_I_DATA || msg->getKind() == TCP_I_URGENT_DATA) {

@@ -38,7 +38,7 @@ class INET_API MmsServer : public cSimpleModule, public LifecycleUnsupported
     long bytesRcvd;
     long bytesSent;
     std::map<int, ChunkQueue> socketQueue;
-    std::list<int> clientConnIdList;
+    std::list< std::pair<int,int> > clientConnIdList;
 
     //Gestione servitore e coda
     bool serverStatus;
@@ -59,7 +59,7 @@ class INET_API MmsServer : public cSimpleModule, public LifecycleUnsupported
     virtual void refreshDisplay() const override;
     //--
     virtual void handleDeparture();
-    virtual void sendPacketDeparture(int connId, B requestedBytes, B replyLength, int messageKind);
+    virtual void sendPacketDeparture(int connId, int evilConnId, B requestedBytes, B replyLength, int messageKind);
 };
 
 } // namespace inet
