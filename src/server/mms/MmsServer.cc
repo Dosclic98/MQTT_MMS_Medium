@@ -214,13 +214,15 @@ void MmsServer::refreshDisplay() const
     getDisplayString().setTagArg("t", 0, buf);
 }
 
-void MmsServer::finish()
-{
-    cancelAndDelete(departureEvent);
-    cancelAndDelete(sendDataEvent);
-    serverQueue.clear();
+void MmsServer::finish() {
     EV_INFO << getFullPath() << ": sent " << bytesSent << " bytes in " << msgsSent << " packets\n";
     EV_INFO << getFullPath() << ": received " << bytesRcvd << " bytes in " << msgsRcvd << " packets\n";
+}
+
+MmsServer::~MmsServer() {
+	cancelAndDelete(departureEvent);
+	cancelAndDelete(sendDataEvent);
+	serverQueue.clear();
 }
 
 } // namespace inet

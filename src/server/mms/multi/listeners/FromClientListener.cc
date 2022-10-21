@@ -51,7 +51,7 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
     		msg->setChunkLength(appmsg->getChunkLength());
     		msg->setEvilServerConnId(appmsg->getEvilServerConnId());
     		msg->setServerClose(false);
-    		msg->addTag<CreationTimeTag>()->setCreationTime(pckt->getCreationTime());
+    		msg->addTag<CreationTimeTag>()->setCreationTime(appmsg->getTag<CreationTimeTag>()->getCreationTime());
     		msg->setServerIndex(appmsg->getServerIndex());
     		if(this->parent->previousResponseSent) {
     			this->parent->msgQueue.insert(msg);
@@ -63,6 +63,7 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
     			this->parent->msgQueue.insert(msg);
     		}
 
+    		//delete pckt;
         }
     }
 }

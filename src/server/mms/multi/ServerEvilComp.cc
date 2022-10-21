@@ -54,7 +54,7 @@ void ServerEvilComp::initialize(int stage) {
         pcktFromClientSignal = registerSignal("pcktFromClientSignal");
         // Initialize the listener for the incoming server messages
         clientCompListener = new FromServerListener(this);
-        getSimulation()->getSystemModule()->subscribe("pcktFromServerSignal", clientCompListener);
+        /*getSimulation()->getSystemModule()*/getContainingNode(this)->subscribe("pcktFromServerSignal", clientCompListener);
         cModule *node = findContainingNode(this);
         NodeStatus *nodeStatus = node ? check_and_cast_nullable<NodeStatus *>(node->getSubmodule("status")) : nullptr;
         bool isOperational = (!nodeStatus) || nodeStatus->getState() == NodeStatus::UP;
@@ -63,7 +63,7 @@ void ServerEvilComp::initialize(int stage) {
     }
 }
 
-void ServerEvilComp::sendPacketDeparture(int connId, B requestedBytes, B replyLength, int messageKind, int clientConnId) {
+void ServerEvilComp::sendPacketDeparture(int connId, simtime_t fakeCreationTime, B requestedBytes, B replyLength, int messageKind, int clientConnId) {
     double p = this->uniform(0.0, 1.0);
     if (messageKind == 1) {
         if (p < 0.15) { //Block
@@ -93,16 +93,14 @@ void ServerEvilComp::sendPacketDeparture(int connId, B requestedBytes, B replyLe
     payload->setMessageKind(messageKind);
     payload->setChunkLength(requestedBytes);
     payload->setExpectedReplyLength(replyLength);
-    payload->addTag<CreationTimeTag>()->setCreationTime(simTime());
+    payload->addTag<CreationTimeTag>()->setCreationTime(fakeCreationTime);
     payload->setConnId(clientConnId);
     payload->setServerClose(false);
     outPacket->insertAtBack(payload);
     sendOrSchedule(outPacket, SimTime(par("replyDelay").doubleValue(), SIMTIME_MS));
 }
 
-void ServerEvilComp::handleDeparture()
-{
-	// TODO Understand why there is an empty chunk error
+void ServerEvilComp::handleDeparture() {
     Packet *packet = check_and_cast<Packet *>(serverQueue.pop());
     int connId = packet->getTag<SocketInd>()->getSocketId();
     ChunkQueue &queue = socketQueue[connId];
@@ -113,37 +111,40 @@ void ServerEvilComp::handleDeparture()
     while (const auto& appmsg = queue.pop<MmsMessage>(b(-1), Chunk::PF_ALLOW_NULLPTR)) {
         msgsRcvd++;
         bytesRcvd += B(appmsg->getChunkLength()).get();
-        B requestedBytes = appmsg->getExpectedReplyLength();
+        // I set the chunk length as response length because we must forward the data
+        B requestedBytes = appmsg->getChunkLength();
         if(appmsg->getMessageKind() == 0) { // Register listener
-            if(serverConnId != -999) sendPacketDeparture(serverConnId, B(100), B(100), 0, connId);
+            if(serverConnId != -999) sendPacketDeparture(serverConnId, appmsg->getTag<CreationTimeTag>()->getCreationTime(), B(100), B(100), 0, connId);
             else {
                 MmsMessage msg;
                 msg.setMessageKind(appmsg->getMessageKind());
                 msg.setConnId(connId);
                 msg.setExpectedReplyLength(appmsg->getExpectedReplyLength());
+                msg.addTag<CreationTimeTag>()->setCreationTime(appmsg->getTag<CreationTimeTag>()->getCreationTime());
                 msg.setChunkLength(appmsg->getChunkLength());
                 delayedPkts.push_back(msg);
             }
         }
-        else if(appmsg->getMessageKind() == 1) sendPacketDeparture(appmsg->getConnId(), requestedBytes, B(0), 1, -1);
+        else if(appmsg->getMessageKind() == 1) sendPacketDeparture(appmsg->getConnId(), appmsg->getTag<CreationTimeTag>()->getCreationTime(), requestedBytes, B(0), 1, -1);
         else if (appmsg->getMessageKind() == 2){ // Generic Request From Client
-            if(serverConnId != -999) sendPacketDeparture(serverConnId, B(100), B(100), 2, connId);
+            if(serverConnId != -999) sendPacketDeparture(serverConnId, appmsg->getTag<CreationTimeTag>()->getCreationTime(), B(100), B(100), 2, connId);
             else {
                 MmsMessage msg;
                 msg.setMessageKind(appmsg->getMessageKind());
                 msg.setConnId(connId);
                 msg.setExpectedReplyLength(appmsg->getExpectedReplyLength());
+                msg.addTag<CreationTimeTag>()->setCreationTime(appmsg->getTag<CreationTimeTag>()->getCreationTime());
                 msg.setChunkLength(appmsg->getChunkLength());
                 delayedPkts.push_back(msg);
             }
         }
         else if (appmsg->getMessageKind() == 3) { //Generic Response From Server
-            if (requestedBytes > B(0)) sendPacketDeparture(appmsg->getConnId(), B(100), B(100), 3, -1);
+            if (requestedBytes > B(0)) sendPacketDeparture(appmsg->getConnId(), appmsg->getTag<CreationTimeTag>()->getCreationTime(), B(100), B(100), 3, -1);
         }
         else if(appmsg->getMessageKind() == 99) { //Server ID
             serverConnId = connId;
             for(auto msg : delayedPkts) { // Send all Delayed Packets
-                sendPacketDeparture(serverConnId, B(100), B(100), msg.getMessageKind(), msg.getConnId());
+                sendPacketDeparture(serverConnId, appmsg->getTag<CreationTimeTag>()->getCreationTime(), B(100), B(100), msg.getMessageKind(), msg.getConnId());
             }
             delayedPkts.clear();
         }
@@ -218,9 +219,9 @@ void ServerEvilComp::handleMessage(cMessage *msg)
 // Extracts the packet from the queue and unpack the MMS encapsulated packet inserting the connId
 // before forwarding it to the ClientEvilComp
 void ServerEvilComp::handleForward() {
-	Packet* packet = check_and_cast<Packet*>(forwardQueue->pop());
-	int connId = packet->getTag<SocketInd>()->getSocketId();
-	auto chunk = packet->peekDataAt(B(0), packet->getTotalLength());
+	Packet* pckt = check_and_cast<Packet*>(forwardQueue->pop());
+	int connId = pckt->getTag<SocketInd>()->getSocketId();
+	auto chunk = pckt->peekDataAt(B(0), pckt->getTotalLength());
 	ChunkQueue &queue = socketQueue[connId];
 	queue.push(chunk);
 	while (const auto& appmsg = queue.pop<MmsMessage>(b(-1), Chunk::PF_ALLOW_NULLPTR)) {
@@ -232,7 +233,7 @@ void ServerEvilComp::handleForward() {
 		msg->setChunkLength(appmsg->getChunkLength());
 		msg->setEvilServerConnId(connId);
 		msg->setServerClose(false);
-		msg->addTag<CreationTimeTag>()->setCreationTime(packet->getCreationTime());
+		msg->addTag<CreationTimeTag>()->setCreationTime(appmsg->getTag<CreationTimeTag>()->getCreationTime());
 		msg->setServerIndex(appmsg->getServerIndex());
 		packet->insertAtBack(msg);
 		emit(pcktFromClientSignal, packet);
@@ -243,17 +244,20 @@ void ServerEvilComp::handleForward() {
 			scheduleAt(simTime() + SimTime(par("forwardDelay").intValue(), SIMTIME_US), forwardEvent);
 		} else forwardStatus = false;
 	}
+	delete pckt;
 }
 
-void ServerEvilComp::finish()
-{
+void ServerEvilComp::finish() {
+    EV_INFO << getFullPath() << ": sent " << bytesSent << " bytes in " << msgsSent << " packets\n";
+    EV_INFO << getFullPath() << ": received " << bytesRcvd << " bytes in " << msgsRcvd << " packets\n";
+}
+
+ServerEvilComp::~ServerEvilComp() {
     cancelAndDelete(departureEvent);
     cancelAndDelete(forwardEvent);
     serverQueue.clear();
     forwardQueue->clear();
     delete forwardQueue;
-    EV_INFO << getFullPath() << ": sent " << bytesSent << " bytes in " << msgsSent << " packets\n";
-    EV_INFO << getFullPath() << ": received " << bytesRcvd << " bytes in " << msgsRcvd << " packets\n";
 }
 
 }

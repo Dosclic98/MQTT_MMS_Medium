@@ -31,6 +31,10 @@ namespace inet {
 
 Define_Module(ClientEvilComp);
 
+ClientEvilComp::~ClientEvilComp() {
+    cancelAndDelete(topicAmountEvent);
+}
+
 void ClientEvilComp::initialize(int stage)
 {
     TcpAppBase::initialize(stage);
@@ -55,7 +59,7 @@ void ClientEvilComp::initialize(int stage)
         // Initialize listener and subscribe to the serverComp forwarding signal
         serverCompListener = new FromClientListener(this);
         sendMsgEvent = new cMessage("Send message event");
-        getSimulation()->getSystemModule()->subscribe("pcktFromClientSignal", serverCompListener);
+        /*getSimulation()->getSystemModule()*/getContainingNode(this)->subscribe("pcktFromClientSignal", serverCompListener);
         scheduleAt(simTime() + SimTime(3, SIMTIME_S), topicAmountEvent);
     }
 }
@@ -77,7 +81,7 @@ void ClientEvilComp::sendRequest()
         payload->setExpectedReplyLength(B(replyLength));
         payload->setServerClose(msg->getServerClose());
         // TODO This is not correct, the real packet creation time must be set
-        payload->addTag<CreationTimeTag>()->setCreationTime(simTime());
+        payload->addTag<CreationTimeTag>()->setCreationTime(msg->getTag<CreationTimeTag>()->getCreationTime());
         // TODO Maybe store the clients who are are listening based on the messages with kind 0 received
         payload->setMessageKind(msg->getMessageKind());
         payload->setEvilServerConnId(msg->getEvilServerConnId());
@@ -103,6 +107,8 @@ void ClientEvilComp::sendRequest()
         } else {
         	previousResponseSent = true;
         }
+
+        delete msg;
     }
 }
 
@@ -145,24 +151,21 @@ void ClientEvilComp::socketEstablished(TcpSocket *socket)
 
     // TODO When the connection is established wait for the ServerComp to forward packets the forward them
     // perform first request if not already done (next one will be sent when reply arrives)
-    /*
-    if (!earlySend)
-    	sendRequest();
-	*/
 }
 
-void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent) {
-    TcpAppBase::socketDataArrived(socket, msg, urgent);
+void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urgent) {
+    TcpAppBase::socketDataArrived(socket, pckt, urgent);
 
     if (socket->getState() == TcpSocket::LOCALLY_CLOSED) {
         EV_INFO << "reply to last request arrived, closing session\n";
         close();
         return;
     }
-    auto chunk = msg->peekDataAt(B(0), msg->getTotalLength());
+    // TODO Solve the Seg fault reading this chunk while using Express mode in Qtenv or in Cmdenv
+    auto chunk = pckt->peekDataAt(B(0), pckt->getTotalLength());
     queue.push(chunk);
     while (const auto& appmsg = queue.pop<MmsMessage>(b(-1), Chunk::PF_ALLOW_NULLPTR)) {
-        counter++;
+    	counter++;
         if (appmsg->getMessageKind() == 3) emit(genericResponseSignal, true);
 		const auto& msg = makeShared<MmsMessage>();
 		Packet *packet = new Packet("data");
@@ -172,7 +175,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *msg, bool urge
 		msg->setChunkLength(appmsg->getChunkLength());
 		msg->setEvilServerConnId(appmsg->getEvilServerConnId());
 		msg->setServerClose(false);
-		msg->addTag<CreationTimeTag>()->setCreationTime(packet->getCreationTime());
+		msg->addTag<CreationTimeTag>()->setCreationTime(appmsg->getTag<CreationTimeTag>()->getCreationTime());
 		msg->setServerIndex(appmsg->getServerIndex());
 		packet->insertAtBack(msg);
 		packet->addTag<SocketInd>()->setSocketId(appmsg->getEvilServerConnId());
@@ -182,7 +185,6 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *msg, bool urge
 		bubble("Message arrived from server");
 		emit(pcktFromServerSignal, packet);
     }
-
     // TODO Understand why the ClientEvilComp disconnects after the last connect message is sent (even with 3 clients)
     // When some data arrives, forward it to the ServerEvilComp
 }

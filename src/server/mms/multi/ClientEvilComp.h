@@ -33,6 +33,8 @@ public:
 	cMessage* sendMsgEvent;
 	virtual void rescheduleAfterOrDeleteTimer(simtime_t d, short int msgKind) override;
 
+	virtual ~ClientEvilComp();
+
 
 protected:
 	//Gestione conteggio pacchetti nel range temporale

@@ -60,6 +60,9 @@ class INET_API MmsServer : public cSimpleModule, public LifecycleUnsupported
     //--
     virtual void handleDeparture();
     virtual void sendPacketDeparture(int connId, int evilConnId, B requestedBytes, B replyLength, int messageKind);
+
+  public:
+    virtual ~MmsServer();
 };
 
 } // namespace inet
