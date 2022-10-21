@@ -53,7 +53,7 @@ void ServerEvilComp::initialize(int stage) {
         genericResponseCompromisedSignal = registerSignal("genericResponseCompromisedSignal");
         pcktFromClientSignal = registerSignal("pcktFromClientSignal");
         // Initialize the listener for the incoming server messages
-        FromServerListener* clientCompListener = new FromServerListener(this);
+        clientCompListener = new FromServerListener(this);
         getSimulation()->getSystemModule()->subscribe("pcktFromServerSignal", clientCompListener);
         cModule *node = findContainingNode(this);
         NodeStatus *nodeStatus = node ? check_and_cast_nullable<NodeStatus *>(node->getSubmodule("status")) : nullptr;
@@ -68,21 +68,21 @@ void ServerEvilComp::sendPacketDeparture(int connId, B requestedBytes, B replyLe
     if (messageKind == 1) {
         if (p < 0.15) { //Block
             emit(measureBlockSignal, true);
-            return;
+            //return;
         } else if (p < 0.4){ //Compromise
             emit(measureCompromisedSignal, true);
         }
     } else if(messageKind == 2) {
         if (p < 0.2) { // Block
             emit(genericRequestBlockSignal, true);
-            return;
+            //return;
         } else if (p < 0.8) { // Compromise
             emit(genericRequestCompromisedSignal, true);
         }
     } else if (messageKind == 3) {
         if (p < 0.1) { // Block
             emit(genericResponseBlockSignal, true);
-            return;
+            //return;
         } else if (p < 0.6) { // Compromise
             emit(genericResponseCompromisedSignal, true);
         }
@@ -102,6 +102,7 @@ void ServerEvilComp::sendPacketDeparture(int connId, B requestedBytes, B replyLe
 
 void ServerEvilComp::handleDeparture()
 {
+	// TODO Understand why there is an empty chunk error
     Packet *packet = check_and_cast<Packet *>(serverQueue.pop());
     int connId = packet->getTag<SocketInd>()->getSocketId();
     ChunkQueue &queue = socketQueue[connId];

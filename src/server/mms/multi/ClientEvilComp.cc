@@ -21,6 +21,7 @@
 #include "inet/common/lifecycle/ModuleOperations.h"
 #include "inet/common/packet/Packet.h"
 #include "inet/common/TimeTag_m.h"
+#include "inet/common/socket/SocketTag_m.h"
 
 
 namespace inet {
@@ -79,6 +80,7 @@ void ClientEvilComp::sendRequest()
         payload->addTag<CreationTimeTag>()->setCreationTime(simTime());
         // TODO Maybe store the clients who are are listening based on the messages with kind 0 received
         payload->setMessageKind(msg->getMessageKind());
+        payload->setEvilServerConnId(msg->getEvilServerConnId());
         /*
         if(!isListening) {
         	// Connect kind
@@ -162,11 +164,27 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *msg, bool urge
     while (const auto& appmsg = queue.pop<MmsMessage>(b(-1), Chunk::PF_ALLOW_NULLPTR)) {
         counter++;
         if (appmsg->getMessageKind() == 3) emit(genericResponseSignal, true);
+		const auto& msg = makeShared<MmsMessage>();
+		Packet *packet = new Packet("data");
+		msg->setMessageKind(appmsg->getMessageKind());
+		msg->setConnId(appmsg->getEvilServerConnId());
+		msg->setExpectedReplyLength(appmsg->getExpectedReplyLength());
+		msg->setChunkLength(appmsg->getChunkLength());
+		msg->setEvilServerConnId(appmsg->getEvilServerConnId());
+		msg->setServerClose(false);
+		msg->addTag<CreationTimeTag>()->setCreationTime(packet->getCreationTime());
+		msg->setServerIndex(appmsg->getServerIndex());
+		packet->insertAtBack(msg);
+		packet->addTag<SocketInd>()->setSocketId(appmsg->getEvilServerConnId());
+		bubble("Sent to internal client!");
+		EV_INFO << "Conn ID:" << msg->getEvilServerConnId() << "\n";
+
+		bubble("Message arrived from server");
+		emit(pcktFromServerSignal, packet);
     }
-    bubble("Message arrived from server");
+
     // TODO Understand why the ClientEvilComp disconnects after the last connect message is sent (even with 3 clients)
     // When some data arrives, forward it to the ServerEvilComp
-    emit(pcktFromServerSignal, msg);
 }
 
 }

@@ -40,6 +40,7 @@ protected:
 	cMessage* topicAmountEvent;
 	simsignal_t topicAmount;
 	ChunkQueue queue;
+	ChunkQueue tmpQueue;
 	FromClientListener* serverCompListener;
 
 	// Gestione segnali canali interni

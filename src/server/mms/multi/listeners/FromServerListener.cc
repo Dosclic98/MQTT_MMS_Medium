@@ -34,8 +34,9 @@ FromServerListener::~FromServerListener()
 }
 
 void FromServerListener::receiveSignal(cComponent *source, simsignal_t signalID, cObject* value, cObject *obj) {
+	this->parent->bubble("Message from server!");
 	Packet* pckt = check_and_cast<Packet*>(value);
-	if(this->parent->evilServerStatus) {
+	if(!this->parent->evilServerStatus) {
 		this->parent->evilServerStatus = true;
 		this->parent->serverQueue.insert(pckt);
 		this->parent->scheduleAt(simTime() + SimTime(this->parent->par("serviceTime").intValue(), SIMTIME_MS), this->parent->departureEvent);

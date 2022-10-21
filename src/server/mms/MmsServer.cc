@@ -84,6 +84,7 @@ void MmsServer::sendPacketDeparture(int connId, int evilConnId, B requestedBytes
     payload->setChunkLength(requestedBytes);
     payload->setExpectedReplyLength(replyLength);
     payload->addTag<CreationTimeTag>()->setCreationTime(simTime());
+    payload->setEvilServerConnId(evilConnId);
     outPacket->insertAtBack(payload);
     sendOrSchedule(outPacket, SimTime(par("replyDelay").intValue(), SIMTIME_MS));
 }

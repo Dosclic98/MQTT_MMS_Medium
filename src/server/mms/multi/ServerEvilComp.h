@@ -57,6 +57,7 @@ class INET_API ServerEvilComp : public TcpGenericServerApp {
 		bool forwardStatus;
 		cQueue* forwardQueue;
 		cMessage* forwardEvent;
+		ChunkQueue tmpQueue;
 
 		//Gestione pacchetti da inviare al server
 		std::list<MmsMessage> delayedPkts;
