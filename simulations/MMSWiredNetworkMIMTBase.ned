@@ -23,14 +23,13 @@ import inet.node.ethernet.*;
 network MMSWiredNetworkMIMTBase {
 	parameters:
 		int numClients = default(3);
+		int numServers = default(1);
 		
 	submodules:
 	    configurator: Ipv4NetworkConfigurator;
 	    client[numClients]: StandardHost;
 	    evilClient: StandardHost;
-	    server: StandardHost {
-            @display("p=157,30");
-        }
+	    server[numServers]: StandardHost;
         router: Router {
             @display("p=157,128");
         }
@@ -40,10 +39,12 @@ network MMSWiredNetworkMIMTBase {
     
     connections:
         switch.ethg++ <--> Eth1G <--> router.ethg++;
-        router.pppg++ <--> { datarate = 1Gbps; } <--> server.pppg++;
         evilClient.ethg++ <--> Eth1G <--> router.ethg++;
         for i = 0..numClients-1 {
         	client[i].ethg++ <--> Eth1G <--> switch.ethg++;
+        }
+        for j = 0..numServers-1 {
+        	router.pppg++ <--> { datarate = 1Gbps; } <--> server[j].pppg++;
         }
 	
 }

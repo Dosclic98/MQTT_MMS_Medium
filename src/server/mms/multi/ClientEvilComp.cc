@@ -161,7 +161,8 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
         close();
         return;
     }
-    // TODO Solve the Seg fault reading this chunk while using Express mode in Qtenv or in Cmdenv
+    // TODO Solve the Seg fault reading this chunk while using Express mode in Qtenv or Cmdenv
+
     auto chunk = pckt->peekDataAt(B(0), pckt->getTotalLength());
     queue.push(chunk);
     while (const auto& appmsg = queue.pop<MmsMessage>(b(-1), Chunk::PF_ALLOW_NULLPTR)) {

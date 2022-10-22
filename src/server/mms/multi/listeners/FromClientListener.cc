@@ -63,6 +63,8 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
     			this->parent->msgQueue.insert(msg);
     		}
 
+    		// TODO Uncomment this line after renewing the signaling system using wildcards so
+    		// there is no risk that a packet gets destroyed while another app is reading it
     		//delete pckt;
         }
     }

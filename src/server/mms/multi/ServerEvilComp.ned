@@ -42,5 +42,5 @@ simple ServerEvilComp extends TcpGenericServerApp {
         @signal[genericResponseCompromisedSignal](type=bool);
         @statistic[genericResponseCompromised](source=genericResponseCompromisedSignal; record=count);
         
-        @signal[pcktFromClientSignal](type=cObject*);
+        @signal[pcktFromClientSignal](type=Packet);
 }
