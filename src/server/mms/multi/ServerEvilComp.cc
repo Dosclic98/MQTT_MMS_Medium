@@ -51,7 +51,13 @@ void ServerEvilComp::initialize(int stage) {
         genericRequestCompromisedSignal = registerSignal("genericRequestCompromisedSignal");
         genericResponseBlockSignal = registerSignal("genericResponseBlockSignal");
         genericResponseCompromisedSignal = registerSignal("genericResponseCompromisedSignal");
-        pcktFromClientSignal = registerSignal("pcktFromClientSignal");
+        int numApps = getContainingNode(this)->par("numApps").intValue();
+        pcktFromClientSignal = new simsignal_t[numApps-1];
+        for(int i = 0; i < numApps-1; i++) {
+        	char strSig[30];
+        	sprintf(strSig, "pcktFromClientSignal-%d", i);
+        	pcktFromClientSignal[i] = registerSignal(strSig);
+        }
         // Initialize the listener for the incoming server messages
         clientCompListener = new FromServerListener(this);
         /*getSimulation()->getSystemModule()*/getContainingNode(this)->subscribe("pcktFromServerSignal", clientCompListener);
@@ -236,7 +242,7 @@ void ServerEvilComp::handleForward() {
 		msg->addTag<CreationTimeTag>()->setCreationTime(appmsg->getTag<CreationTimeTag>()->getCreationTime());
 		msg->setServerIndex(appmsg->getServerIndex());
 		packet->insertAtBack(msg);
-		emit(pcktFromClientSignal, packet);
+		emit(pcktFromClientSignal[appmsg->getServerIndex()], packet);
 		bubble("Sent to internal client!");
 		EV_INFO << "Conn ID:" << msg->getEvilServerConnId() << "\n";
 
@@ -258,6 +264,7 @@ ServerEvilComp::~ServerEvilComp() {
     serverQueue.clear();
     forwardQueue->clear();
     delete forwardQueue;
+    delete pcktFromClientSignal;
 }
 
 }

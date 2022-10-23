@@ -50,10 +50,6 @@ class INET_API ServerEvilComp : public TcpGenericServerApp {
 		simsignal_t genericResponseBlockSignal;
 		simsignal_t genericResponseCompromisedSignal;
 
-		// Gestione segnali canali interni
-		simsignal_t pcktFromClientSignal;
-		FromServerListener* clientCompListener;
-
 		//Gestione servitore e coda
 		bool forwardStatus;
 		cQueue* forwardQueue;
@@ -62,6 +58,10 @@ class INET_API ServerEvilComp : public TcpGenericServerApp {
 
 		//Gestione pacchetti da inviare al server
 		std::list<MmsMessage> delayedPkts;
+
+		// Gestione segnali canali interni
+		FromServerListener* clientCompListener;
+		simsignal_t* pcktFromClientSignal;
 
 
 	protected:

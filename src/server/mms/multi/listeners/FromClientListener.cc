@@ -42,6 +42,7 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
     auto chunk = pckt->peekDataAt(B(0), pckt->getTotalLength());
     queue.push(chunk);
     while (const auto& appmsg = queue.pop<MmsMessage>(b(-1), Chunk::PF_ALLOW_NULLPTR)) {
+    	// TODO This is a redundant check, it could be removed
         if(appmsg->getServerIndex() == this->parent->getIndex()) {
         	// Add to the forward to the server queue
     		MmsMessage* msg = new MmsMessage();
@@ -63,9 +64,7 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
     			this->parent->msgQueue.insert(msg);
     		}
 
-    		// TODO Uncomment this line after renewing the signaling system using wildcards so
-    		// there is no risk that a packet gets destroyed while another app is reading it
-    		//delete pckt;
+    		delete pckt;
         }
     }
 }

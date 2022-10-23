@@ -59,7 +59,9 @@ void ClientEvilComp::initialize(int stage)
         // Initialize listener and subscribe to the serverComp forwarding signal
         serverCompListener = new FromClientListener(this);
         sendMsgEvent = new cMessage("Send message event");
-        /*getSimulation()->getSystemModule()*/getContainingNode(this)->subscribe("pcktFromClientSignal", serverCompListener);
+        char strSig[30];
+        sprintf(strSig, "pcktFromClientSignal-%d", this->getIndex());
+        /*getSimulation()->getSystemModule()*/getContainingNode(this)->subscribe(strSig, serverCompListener);
         scheduleAt(simTime() + SimTime(3, SIMTIME_S), topicAmountEvent);
     }
 }
