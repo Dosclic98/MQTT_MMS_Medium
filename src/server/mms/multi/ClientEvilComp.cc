@@ -117,7 +117,6 @@ void ClientEvilComp::handleTimer(cMessage *msg)
 {
     switch (msg->getKind()) {
         case MSGKIND_CONNECT:
-        	bubble("MSG_KING_CONNECT!");
             connect();
             if (earlySend)
                 sendRequest();
@@ -138,7 +137,6 @@ void ClientEvilComp::socketEstablished(TcpSocket *socket)
 
     // TODO When the connection is established wait for the ServerComp to forward packets the forward them
     // perform first request if not already done (next one will be sent when reply arrives)
-    bubble("ESTAB!");
 }
 
 void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urgent) {
