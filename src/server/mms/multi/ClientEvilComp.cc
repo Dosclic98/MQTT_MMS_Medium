@@ -31,9 +31,7 @@ namespace inet {
 
 Define_Module(ClientEvilComp);
 
-ClientEvilComp::~ClientEvilComp() {
-    cancelAndDelete(topicAmountEvent);
-}
+ClientEvilComp::~ClientEvilComp() { }
 
 void ClientEvilComp::initialize(int stage)
 {
@@ -49,11 +47,8 @@ void ClientEvilComp::initialize(int stage)
             throw cRuntimeError("Invalid startTime/stopTime parameters");
         timeoutMsg = new cMessage("timer");
 
-        topicAmountEvent = new cMessage("Topic Amount Event");
-        topicAmount = registerSignal("topicAmount");
         genericResponseSignal = registerSignal("genericResponseSignal");
         pcktFromServerSignal = registerSignal("pcktFromServerSignal");
-        counter = 0;
         isListening = false;
         previousResponseSent = true;
         // Initialize listener and subscribe to the serverComp forwarding signal
@@ -62,7 +57,6 @@ void ClientEvilComp::initialize(int stage)
         char strSig[30];
         sprintf(strSig, "pcktFromClientSignal-%d", this->getIndex());
         /*getSimulation()->getSystemModule()*/getContainingNode(this)->subscribe(strSig, serverCompListener);
-        scheduleAt(simTime() + SimTime(3, SIMTIME_S), topicAmountEvent);
     }
 }
 
@@ -87,17 +81,6 @@ void ClientEvilComp::sendRequest()
         // TODO Maybe store the clients who are are listening based on the messages with kind 0 received
         payload->setMessageKind(msg->getMessageKind());
         payload->setEvilServerConnId(msg->getEvilServerConnId());
-        /*
-        if(!isListening) {
-        	// Connect kind
-            payload->setMessageKind(0);
-            isListening = true;
-        }
-        else {
-            previousResponseSent = true;
-            payload->setMessageKind(2);
-        }
-		*/
         packet->insertAtBack(payload);
 
         sendPacket(packet);
@@ -114,9 +97,10 @@ void ClientEvilComp::sendRequest()
     }
 }
 
+
 void ClientEvilComp::rescheduleAfterOrDeleteTimer(simtime_t d, short int msgKind) {
 	// Necessary because called from another module
-	Enter_Method("");
+	//Enter_Method("");
     cancelEvent(timeoutMsg);
 
     if (stopTime < SIMTIME_ZERO || d < stopTime) {
@@ -133,6 +117,7 @@ void ClientEvilComp::handleTimer(cMessage *msg)
 {
     switch (msg->getKind()) {
         case MSGKIND_CONNECT:
+        	bubble("MSG_KING_CONNECT!");
             connect();
             if (earlySend)
                 sendRequest();
@@ -153,6 +138,7 @@ void ClientEvilComp::socketEstablished(TcpSocket *socket)
 
     // TODO When the connection is established wait for the ServerComp to forward packets the forward them
     // perform first request if not already done (next one will be sent when reply arrives)
+    bubble("ESTAB!");
 }
 
 void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urgent) {
@@ -168,7 +154,6 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
     auto chunk = pckt->peekDataAt(B(0), pckt->getTotalLength());
     queue.push(chunk);
     while (const auto& appmsg = queue.pop<MmsMessage>(b(-1), Chunk::PF_ALLOW_NULLPTR)) {
-    	counter++;
         if (appmsg->getMessageKind() == 3) emit(genericResponseSignal, true);
 		const auto& msg = makeShared<MmsMessage>();
 		Packet *packet = new Packet("data");
@@ -177,7 +162,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 		msg->setExpectedReplyLength(appmsg->getExpectedReplyLength());
 		msg->setChunkLength(appmsg->getChunkLength());
 		msg->setEvilServerConnId(appmsg->getEvilServerConnId());
-		msg->setServerClose(false);
+		msg->setServerClose(appmsg->getServerClose());
 		msg->addTag<CreationTimeTag>()->setCreationTime(appmsg->getTag<CreationTimeTag>()->getCreationTime());
 		msg->setServerIndex(appmsg->getServerIndex());
 		packet->insertAtBack(msg);
@@ -188,8 +173,6 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 		bubble("Message arrived from server");
 		emit(pcktFromServerSignal, packet);
     }
-    // TODO Understand why the ClientEvilComp disconnects after the last connect message is sent (even with 3 clients)
-    // When some data arrives, forward it to the ServerEvilComp
 }
 
 }

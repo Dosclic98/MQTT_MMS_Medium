@@ -37,10 +37,6 @@ public:
 
 
 protected:
-	//Gestione conteggio pacchetti nel range temporale
-	int counter;
-	cMessage* topicAmountEvent;
-	simsignal_t topicAmount;
 	ChunkQueue queue;
 	ChunkQueue tmpQueue;
 	FromClientListener* serverCompListener;
