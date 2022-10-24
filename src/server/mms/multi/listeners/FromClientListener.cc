@@ -49,7 +49,7 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 		msg->setExpectedReplyLength(appmsg->getExpectedReplyLength());
 		msg->setChunkLength(appmsg->getChunkLength());
 		msg->setEvilServerConnId(appmsg->getEvilServerConnId());
-		msg->setServerClose(false);
+		msg->setServerClose(appmsg->getServerClose());
 		msg->addTag<CreationTimeTag>()->setCreationTime(appmsg->getTag<CreationTimeTag>()->getCreationTime());
 		msg->setServerIndex(appmsg->getServerIndex());
 		if(this->parent->previousResponseSent) {

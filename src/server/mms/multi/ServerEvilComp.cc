@@ -203,14 +203,6 @@ void ServerEvilComp::handleMessage(cMessage *msg)
     		forwardQueue->insert(msg);
     		scheduleAt(simTime() + SimTime(par("forwardDelay").intValue(), SIMTIME_US), forwardEvent);
     	} else forwardQueue->insert(msg);
-        /*
-    	if(!evilServerStatus) {
-            evilServerStatus = true;
-            serverQueue.insert(msg);
-            scheduleAt(simTime() + SimTime(par("serviceTime").intValue(), SIMTIME_MS), departureEvent);
-        }
-        else serverQueue.insert(msg);
-        */
     }
     else if (msg->getKind() == TCP_I_AVAILABLE)
         socket.processMessage(msg);
@@ -238,7 +230,7 @@ void ServerEvilComp::handleForward() {
 		msg->setExpectedReplyLength(appmsg->getExpectedReplyLength());
 		msg->setChunkLength(appmsg->getChunkLength());
 		msg->setEvilServerConnId(connId);
-		msg->setServerClose(false);
+		msg->setServerClose(appmsg->getServerClose());
 		msg->addTag<CreationTimeTag>()->setCreationTime(appmsg->getTag<CreationTimeTag>()->getCreationTime());
 		msg->setServerIndex(appmsg->getServerIndex());
 		packet->insertAtBack(msg);

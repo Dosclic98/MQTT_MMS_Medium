@@ -49,7 +49,6 @@ void ClientEvilComp::initialize(int stage)
 
         genericResponseSignal = registerSignal("genericResponseSignal");
         pcktFromServerSignal = registerSignal("pcktFromServerSignal");
-        isListening = false;
         previousResponseSent = true;
         // Initialize listener and subscribe to the serverComp forwarding signal
         serverCompListener = new FromClientListener(this);
