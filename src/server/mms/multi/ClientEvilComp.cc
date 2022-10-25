@@ -75,9 +75,7 @@ void ClientEvilComp::sendRequest()
         payload->setChunkLength(B(requestLength));
         payload->setExpectedReplyLength(B(replyLength));
         payload->setServerClose(msg->getServerClose());
-        // TODO This is not correct, the real packet creation time must be set
         payload->addTag<CreationTimeTag>()->setCreationTime(msg->getTag<CreationTimeTag>()->getCreationTime());
-        // TODO Maybe store the clients who are are listening based on the messages with kind 0 received
         payload->setMessageKind(msg->getMessageKind());
         payload->setEvilServerConnId(msg->getEvilServerConnId());
         packet->insertAtBack(payload);
@@ -147,7 +145,6 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
         return;
     }
     // TODO Solve the Seg fault reading this chunk while using Express mode in Qtenv or Cmdenv
-
     auto chunk = pckt->peekDataAt(B(0), pckt->getTotalLength());
     queue.push(chunk);
     while (const auto& appmsg = queue.pop<MmsMessage>(b(-1), Chunk::PF_ALLOW_NULLPTR)) {
