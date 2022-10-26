@@ -15,25 +15,36 @@
 
 package tx_medium_exp.simulations;
 
-import inet.node.inet.WirelessHost;
+import inet.node.inet.StandardHost;
 import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 import inet.node.inet.Router;
-import inet.node.wireless.AccessPoint;
-import inet.physicallayer.wireless.ieee80211.packetlevel.Ieee80211RadioMedium;
 import inet.node.ethernet.*;
-import inet.physicallayer.wireless.noise.NoiseSource;
-import inet.visualizer.canvas.integrated.IntegratedCanvasVisualizer;
 
-network MMSWirelessNetworkMIMTBase {
-    parameters:
-        int numClients = default(1);
-    
+network MMSWiredNetworkMITMBase {
+	parameters:
+		int numClients = default(3);
+		int numServers = default(1);
+		
 	submodules:
-	    visualizer: IntegratedCanvasVisualizer { @display("p=450,50"); }
 	    configurator: Ipv4NetworkConfigurator;
-	    radioMedium: Ieee80211RadioMedium { @display("p=300,50"); }
-	    client[numClients]: WirelessHost { @display("p=200,200"); }
-	    evilClient: WirelessHost { @display("p=200,200"); }
-	    server: WirelessHost { @display("p=600,215"); }
-	    accessPoint: AccessPoint { @display("p=374,215"); }
+	    client[numClients]: StandardHost;
+	    evilClient: StandardHost;
+	    server[numServers]: StandardHost;
+        router: Router {
+            @display("p=157,128");
+        }
+        switch: EthernetSwitch {
+            @display("p=157,213");
+        }
+    
+    connections:
+        switch.ethg++ <--> Eth1G <--> router.ethg++;
+        evilClient.ethg++ <--> Eth1G <--> router.ethg++;
+        for i = 0..numClients-1 {
+        	client[i].ethg++ <--> Eth1G <--> switch.ethg++;
+        }
+        for j = 0..numServers-1 {
+        	router.pppg++ <--> { datarate = 1Gbps; } <--> server[j].pppg++;
+        }
+	
 }

@@ -25,11 +25,12 @@ import inet.physicallayer.wireless.noise.NoiseSource;
 import inet.visualizer.canvas.integrated.IntegratedCanvasVisualizer;
 import inet.node.inet.StandardHost;
 
-network MMSWiredWirelessNetworkMIMTBase
+network MMSWiredWirelessNetworkMITMBase
 {
     parameters:
         int numWiredClients = default(1);
         int numWirelessClients = default(1);
+        int numServers = default(1);
 
     submodules:
         visualizer: IntegratedCanvasVisualizer {
@@ -46,7 +47,7 @@ network MMSWiredWirelessNetworkMIMTBase
         evilClient: StandardHost {
             @display("p=374,57");
         }
-        server: StandardHost {
+        server[numServers]: StandardHost {
             @display("p=589,142");
         }
         accessPoint: AccessPoint {
@@ -61,10 +62,12 @@ network MMSWiredWirelessNetworkMIMTBase
 
     connections:
         switch.ethg++ <--> Eth1G <--> router.ethg++;
-        router.pppg++ <--> {  datarate = 1Gbps; } <--> server.pppg++;
         evilClient.ethg++ <--> Eth1G <--> router.ethg++;
         accessPoint.ethg++ <--> Eth1G <--> router.ethg++;
         for i=0..numWiredClients-1 {
             wiredClient[i].ethg++ <--> Eth1G <--> switch.ethg++;
+        }
+        for j=0..numServers-1 {
+        	router.pppg++ <--> {  datarate = 1Gbps; } <--> server[j].pppg++;
         }
 }
