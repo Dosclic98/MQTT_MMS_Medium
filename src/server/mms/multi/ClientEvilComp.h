@@ -32,6 +32,7 @@ public:
 	bool previousResponseSent;
 	cMessage* sendMsgEvent;
 	virtual void rescheduleAfterOrDeleteTimer(simtime_t d, short int msgKind) override;
+	virtual int getConnectionState();
 
 	virtual ~ClientEvilComp();
 

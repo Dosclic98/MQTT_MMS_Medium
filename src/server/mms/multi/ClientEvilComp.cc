@@ -97,7 +97,6 @@ void ClientEvilComp::sendRequest()
 
 void ClientEvilComp::rescheduleAfterOrDeleteTimer(simtime_t d, short int msgKind) {
 	// Necessary because called from another module
-	//Enter_Method("");
     cancelEvent(timeoutMsg);
 
     if (stopTime < SIMTIME_ZERO || d < stopTime) {
@@ -132,8 +131,16 @@ void ClientEvilComp::socketEstablished(TcpSocket *socket)
 {
     TcpAppBase::socketEstablished(socket);
 
-    // TODO When the connection is established wait for the ServerComp to forward packets the forward them
-    // perform first request if not already done (next one will be sent when reply arrives)
+    // Forward the packets waiting to be forwarded to the server
+    if(!msgQueue.isEmpty() && previousResponseSent) {
+    	simtime_t d = simTime() + SimTime(round(par("thinkTime").doubleValue()), SIMTIME_MS);
+		rescheduleAfterOrDeleteTimer(d, MSGKIND_SEND);
+		previousResponseSent = false;
+    }
+}
+
+int ClientEvilComp::getConnectionState() {
+	return socket.getState();
 }
 
 void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urgent) {

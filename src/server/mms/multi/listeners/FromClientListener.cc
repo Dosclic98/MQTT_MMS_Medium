@@ -52,7 +52,7 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 		msg->setServerClose(appmsg->getServerClose());
 		msg->addTag<CreationTimeTag>()->setCreationTime(appmsg->getTag<CreationTimeTag>()->getCreationTime());
 		msg->setServerIndex(appmsg->getServerIndex());
-		if(this->parent->previousResponseSent) {
+		if(this->parent->previousResponseSent && this->parent->getConnectionState() == TcpSocket::CONNECTED) {
 			this->parent->msgQueue.insert(msg);
 			simtime_t d = simTime() + SimTime(round(this->parent->par("thinkTime").doubleValue()), SIMTIME_MS);
 			// We suppose the client is already connected to the server, so when the data arrives we send it (MSG_KIND_SEND)
