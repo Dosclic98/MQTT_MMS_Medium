@@ -47,15 +47,17 @@ void ClientEvilComp::initialize(int stage)
             throw cRuntimeError("Invalid startTime/stopTime parameters");
         timeoutMsg = new cMessage("timer");
 
-        genericResponseSignal = registerSignal("genericResponseSignal");
         pcktFromServerSignal = registerSignal("pcktFromServerSignal");
+        genericRequestBlockSignal = registerSignal("genericRequestBlockSignal");
+        genericRequestCompromisedSignal = registerSignal("genericRequestCompromisedSignal");
+
         previousResponseSent = true;
         // Initialize listener and subscribe to the serverComp forwarding signal
         serverCompListener = new FromClientListener(this);
         sendMsgEvent = new cMessage("Send message event");
         char strSig[30];
         sprintf(strSig, "pcktFromClientSignal-%d", this->getIndex());
-        /*getSimulation()->getSystemModule()*/getContainingNode(this)->subscribe(strSig, serverCompListener);
+        getContainingNode(this)->subscribe(strSig, serverCompListener);
     }
 }
 
@@ -152,7 +154,6 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
     auto chunk = pckt->peekDataAt(B(0), pckt->getTotalLength());
     queue.push(chunk);
     while (const auto& appmsg = queue.pop<MmsMessage>(b(-1), Chunk::PF_ALLOW_NULLPTR)) {
-        if (appmsg->getMessageKind() == 3) emit(genericResponseSignal, true);
 		const auto& msg = makeShared<MmsMessage>();
 		Packet *packet = new Packet("data");
 		msg->setMessageKind(appmsg->getMessageKind());

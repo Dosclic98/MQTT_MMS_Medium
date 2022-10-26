@@ -43,12 +43,9 @@ void ServerEvilComp::initialize(int stage) {
         evilServerStatus = false;
         forwardStatus = false;
         forwardQueue = new cQueue();
-        serverConnId = -999;
 
         measureBlockSignal = registerSignal("measureBlockSignal");
         measureCompromisedSignal = registerSignal("measureCompromisedSignal");
-        genericRequestBlockSignal = registerSignal("genericRequestBlockSignal");
-        genericRequestCompromisedSignal = registerSignal("genericRequestCompromisedSignal");
         genericResponseBlockSignal = registerSignal("genericResponseBlockSignal");
         genericResponseCompromisedSignal = registerSignal("genericResponseCompromisedSignal");
         int numApps = getContainingNode(this)->par("numApps").intValue();
@@ -60,7 +57,7 @@ void ServerEvilComp::initialize(int stage) {
         }
         // Initialize the listener for the incoming server messages
         clientCompListener = new FromServerListener(this);
-        /*getSimulation()->getSystemModule()*/getContainingNode(this)->subscribe("pcktFromServerSignal", clientCompListener);
+        getContainingNode(this)->subscribe("pcktFromServerSignal", clientCompListener);
         cModule *node = findContainingNode(this);
         NodeStatus *nodeStatus = node ? check_and_cast_nullable<NodeStatus *>(node->getSubmodule("status")) : nullptr;
         bool isOperational = (!nodeStatus) || nodeStatus->getState() == NodeStatus::UP;
@@ -77,13 +74,6 @@ void ServerEvilComp::sendPacketDeparture(int connId, simtime_t fakeCreationTime,
             //return;
         } else if (p < 0.4){ //Compromise
             emit(measureCompromisedSignal, true);
-        }
-    } else if(messageKind == 2) {
-        if (p < 0.2) { // Block
-            emit(genericRequestBlockSignal, true);
-            //return;
-        } else if (p < 0.8) { // Compromise
-            emit(genericRequestCompromisedSignal, true);
         }
     } else if (messageKind == 3) {
         if (p < 0.1) { // Block
@@ -119,46 +109,11 @@ void ServerEvilComp::handleDeparture() {
         bytesRcvd += B(appmsg->getChunkLength()).get();
         // I set the chunk length as response length because we must forward the data
         B requestedBytes = appmsg->getChunkLength();
-        if(appmsg->getMessageKind() == 0) { // Register listener
-            if(serverConnId != -999) sendPacketDeparture(serverConnId, appmsg->getTag<CreationTimeTag>()->getCreationTime(), B(100), B(100), 0, connId);
-            else {
-                MmsMessage msg;
-                msg.setMessageKind(appmsg->getMessageKind());
-                msg.setConnId(connId);
-                msg.setExpectedReplyLength(appmsg->getExpectedReplyLength());
-                msg.addTag<CreationTimeTag>()->setCreationTime(appmsg->getTag<CreationTimeTag>()->getCreationTime());
-                msg.setChunkLength(appmsg->getChunkLength());
-                delayedPkts.push_back(msg);
-            }
-        }
-        else if(appmsg->getMessageKind() == 1) sendPacketDeparture(appmsg->getConnId(), appmsg->getTag<CreationTimeTag>()->getCreationTime(), requestedBytes, B(0), 1, -1);
-        else if (appmsg->getMessageKind() == 2){ // Generic Request From Client
-            if(serverConnId != -999) sendPacketDeparture(serverConnId, appmsg->getTag<CreationTimeTag>()->getCreationTime(), B(100), B(100), 2, connId);
-            else {
-                MmsMessage msg;
-                msg.setMessageKind(appmsg->getMessageKind());
-                msg.setConnId(connId);
-                msg.setExpectedReplyLength(appmsg->getExpectedReplyLength());
-                msg.addTag<CreationTimeTag>()->setCreationTime(appmsg->getTag<CreationTimeTag>()->getCreationTime());
-                msg.setChunkLength(appmsg->getChunkLength());
-                delayedPkts.push_back(msg);
-            }
-        }
+        if(appmsg->getMessageKind() == 1) sendPacketDeparture(appmsg->getConnId(), appmsg->getTag<CreationTimeTag>()->getCreationTime(), requestedBytes, B(0), 1, -1);
         else if (appmsg->getMessageKind() == 3) { //Generic Response From Server
             if (requestedBytes > B(0)) sendPacketDeparture(appmsg->getConnId(), appmsg->getTag<CreationTimeTag>()->getCreationTime(), B(100), B(100), 3, -1);
         }
-        else if(appmsg->getMessageKind() == 99) { //Server ID
-            serverConnId = connId;
-            for(auto msg : delayedPkts) { // Send all Delayed Packets
-                sendPacketDeparture(serverConnId, appmsg->getTag<CreationTimeTag>()->getCreationTime(), B(100), B(100), msg.getMessageKind(), msg.getConnId());
-            }
-            delayedPkts.clear();
-        }
         else { /* Bad Request, not present in MITM */}
-        if (appmsg->getServerClose()) {
-            doClose = true;
-            break;
-        }
     }
     delete packet;
 

@@ -34,6 +34,10 @@ public:
 	virtual void rescheduleAfterOrDeleteTimer(simtime_t d, short int msgKind) override;
 	virtual int getConnectionState();
 
+	// Gestione segnali
+	simsignal_t genericRequestBlockSignal;
+	simsignal_t genericRequestCompromisedSignal;
+
 	virtual ~ClientEvilComp();
 
 
@@ -43,9 +47,6 @@ protected:
 
 	// Gestione segnali canali interni
 	simsignal_t pcktFromServerSignal;
-
-	//Gestione richiesta di misure e risposta casuale
-	simsignal_t genericResponseSignal;
 
 protected:
 	virtual void initialize(int stage) override;

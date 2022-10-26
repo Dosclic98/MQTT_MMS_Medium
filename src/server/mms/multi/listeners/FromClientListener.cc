@@ -52,6 +52,18 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 		msg->setServerClose(appmsg->getServerClose());
 		msg->addTag<CreationTimeTag>()->setCreationTime(appmsg->getTag<CreationTimeTag>()->getCreationTime());
 		msg->setServerIndex(appmsg->getServerIndex());
+
+		// Signal if a generic request gets blocked or compromised
+		double p = this->parent->uniform(0.0, 1.0);
+		if(appmsg->getMessageKind() == 2) {
+			if (p < 0.2) { // Block
+				this->parent->emit(this->parent->genericRequestBlockSignal, true);
+				//return;
+			} else if (p < 0.8) { // Compromise
+				this->parent->emit(this->parent->genericRequestCompromisedSignal, true);
+			}
+		}
+
 		if(this->parent->previousResponseSent && this->parent->getConnectionState() == TcpSocket::CONNECTED) {
 			this->parent->msgQueue.insert(msg);
 			simtime_t d = simTime() + SimTime(round(this->parent->par("thinkTime").doubleValue()), SIMTIME_MS);

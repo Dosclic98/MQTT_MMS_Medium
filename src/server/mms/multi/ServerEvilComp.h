@@ -40,13 +40,9 @@ class INET_API ServerEvilComp : public TcpGenericServerApp {
 		virtual ~ServerEvilComp();
 
 	protected:
-		int serverConnId;
-
 		//Gestione segnali
 		simsignal_t measureBlockSignal;
 		simsignal_t measureCompromisedSignal;
-		simsignal_t genericRequestBlockSignal;
-		simsignal_t genericRequestCompromisedSignal;
 		simsignal_t genericResponseBlockSignal;
 		simsignal_t genericResponseCompromisedSignal;
 
@@ -55,9 +51,6 @@ class INET_API ServerEvilComp : public TcpGenericServerApp {
 		cQueue* forwardQueue;
 		cMessage* forwardEvent;
 		ChunkQueue tmpQueue;
-
-		//Gestione pacchetti da inviare al server
-		std::list<MmsMessage> delayedPkts;
 
 		// Gestione segnali canali interni
 		FromServerListener* clientCompListener;
