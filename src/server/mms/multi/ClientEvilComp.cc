@@ -137,14 +137,11 @@ void ClientEvilComp::socketEstablished(TcpSocket *socket)
 }
 
 void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urgent) {
-    TcpAppBase::socketDataArrived(socket, pckt, urgent);
-
     if (socket->getState() == TcpSocket::LOCALLY_CLOSED) {
         EV_INFO << "reply to last request arrived, closing session\n";
         close();
         return;
     }
-    // TODO Solve the Seg fault reading this chunk while using Express mode in Qtenv or Cmdenv
     auto chunk = pckt->peekDataAt(B(0), pckt->getTotalLength());
     queue.push(chunk);
     while (const auto& appmsg = queue.pop<MmsMessage>(b(-1), Chunk::PF_ALLOW_NULLPTR)) {
@@ -167,6 +164,9 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 		bubble("Message arrived from server");
 		emit(pcktFromServerSignal, packet);
     }
+
+    // Leave this call at the end because it deletes the packet
+    TcpAppBase::socketDataArrived(socket, pckt, urgent);
 }
 
 }
