@@ -111,7 +111,7 @@ void ServerEvilComp::handleDeparture() {
         B requestedBytes = appmsg->getChunkLength();
         if(appmsg->getMessageKind() == 1) sendPacketDeparture(appmsg->getConnId(), appmsg->getTag<CreationTimeTag>()->getCreationTime(), requestedBytes, B(0), 1, -1);
         else if (appmsg->getMessageKind() == 3) { //Generic Response From Server
-            if (requestedBytes > B(0)) sendPacketDeparture(appmsg->getConnId(), appmsg->getTag<CreationTimeTag>()->getCreationTime(), B(100), B(100), 3, -1);
+            if (requestedBytes > B(0)) sendPacketDeparture(appmsg->getConnId(), appmsg->getTag<CreationTimeTag>()->getCreationTime(), requestedBytes, B(0), 3, -1);
         }
         else { /* Bad Request, not present in MITM */}
     }
