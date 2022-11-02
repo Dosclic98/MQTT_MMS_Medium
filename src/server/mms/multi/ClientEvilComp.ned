@@ -28,6 +28,21 @@ simple ClientEvilComp extends TcpBasicClientApp {
         @statistic[topicAmountStat](source=topicAmount; record=vector);
         @signal[genericResponseSignal](type=bool);
         @statistic[genericResponse](source=genericResponseSignal; record=count);
+        
+        @signal[measureBlockSignal](type=bool);
+        @statistic[measureBlock](source=measureBlockSignal; record=count);
+        @signal[measureCompromisedSignal](type=bool);
+        @statistic[measureCompromised](source=measureCompromisedSignal; record=count);
+        
+        @signal[genericRequestBlockSignal](type=bool);
+        @statistic[genericRequestBlock](source=genericRequestBlockSignal; record=count);
+        @signal[genericRequestCompromisedSignal](type=bool);
+        @statistic[genericRequestCompromised](source=genericRequestCompromisedSignal; record=count);
+        
+        @signal[genericResponseBlockSignal](type=bool);
+        @statistic[genericResponseBlock](source=genericResponseBlockSignal; record=count);
+        @signal[genericResponseCompromisedSignal](type=bool);
+        @statistic[genericResponseCompromised](source=genericResponseCompromisedSignal; record=count);
 		
 		@signal[pcktFromServerSignal](type=cObject*);
 }

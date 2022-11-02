@@ -44,10 +44,6 @@ void ServerEvilComp::initialize(int stage) {
         forwardStatus = false;
         forwardQueue = new cQueue();
 
-        measureBlockSignal = registerSignal("measureBlockSignal");
-        measureCompromisedSignal = registerSignal("measureCompromisedSignal");
-        genericResponseBlockSignal = registerSignal("genericResponseBlockSignal");
-        genericResponseCompromisedSignal = registerSignal("genericResponseCompromisedSignal");
         int numApps = getContainingNode(this)->par("numApps").intValue();
         pcktFromClientSignal = new simsignal_t[numApps-1];
         for(int i = 0; i < numApps-1; i++) {
@@ -67,22 +63,6 @@ void ServerEvilComp::initialize(int stage) {
 }
 
 void ServerEvilComp::sendPacketDeparture(int connId, simtime_t fakeCreationTime, B requestedBytes, B replyLength, int messageKind, int clientConnId) {
-    double p = this->uniform(0.0, 1.0);
-    if (messageKind == 1) {
-        if (p < 0.15) { //Block
-            emit(measureBlockSignal, true);
-            //return;
-        } else if (p < 0.4){ //Compromise
-            emit(measureCompromisedSignal, true);
-        }
-    } else if (messageKind == 3) {
-        if (p < 0.1) { // Block
-            emit(genericResponseBlockSignal, true);
-            //return;
-        } else if (p < 0.6) { // Compromise
-            emit(genericResponseCompromisedSignal, true);
-        }
-    }
     Packet *outPacket = new Packet("Generic Data", TCP_C_SEND);
     outPacket->addTag<SocketReq>()->setSocketId(connId);
     const auto& payload = makeShared<MmsMessage>();

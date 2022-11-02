@@ -40,11 +40,6 @@ class INET_API ServerEvilComp : public TcpGenericServerApp {
 		virtual ~ServerEvilComp();
 
 	protected:
-		//Gestione segnali
-		simsignal_t measureBlockSignal;
-		simsignal_t measureCompromisedSignal;
-		simsignal_t genericResponseBlockSignal;
-		simsignal_t genericResponseCompromisedSignal;
 
 		//Gestione servitore e coda
 		bool forwardStatus;

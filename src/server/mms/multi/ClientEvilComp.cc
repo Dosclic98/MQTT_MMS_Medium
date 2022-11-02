@@ -50,6 +50,10 @@ void ClientEvilComp::initialize(int stage)
         pcktFromServerSignal = registerSignal("pcktFromServerSignal");
         genericRequestBlockSignal = registerSignal("genericRequestBlockSignal");
         genericRequestCompromisedSignal = registerSignal("genericRequestCompromisedSignal");
+        measureBlockSignal = registerSignal("measureBlockSignal");
+        measureCompromisedSignal = registerSignal("measureCompromisedSignal");
+        genericResponseBlockSignal = registerSignal("genericResponseBlockSignal");
+        genericResponseCompromisedSignal = registerSignal("genericResponseCompromisedSignal");
 
         previousResponseSent = true;
         // Initialize listener and subscribe to the serverComp forwarding signal
@@ -169,7 +173,34 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 		bubble("Sent to internal client!");
 		EV_INFO << "Conn ID:" << msg->getEvilServerConnId() << "\n";
 
-		bubble("Message arrived from server");
+		int messageKind = appmsg->getMessageKind();
+	    double p = this->uniform(0.0, 1.0);
+	    if (messageKind == 1) {
+	        if (p < 0.15) { //Block
+	        	bubble("Measure blocked");
+	            emit(measureBlockSignal, true);
+	            //TcpAppBase::socketDataArrived(socket, pckt, urgent);
+	            //return;
+	        } else if (p < 0.4){ //Compromise
+	        	bubble("Measure compromised");
+	            emit(measureCompromisedSignal, true);
+	        } else {
+	        	bubble("Measure arrived from server");
+	        }
+	    } else if (messageKind == 3) {
+	        if (p < 0.1) { // Block
+	        	bubble("Generic response blocked");
+	            emit(genericResponseBlockSignal, true);
+	            //TcpAppBase::socketDataArrived(socket, pckt, urgent);
+	            //return;
+	        } else if (p < 0.6) { // Compromise
+	        	bubble("Generic response compromised");
+	            emit(genericResponseCompromisedSignal, true);
+	        } else {
+	        	bubble("Generic response arrived from server");
+	        }
+	    }
+
 		emit(pcktFromServerSignal, packet);
     }
 

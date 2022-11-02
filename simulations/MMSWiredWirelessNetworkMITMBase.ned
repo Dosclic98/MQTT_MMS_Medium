@@ -31,6 +31,15 @@ network MMSWiredWirelessNetworkMITMBase
         int numWiredClients = default(1);
         int numWirelessClients = default(1);
         int numServers = default(1);
+        
+        @statistic[measureBlockGlobal](source=measureBlockSignal; record=count);
+        @statistic[measureCompromised](source=measureCompromisedSignal; record=count);
+        
+        @statistic[genericRequestBlockGlobal](source=genericRequestBlockSignal; record=count);
+        @statistic[genericRequestCompromisedGlobal](source=genericRequestCompromisedSignal; record=count);
+        
+        @statistic[genericResponseBlockGlobal](source=genericResponseBlockSignal; record=count);
+        @statistic[genericResponseCompromisedGlobal](source=genericResponseCompromisedSignal; record=count);
 
     submodules:
         visualizer: IntegratedCanvasVisualizer {
