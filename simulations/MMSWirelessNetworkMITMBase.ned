@@ -30,7 +30,7 @@ network MMSWirelessNetworkMITMBase {
         int numServers = default(1);
         
         @statistic[measureBlockGlobal](source=measureBlockSignal; record=count);
-        @statistic[measureCompromised](source=measureCompromisedSignal; record=count);
+        @statistic[measureCompromisedGlobal](source=measureCompromisedSignal; record=count);
         
         @statistic[genericRequestBlockGlobal](source=genericRequestBlockSignal; record=count);
         @statistic[genericRequestCompromisedGlobal](source=genericRequestCompromisedSignal; record=count);

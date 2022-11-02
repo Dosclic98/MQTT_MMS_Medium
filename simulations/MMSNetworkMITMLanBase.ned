@@ -26,6 +26,16 @@ import inet.physicallayer.wireless.ieee80211.packetlevel.Ieee80211RadioMedium;
 
 network MMSNetworkMITMLanBase
 {
+    parameters:
+        @statistic[measureBlockGlobal](source=measureBlockSignal; record=count);
+        @statistic[measureCompromisedGlobal](source=measureCompromisedSignal; record=count);
+        
+        @statistic[genericRequestBlockGlobal](source=genericRequestBlockSignal; record=count);
+        @statistic[genericRequestCompromisedGlobal](source=genericRequestCompromisedSignal; record=count);
+        
+        @statistic[genericResponseBlockGlobal](source=genericResponseBlockSignal; record=count);
+        @statistic[genericResponseCompromisedGlobal](source=genericResponseCompromisedSignal; record=count);
+                
     submodules:
         configurator: Ipv4NetworkConfigurator;
         radioMedium: Ieee80211RadioMedium {
@@ -37,6 +47,7 @@ network MMSNetworkMITMLanBase
         goodCliLan: <> like ICliLan;
         evilCliLan: <> like ICliLan;
         derLan: WiredDerLan;
+        
     connections:
         goodCliLan.gate <--> Eth1G <--> router.ethg++;
         evilCliLan.gate <--> Eth1G <--> router.ethg++;
