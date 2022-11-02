@@ -35,9 +35,10 @@ class INET_API MmsClient : public TcpAppBase
     ChunkQueue queue;
 
     //Gestione conteggio pacchetti nel range temporale
-    int counter;
-    cMessage* topicAmountEvent;
-    simsignal_t topicAmount;
+    int measureCounter;
+    int measureAmountEventDelay = 4;
+    cMessage* measureAmountEvent;
+    simsignal_t measureReceivedCount;
 
     //Gestione richiesta di misure e risposta casuale
     bool isListening;

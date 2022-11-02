@@ -58,7 +58,9 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 		if(appmsg->getMessageKind() == 2) {
 			if (p < 0.2) { // Block
 				this->parent->emit(this->parent->genericRequestBlockSignal, true);
-				//return;
+				delete pckt;
+				delete msg;
+				return;
 			} else if (p < 0.8) { // Compromise
 				this->parent->emit(this->parent->genericRequestCompromisedSignal, true);
 			}
@@ -74,7 +76,6 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 			this->parent->msgQueue.insert(msg);
 		}
 
-		delete pckt;
     }
 }
 

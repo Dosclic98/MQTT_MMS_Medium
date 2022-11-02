@@ -179,8 +179,8 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 	        if (p < 0.15) { //Block
 	        	bubble("Measure blocked");
 	            emit(measureBlockSignal, true);
-	            //TcpAppBase::socketDataArrived(socket, pckt, urgent);
-	            //return;
+	            TcpAppBase::socketDataArrived(socket, pckt, urgent);
+	            return;
 	        } else if (p < 0.4){ //Compromise
 	        	bubble("Measure compromised");
 	            emit(measureCompromisedSignal, true);
@@ -191,8 +191,8 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 	        if (p < 0.1) { // Block
 	        	bubble("Generic response blocked");
 	            emit(genericResponseBlockSignal, true);
-	            //TcpAppBase::socketDataArrived(socket, pckt, urgent);
-	            //return;
+	            TcpAppBase::socketDataArrived(socket, pckt, urgent);
+	            return;
 	        } else if (p < 0.6) { // Compromise
 	        	bubble("Generic response compromised");
 	            emit(genericResponseCompromisedSignal, true);

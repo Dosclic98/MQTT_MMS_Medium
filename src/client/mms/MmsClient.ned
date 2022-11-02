@@ -36,8 +36,9 @@ simple MmsClient like IApp
         @statistic[numActiveSessions](title="number of active sessions"; source="sum(connect)"; record=max,timeavg,vector; interpolationmode=sample-hold);
         @statistic[numSessions](title="total number of sessions"; source="sum(connect+1)/2"; record=last);
         
-        @signal[topicAmount](type=int);
-        @statistic[topicAmountStat](source=topicAmount; record=vector);
+        @signal[measureReceivedCount](type=int);
+        @statistic[measureReceivedAmount](source=measureReceivedCount; record=vector);
+        
         @signal[genericResponseSignal](type=bool);
         @statistic[genericResponse](source=genericResponseSignal; record=count);
     gates:

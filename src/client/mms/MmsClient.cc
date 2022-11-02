@@ -16,7 +16,7 @@ Define_Module(MmsClient);
 
 MmsClient::~MmsClient()
 {
-    cancelAndDelete(topicAmountEvent);
+    cancelAndDelete(measureAmountEvent);
     cancelAndDelete(timeoutMsg);
 }
 
@@ -28,19 +28,21 @@ void MmsClient::initialize(int stage)
         earlySend = false;    // TBD make it parameter
         WATCH(numRequestsToSend);
         WATCH(earlySend);
+        WATCH(measureCounter);
         startTime = par("startTime");
         stopTime = par("stopTime");
         if (stopTime >= SIMTIME_ZERO && stopTime < startTime)
             throw cRuntimeError("Invalid startTime/stopTime parameters");
         timeoutMsg = new cMessage("timer");
 
-        topicAmountEvent = new cMessage("Topic Amount Event");
-        topicAmount = registerSignal("topicAmount");
+        measureAmountEvent = new cMessage("Topic Amount Event");
+        measureReceivedCount = registerSignal("measureReceivedCount");
         genericResponseSignal = registerSignal("genericResponseSignal");
-        counter = 0;
+
+        measureCounter = 0;
         isListening = false;
         previousResponseSent = true;
-        scheduleAt(simTime() + SimTime(3, SIMTIME_S), topicAmountEvent);
+        scheduleAt(simTime() + SimTime(measureAmountEventDelay, SIMTIME_S), measureAmountEvent);
     }
 }
 
@@ -101,10 +103,10 @@ void MmsClient::sendRequest()
 
 void MmsClient::handleTimer(cMessage *msg)
 {
-    if (msg == topicAmountEvent) {
-        emit(topicAmount, counter);
-        counter = 0;
-        scheduleAt(simTime() + SimTime(3, SIMTIME_S), topicAmountEvent);
+    if (msg == measureAmountEvent) {
+        emit(measureReceivedCount, measureCounter);
+        measureCounter = 0;
+        scheduleAt(simTime() + SimTime(measureAmountEventDelay, SIMTIME_S), measureAmountEvent);
         return;
     }
     switch (msg->getKind()) {
@@ -166,8 +168,10 @@ void MmsClient::socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent)
     auto chunk = msg->peekDataAt(B(0), msg->getTotalLength());
     queue.push(chunk);
     while (const auto& appmsg = queue.pop<MmsMessage>(b(-1), Chunk::PF_ALLOW_NULLPTR)) {
-        counter++;
-        if (appmsg->getMessageKind() == 3) emit(genericResponseSignal, true);
+        if(appmsg->getMessageKind() == 1) {
+        	measureCounter++;
+        }
+        if(appmsg->getMessageKind() == 3) emit(genericResponseSignal, true);
     }
     if (numRequestsToSend > 0) {
         if (previousResponseSent) {
