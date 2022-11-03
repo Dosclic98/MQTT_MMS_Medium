@@ -31,7 +31,10 @@ namespace inet {
 
 Define_Module(ClientEvilComp);
 
-ClientEvilComp::~ClientEvilComp() { }
+ClientEvilComp::~ClientEvilComp() {
+	cancelAndDelete(sendMsgEvent);
+	msgQueue.clear();
+}
 
 void ClientEvilComp::initialize(int stage)
 {
@@ -179,6 +182,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 	        if (p < 0.15) { //Block
 	        	bubble("Measure blocked");
 	            emit(measureBlockSignal, true);
+	            delete packet;
 	            TcpAppBase::socketDataArrived(socket, pckt, urgent);
 	            return;
 	        } else if (p < 0.4){ //Compromise
@@ -191,6 +195,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 	        if (p < 0.1) { // Block
 	        	bubble("Generic response blocked");
 	            emit(genericResponseBlockSignal, true);
+	            delete packet;
 	            TcpAppBase::socketDataArrived(socket, pckt, urgent);
 	            return;
 	        } else if (p < 0.6) { // Compromise

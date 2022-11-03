@@ -159,8 +159,6 @@ void MmsClient::rescheduleOrDeleteTimer(simtime_t d, short int msgKind)
 
 void MmsClient::socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent)
 {
-    TcpAppBase::socketDataArrived(socket, msg, urgent);
-
     if (socket->getState() == TcpSocket::LOCALLY_CLOSED) {
         EV_INFO << "reply to last request arrived, closing session\n";
         close();
@@ -183,6 +181,8 @@ void MmsClient::socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent)
     } else {
         close();
     }
+
+    TcpAppBase::socketDataArrived(socket, msg, urgent);
 }
 
 void MmsClient::close()
