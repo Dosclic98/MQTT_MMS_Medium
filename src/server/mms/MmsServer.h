@@ -20,6 +20,7 @@
 #include "inet/common/lifecycle/LifecycleUnsupported.h"
 #include "inet/common/packet/ChunkQueue.h"
 #include "inet/transportlayer/contract/tcp/TcpSocket.h"
+#include "../../message/mms/MmsMessage_m.h"
 
 namespace inet {
 
@@ -59,7 +60,7 @@ class INET_API MmsServer : public cSimpleModule, public LifecycleUnsupported
     virtual void refreshDisplay() const override;
     //--
     virtual void handleDeparture();
-    virtual void sendPacketDeparture(int connId, int evilConnId, B requestedBytes, B replyLength, int messageKind);
+    virtual void sendPacketDeparture(int connId, int evilConnId, B requestedBytes, B replyLength, MMSKind messageKind);
 
   public:
     virtual ~MmsServer();

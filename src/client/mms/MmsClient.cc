@@ -88,12 +88,13 @@ void MmsClient::sendRequest()
     payload->setServerIndex(this->getIndex());
     if(!isListening) {
     	// Connect kind
-        payload->setMessageKind(0);
+        payload->setMessageKind(MMSKind::CONNECT);
         isListening = true;
     }
     else {
         previousResponseSent = true;
-        payload->setMessageKind(2);
+        payload->setMessageKind(MMSKind::GENREQ);
+        // TODO Add a probability exraction of 0.5 to send a READ or a COMMAND
     }
 
     packet->insertAtBack(payload);

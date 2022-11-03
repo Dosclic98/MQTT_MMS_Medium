@@ -2,7 +2,6 @@
 
 //#include "inet/applications/common/SocketTag_m.h"
 #include "inet/common/socket/SocketTag_m.h"
-#include "../../message/mms/MmsMessage_m.h"
 #include "inet/common/ModuleAccess.h"
 #include "inet/common/ProtocolTag_m.h"
 #include "inet/common/lifecycle/NodeStatus.h"
@@ -76,7 +75,7 @@ void MmsServer::sendBack(cMessage *msg)
     send(msg, "socketOut");
 }
 
-void MmsServer::sendPacketDeparture(int connId, int evilConnId, B requestedBytes, B replyLength, int messageKind) {
+void MmsServer::sendPacketDeparture(int connId, int evilConnId, B requestedBytes, B replyLength, MMSKind messageKind) {
     Packet *outPacket = new Packet("Generic Data", TCP_C_SEND);
     outPacket->addTag<SocketReq>()->setSocketId(connId);
     const auto& payload = makeShared<MmsMessage>();
@@ -102,20 +101,20 @@ void MmsServer::handleDeparture()
         msgsRcvd++;
         bytesRcvd += B(appmsg->getChunkLength()).get();
         B requestedBytes = appmsg->getExpectedReplyLength();
-        if(appmsg->getMessageKind() == 0) { // Register a listener
+        if(appmsg->getMessageKind() == MMSKind::CONNECT) { // Register a listener
             //clientConnIdList.push_back(connId);
             clientConnIdList.push_back({connId, appmsg->getEvilServerConnId()});
         }
-        else if(appmsg->getMessageKind() == 1) { // Send data to listeners
+        else if(appmsg->getMessageKind() == MMSKind::MEASURE) { // Send data to listeners
             for (auto const& listener : clientConnIdList) {
                 if (requestedBytes > B(0)) {
-                    sendPacketDeparture(listener.first, listener.second, B(100), B(0), 1);
+                    sendPacketDeparture(listener.first, listener.second, B(100), B(0), MMSKind::MEASURE);
                 }
             }
         }
-        else if (appmsg->getMessageKind() == 2) { // Response to Generic Request
+        else if (appmsg->getMessageKind() == MMSKind::GENREQ) { // Response to Generic Request
             if (requestedBytes > B(0)) {
-                sendPacketDeparture(connId, appmsg->getEvilServerConnId(), requestedBytes, B(0), 3);
+                sendPacketDeparture(connId, appmsg->getEvilServerConnId(), requestedBytes, B(0), MMSKind::GENRESP);
             }
         }
         else {
@@ -154,7 +153,7 @@ void MmsServer::handleMessage(cMessage *msg)
         auto pkt = new Packet("SendData");
         pkt->addTag<SocketInd>()->setSocketId(-1);
         const auto& payload = makeShared<MmsMessage>();
-        payload->setMessageKind(1);
+        payload->setMessageKind(MMSKind::MEASURE);
         payload->setChunkLength(B(100));
         payload->setExpectedReplyLength(B(100));
         payload->setServerClose(false);

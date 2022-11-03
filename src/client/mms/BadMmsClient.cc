@@ -74,7 +74,7 @@ void BadMmsClient::sendRequest()
     payload->setExpectedReplyLength(B(replyLength));
     payload->setServerClose(false);
     payload->addTag<CreationTimeTag>()->setCreationTime(simTime());
-    payload->setMessageKind(-1);
+    payload->setMessageKind(MMSKind::FAKE);
 
     packet->insertAtBack(payload);
 

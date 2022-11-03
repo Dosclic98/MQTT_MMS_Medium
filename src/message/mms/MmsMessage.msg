@@ -27,11 +27,29 @@ namespace inet;
 //
 //GENERAL
 //[999 I AM THE SERVER]
+enum MMSKind {
+    FAKE = -1;
+	
+	CONNECT = 0;
+	MEASURE = 1;
+	GENREQ = 2;
+	GENRESP = 3;
+	// TODO this is just used for the old MMS implementation
+	SERVER = 99;
+}
+
+enum ReqResKind {
+    READ = 0;
+	COMMAND = 1;
+}
+
 class MmsMessage extends FieldsChunk
 {
     B expectedReplyLength;         
     bool serverClose;      
-    int messageKind;
+    MMSKind messageKind;
+    // Just set if the messageKind is set o GENREQ or GENRESP
+    ReqResKind reqResKind;
     int connId;
     // Used just for the MMS MIMT Attack
     int evilServerConnId = 0;

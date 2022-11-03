@@ -175,7 +175,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 
 		int messageKind = appmsg->getMessageKind();
 	    double p = this->uniform(0.0, 1.0);
-	    if (messageKind == 1) {
+	    if (messageKind == MMSKind::MEASURE) {
 	        if (p < 0.15) { //Block
 	        	bubble("Measure blocked");
 	            emit(measureBlockSignal, true);
@@ -187,7 +187,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 	        } else {
 	        	bubble("Measure arrived from server");
 	        }
-	    } else if (messageKind == 3) {
+	    } else if (messageKind == MMSKind::GENRESP) {
 	        if (p < 0.1) { // Block
 	        	bubble("Generic response blocked");
 	            emit(genericResponseBlockSignal, true);

@@ -55,7 +55,7 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 
 		// Signal if a generic request gets blocked or compromised
 		double p = this->parent->uniform(0.0, 1.0);
-		if(appmsg->getMessageKind() == 2) {
+		if(appmsg->getMessageKind() == MMSKind::GENREQ) {
 			if (p < 0.2) { // Block
 				this->parent->emit(this->parent->genericRequestBlockSignal, true);
 				delete pckt;

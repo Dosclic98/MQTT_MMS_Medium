@@ -54,7 +54,7 @@ class INET_API EvilServer : public cSimpleModule, public LifecycleUnsupported
     virtual void refreshDisplay() const override;
     //--
     virtual void handleDeparture();
-    virtual void sendPacketDeparture(int connId, B requestedBytes, B replyLength, int messageKind, int clientConnId);
+    virtual void sendPacketDeparture(int connId, B requestedBytes, B replyLength, MMSKind messageKind, int clientConnId);
 };
 
 } // namespace inet

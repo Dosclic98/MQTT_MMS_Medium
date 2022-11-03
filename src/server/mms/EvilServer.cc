@@ -81,23 +81,23 @@ void EvilServer::sendBack(cMessage *msg)
     send(msg, "socketOut");
 }
 
-void EvilServer::sendPacketDeparture(int connId, B requestedBytes, B replyLength, int messageKind, int clientConnId) {
+void EvilServer::sendPacketDeparture(int connId, B requestedBytes, B replyLength, MMSKind messageKind, int clientConnId) {
     double p = this->uniform(0.0, 1.0);
-    if (messageKind == 1) {
+    if (messageKind == MMSKind::MEASURE) {
         if (p < 0.15) { //Block
             emit(measureBlockSignal, true);
             return;
         } else if (p < 0.4){ //Compromise
             emit(measureCompromisedSignal, true);
         }
-    } else if(messageKind == 2) {
+    } else if(messageKind == MMSKind::GENREQ) {
         if (p < 0.2) { // Block
             emit(genericRequestBlockSignal, true);
             return;
         } else if (p < 0.8) { // Compromise
             emit(genericRequestCompromisedSignal, true);
         }
-    } else if (messageKind == 3) {
+    } else if (messageKind == MMSKind::GENRESP) {
         if (p < 0.1) { // Block
             emit(genericResponseBlockSignal, true);
             return;
@@ -131,8 +131,8 @@ void EvilServer::handleDeparture()
         msgsRcvd++;
         bytesRcvd += B(appmsg->getChunkLength()).get();
         B requestedBytes = appmsg->getExpectedReplyLength();
-        if(appmsg->getMessageKind() == 0) { // Register listener
-            if(serverConnId != -999) sendPacketDeparture(serverConnId, B(100), B(100), 0, connId);
+        if(appmsg->getMessageKind() == MMSKind::CONNECT) { // Register listener
+            if(serverConnId != -999) sendPacketDeparture(serverConnId, B(100), B(100), MMSKind::CONNECT, connId);
             else {
                 MmsMessage msg;
                 msg.setMessageKind(appmsg->getMessageKind());
@@ -142,9 +142,9 @@ void EvilServer::handleDeparture()
                 delayedPkts.push_back(msg);
             }
         }
-        else if(appmsg->getMessageKind() == 1) sendPacketDeparture(appmsg->getConnId(), requestedBytes, B(0), 1, -1);
-        else if (appmsg->getMessageKind() == 2){ // Generic Request From Client
-            if(serverConnId != -999) sendPacketDeparture(serverConnId, B(100), B(100), 2, connId);
+        else if(appmsg->getMessageKind() == MMSKind::MEASURE) sendPacketDeparture(appmsg->getConnId(), requestedBytes, B(0), MMSKind::MEASURE, -1);
+        else if (appmsg->getMessageKind() == MMSKind::GENREQ){ // Generic Request From Client
+            if(serverConnId != -999) sendPacketDeparture(serverConnId, B(100), B(100), MMSKind::GENREQ, connId);
             else {
                 MmsMessage msg;
                 msg.setMessageKind(appmsg->getMessageKind());
@@ -154,10 +154,10 @@ void EvilServer::handleDeparture()
                 delayedPkts.push_back(msg);
             }
         }
-        else if (appmsg->getMessageKind() == 3) { //Generic Response From Server
-            if (requestedBytes > B(0)) sendPacketDeparture(appmsg->getConnId(), B(100), B(100), 3, -1);
+        else if (appmsg->getMessageKind() == MMSKind::GENRESP) { //Generic Response From Server
+            if (requestedBytes > B(0)) sendPacketDeparture(appmsg->getConnId(), B(100), B(100), MMSKind::GENRESP, -1);
         }
-        else if(appmsg->getMessageKind() == 99) { //Server ID
+        else if(appmsg->getMessageKind() == MMSKind::SERVER) { //Server ID
             serverConnId = connId;
             for(auto msg : delayedPkts) { // Send all Delayed Packets
                 sendPacketDeparture(serverConnId, B(100), B(100), msg.getMessageKind(), msg.getConnId());

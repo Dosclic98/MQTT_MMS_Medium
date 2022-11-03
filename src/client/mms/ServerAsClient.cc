@@ -83,7 +83,7 @@ void ServerAsClient::sendRequest()
     payload->setExpectedReplyLength(B(replyLength));
     payload->setServerClose(false);
     payload->addTag<CreationTimeTag>()->setCreationTime(simTime());
-    payload->setMessageKind(99);
+    payload->setMessageKind(MMSKind::SERVER);
     packet->insertAtBack(payload);
     sendPacket(packet);
 
@@ -105,7 +105,7 @@ void ServerAsClient::handleDeparture() {
             payload->setExpectedReplyLength(B(replyLength));
             payload->setServerClose(false);
             payload->addTag<CreationTimeTag>()->setCreationTime(simTime());
-            payload->setMessageKind(1);
+            payload->setMessageKind(MMSKind::MEASURE);
             payload->setConnId(connId);
             packet->insertAtBack(payload);
             sendPacket(packet);
@@ -118,7 +118,7 @@ void ServerAsClient::handleDeparture() {
         payload->setExpectedReplyLength(appmsg.getExpectedReplyLength());
         payload->setServerClose(false);
         payload->addTag<CreationTimeTag>()->setCreationTime(simTime());
-        payload->setMessageKind(3);
+        payload->setMessageKind(MMSKind::GENRESP);
         payload->setConnId(appmsg.getConnId());
         packet->insertAtBack(payload);
         sendPacket(packet);
@@ -132,7 +132,7 @@ void ServerAsClient::handleTimer(cMessage *msg)
 {
     if(msg == sendMeasure) {
         MmsMessage msg;
-        msg.setMessageKind(1);
+        msg.setMessageKind(MMSKind::MEASURE);
 
         if(!serverStatus) {
             serverQueue.push_back(msg);
