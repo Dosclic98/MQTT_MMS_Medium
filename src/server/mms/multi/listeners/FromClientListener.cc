@@ -44,6 +44,7 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
     while (const auto& appmsg = queue.pop<MmsMessage>(b(-1), Chunk::PF_ALLOW_NULLPTR)) {
 		// Add to the forward to the server queue
 		MmsMessage* msg = new MmsMessage();
+		msg->setOriginId(appmsg->getOriginId());
 		msg->setMessageKind(appmsg->getMessageKind());
 		msg->setConnId(appmsg->getConnId());
 		msg->setExpectedReplyLength(appmsg->getExpectedReplyLength());

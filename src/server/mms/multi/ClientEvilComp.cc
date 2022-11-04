@@ -81,6 +81,7 @@ void ClientEvilComp::sendRequest()
     	MmsMessage* msg = check_and_cast<MmsMessage*>(msgQueue.pop());
         const auto& payload = makeShared<MmsMessage>();
         Packet *packet = new Packet("data");
+        payload->setOriginId(msg->getOriginId());
         payload->setChunkLength(B(requestLength));
         payload->setExpectedReplyLength(B(replyLength));
         payload->setServerClose(msg->getServerClose());
@@ -163,6 +164,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
     while (const auto& appmsg = queue.pop<MmsMessage>(b(-1), Chunk::PF_ALLOW_NULLPTR)) {
 		const auto& msg = makeShared<MmsMessage>();
 		Packet *packet = new Packet("data");
+		msg->setOriginId(appmsg->getOriginId());
 		msg->setMessageKind(appmsg->getMessageKind());
 		msg->setConnId(appmsg->getEvilServerConnId());
 		msg->setExpectedReplyLength(appmsg->getExpectedReplyLength());

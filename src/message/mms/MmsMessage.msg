@@ -45,6 +45,8 @@ enum ReqResKind {
 
 class MmsMessage extends FieldsChunk
 {
+    // Id to keep track of the request associated with a certain response (just used in the MITM attack)
+    msgid_t originId;
     B expectedReplyLength;         
     bool serverClose;      
     MMSKind messageKind;

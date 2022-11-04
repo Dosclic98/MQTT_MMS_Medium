@@ -81,6 +81,7 @@ void MmsClient::sendRequest()
 
     const auto& payload = makeShared<MmsMessage>();
     Packet *packet = new Packet("data");
+    payload->setOriginId(packet->getId());
     payload->setChunkLength(B(requestLength));
     payload->setExpectedReplyLength(B(replyLength));
     payload->setServerClose(false);
@@ -167,10 +168,10 @@ void MmsClient::socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent)
     auto chunk = msg->peekDataAt(B(0), msg->getTotalLength());
     queue.push(chunk);
     while (const auto& appmsg = queue.pop<MmsMessage>(b(-1), Chunk::PF_ALLOW_NULLPTR)) {
-        if(appmsg->getMessageKind() == 1) {
+        if(appmsg->getMessageKind() == MMSKind::MEASURE) {
         	measureCounter++;
         }
-        if(appmsg->getMessageKind() == 3) emit(genericResponseSignal, true);
+        if(appmsg->getMessageKind() == MMSKind::GENRESP) emit(genericResponseSignal, true);
     }
     if (numRequestsToSend > 0) {
         if (previousResponseSent) {

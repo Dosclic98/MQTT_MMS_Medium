@@ -75,10 +75,11 @@ void MmsServer::sendBack(cMessage *msg)
     send(msg, "socketOut");
 }
 
-void MmsServer::sendPacketDeparture(int connId, int evilConnId, B requestedBytes, B replyLength, MMSKind messageKind) {
+void MmsServer::sendPacketDeparture(int connId, msgid_t originId, int evilConnId, B requestedBytes, B replyLength, MMSKind messageKind) {
     Packet *outPacket = new Packet("Generic Data", TCP_C_SEND);
     outPacket->addTag<SocketReq>()->setSocketId(connId);
     const auto& payload = makeShared<MmsMessage>();
+    payload->setOriginId(originId);
     payload->setMessageKind(messageKind);
     payload->setChunkLength(requestedBytes);
     payload->setExpectedReplyLength(replyLength);
@@ -108,13 +109,13 @@ void MmsServer::handleDeparture()
         else if(appmsg->getMessageKind() == MMSKind::MEASURE) { // Send data to listeners
             for (auto const& listener : clientConnIdList) {
                 if (requestedBytes > B(0)) {
-                    sendPacketDeparture(listener.first, listener.second, B(100), B(0), MMSKind::MEASURE);
+                    sendPacketDeparture(listener.first, appmsg->getOriginId(), listener.second, B(100), B(0), MMSKind::MEASURE);
                 }
             }
         }
         else if (appmsg->getMessageKind() == MMSKind::GENREQ) { // Response to Generic Request
             if (requestedBytes > B(0)) {
-                sendPacketDeparture(connId, appmsg->getEvilServerConnId(), requestedBytes, B(0), MMSKind::GENRESP);
+                sendPacketDeparture(connId, appmsg->getOriginId(), appmsg->getEvilServerConnId(), requestedBytes, B(0), MMSKind::GENRESP);
             }
         }
         else {

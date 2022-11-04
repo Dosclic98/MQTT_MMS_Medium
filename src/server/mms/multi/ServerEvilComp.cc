@@ -62,10 +62,11 @@ void ServerEvilComp::initialize(int stage) {
     }
 }
 
-void ServerEvilComp::sendPacketDeparture(int connId, simtime_t fakeCreationTime, B requestedBytes, B replyLength, MMSKind messageKind, int clientConnId) {
+void ServerEvilComp::sendPacketDeparture(int connId, msgid_t originId, simtime_t fakeCreationTime, B requestedBytes, B replyLength, MMSKind messageKind, int clientConnId) {
     Packet *outPacket = new Packet("Generic Data", TCP_C_SEND);
     outPacket->addTag<SocketReq>()->setSocketId(connId);
     const auto& payload = makeShared<MmsMessage>();
+    payload->setOriginId(originId);
     payload->setMessageKind(messageKind);
     payload->setChunkLength(requestedBytes);
     payload->setExpectedReplyLength(replyLength);
@@ -89,9 +90,9 @@ void ServerEvilComp::handleDeparture() {
         bytesRcvd += B(appmsg->getChunkLength()).get();
         // I set the chunk length as response length because we must forward the data
         B requestedBytes = appmsg->getChunkLength();
-        if(appmsg->getMessageKind() == MMSKind::MEASURE) sendPacketDeparture(appmsg->getConnId(), appmsg->getTag<CreationTimeTag>()->getCreationTime(), requestedBytes, B(0), MMSKind::MEASURE, -1);
+        if(appmsg->getMessageKind() == MMSKind::MEASURE) sendPacketDeparture(appmsg->getConnId(), appmsg->getOriginId(), appmsg->getTag<CreationTimeTag>()->getCreationTime(), requestedBytes, B(0), MMSKind::MEASURE, -1);
         else if (appmsg->getMessageKind() == MMSKind::GENRESP) { //Generic Response From Server
-            if (requestedBytes > B(0)) sendPacketDeparture(appmsg->getConnId(), appmsg->getTag<CreationTimeTag>()->getCreationTime(), requestedBytes, B(0), MMSKind::GENRESP, -1);
+            if (requestedBytes > B(0)) sendPacketDeparture(appmsg->getConnId(), appmsg->getOriginId(), appmsg->getTag<CreationTimeTag>()->getCreationTime(), requestedBytes, B(0), MMSKind::GENRESP, -1);
         }
         else { /* Bad Request, not present in MITM */}
     }
@@ -160,6 +161,7 @@ void ServerEvilComp::handleForward() {
 	while (const auto& appmsg = queue.pop<MmsMessage>(b(-1), Chunk::PF_ALLOW_NULLPTR)) {
 		const auto& msg = makeShared<MmsMessage>();
 		Packet *packet = new Packet("data");
+		msg->setOriginId(appmsg->getOriginId());
 		msg->setMessageKind(appmsg->getMessageKind());
 		msg->setConnId(connId);
 		msg->setExpectedReplyLength(appmsg->getExpectedReplyLength());
