@@ -9,8 +9,9 @@
 
 namespace inet {
 
-#define MSGKIND_CONNECT    0
-#define MSGKIND_SEND       1
+#define MSGKIND_CONNECT    		0
+#define MSGKIND_SEND       		1
+#define MSGKIND_RES_TIMEOUT	   	2
 
 Define_Module(MmsClient);
 
@@ -31,6 +32,7 @@ void MmsClient::initialize(int stage)
         WATCH(measureCounter);
         startTime = par("startTime");
         stopTime = par("stopTime");
+        resTimeout = par("resTimeoutInterval");
         if (stopTime >= SIMTIME_ZERO && stopTime < startTime)
             throw cRuntimeError("Invalid startTime/stopTime parameters");
         timeoutMsg = new cMessage("timer");
@@ -38,6 +40,7 @@ void MmsClient::initialize(int stage)
         measureAmountEvent = new cMessage("Topic Amount Event");
         measureReceivedCount = registerSignal("measureReceivedCount");
         genericResponseSignal = registerSignal("genericResponseSignal");
+        genericResponseTimeoutSignal = registerSignal("genericResponseTimeoutSignal");
 
         measureCounter = 0;
         isListening = false;
@@ -96,6 +99,12 @@ void MmsClient::sendRequest()
         previousResponseSent = true;
         payload->setMessageKind(MMSKind::GENREQ);
         // TODO Add a probability exraction of 0.5 to send a READ or a COMMAND
+
+        // Add the timeout event for the respective response
+        cMessage* resTimeoutMsg = new cMessage("Response timeout");
+        resTimeoutMsg->setKind(MSGKIND_RES_TIMEOUT);
+        resTimeoutMap.insert({payload->getOriginId(), resTimeoutMsg});
+        scheduleAt(simTime() + SimTime(resTimeout, SIMTIME_S), resTimeoutMsg);
     }
 
     packet->insertAtBack(payload);
@@ -122,6 +131,18 @@ void MmsClient::handleTimer(cMessage *msg)
             sendRequest();
             numRequestsToSend--;
             break;
+
+        case MSGKIND_RES_TIMEOUT:
+        	for(auto &i : resTimeoutMap) {
+        		if (i.second == msg) {
+        			assert(resTimeoutMap.erase(i.first) == 1);
+        			delete msg;
+        			// Emit signal for generic response timeout
+        			emit(genericResponseTimeoutSignal, true);
+        			break;
+        		}
+        	}
+        	break;
 
         default:
             throw cRuntimeError("Invalid timer msg: kind=%d", msg->getKind());
@@ -171,7 +192,13 @@ void MmsClient::socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent)
         if(appmsg->getMessageKind() == MMSKind::MEASURE) {
         	measureCounter++;
         }
-        if(appmsg->getMessageKind() == MMSKind::GENRESP) emit(genericResponseSignal, true);
+        if(appmsg->getMessageKind() == MMSKind::GENRESP) {
+        	emit(genericResponseSignal, true);
+        	if(resTimeoutMap.find(appmsg->getOriginId()) != resTimeoutMap.end()) {
+        		cMessage* tmpTimeout = resTimeoutMap[appmsg->getOriginId()];
+        		cancelAndDelete(tmpTimeout);
+        	}
+        }
     }
     if (numRequestsToSend > 0) {
         if (previousResponseSent) {
