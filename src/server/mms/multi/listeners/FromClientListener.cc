@@ -77,6 +77,8 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 		}
 
     }
+
+    delete pckt;
 }
 
 }
