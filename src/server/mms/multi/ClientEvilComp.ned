@@ -24,6 +24,11 @@ simple ClientEvilComp extends TcpBasicClientApp {
 	parameters:
 	    @class("inet::ClientEvilComp");
 	    
+	    volatile int fakeGenReqThresh = default(10);
+	    
+        @signal[genericFakeReqResSignal](type=bool);
+        @statistic[genericFakeReqRes](source=genericFakeReqResSignal; record=count);
+	    
 	    @signal[topicAmount](type=int);
         @statistic[topicAmountStat](source=topicAmount; record=vector);
         @signal[genericResponseSignal](type=bool);

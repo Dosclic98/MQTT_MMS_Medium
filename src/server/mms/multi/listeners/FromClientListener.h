@@ -17,6 +17,7 @@
 #define SERVER_MMS_MULTI_LISTENERS_FROMCLIENTLISTENER_H_
 
 #include "../ClientEvilComp.h"
+#include "../../../../message/mms/MmsMessage_m.h"
 
 namespace inet {
 
@@ -29,8 +30,11 @@ public:
 	virtual ~FromClientListener();
 
 	virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject* value, cObject *obj);
+	void enqueueNSchedule(MmsMessage* msg);
 
 	ClientEvilComp* parent;
+	int fakeGenReqThresh;
+	int numGenReq;
 };
 
 }

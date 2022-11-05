@@ -14,7 +14,6 @@
 // 
 
 #include "FromClientListener.h"
-#include "../../../../message/mms/MmsMessage_m.h"
 #include "inet/common/TimeTag_m.h"
 
 
@@ -29,6 +28,8 @@ FromClientListener::FromClientListener() {
 
 FromClientListener::FromClientListener(ClientEvilComp* parent) {
 	this->parent = parent;
+	fakeGenReqThresh = parent->par("fakeGenReqThresh").intValue();
+	numGenReq = 0;
 	FromClientListener();
 }
 
@@ -42,6 +43,30 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
     auto chunk = pckt->peekDataAt(B(0), pckt->getTotalLength());
     queue.push(chunk);
     while (const auto& appmsg = queue.pop<MmsMessage>(b(-1), Chunk::PF_ALLOW_NULLPTR)) {
+		if(appmsg->getMessageKind() == MMSKind::GENREQ) {
+			numGenReq++;
+			// If at least a certain number of generic requests has been sent
+			// generate a fake request for the server
+			if(numGenReq >= fakeGenReqThresh) {
+				numGenReq = 0;
+
+				// Add to the forward to the server queue
+				MmsMessage* msg = new MmsMessage();
+				// Useless, could also not be set
+				msg->setOriginId(pckt->getId());
+				msg->setMessageKind(MMSKind::GENREQ);
+				msg->setConnId(appmsg->getConnId());
+				msg->setExpectedReplyLength(appmsg->getExpectedReplyLength());
+				msg->setChunkLength(appmsg->getChunkLength());
+				// Set to -1 so the ClientEvilComp Will not forward it to the server
+				msg->setEvilServerConnId(-1);
+				msg->setServerClose(false);
+				msg->addTag<CreationTimeTag>()->setCreationTime(simTime());
+
+				enqueueNSchedule(msg);
+			}
+		}
+
 		// Add to the forward to the server queue
 		MmsMessage* msg = new MmsMessage();
 		msg->setOriginId(appmsg->getOriginId());
@@ -67,19 +92,23 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 			}
 		}
 
-		if(this->parent->previousResponseSent && this->parent->getConnectionState() == TcpSocket::CONNECTED) {
-			this->parent->msgQueue.insert(msg);
-			simtime_t d = simTime() + SimTime(round(this->parent->par("thinkTime").doubleValue()), SIMTIME_MS);
-			// We suppose the client is already connected to the server, so when the data arrives we send it (MSG_KIND_SEND)
-			this->parent->rescheduleAfterOrDeleteTimer(d, MSGKIND_SEND);
-			this->parent->previousResponseSent = false;
-		} else {
-			this->parent->msgQueue.insert(msg);
-		}
+		enqueueNSchedule(msg);
 
     }
 
     delete pckt;
+}
+
+void FromClientListener::enqueueNSchedule(MmsMessage* msg) {
+	if(this->parent->previousResponseSent && this->parent->getConnectionState() == TcpSocket::CONNECTED) {
+		this->parent->msgQueue.insert(msg);
+		simtime_t d = simTime() + SimTime(round(this->parent->par("thinkTime").doubleValue()), SIMTIME_MS);
+		// We suppose the client is already connected to the server, so when the data arrives we send it (MSG_KIND_SEND)
+		this->parent->rescheduleAfterOrDeleteTimer(d, MSGKIND_SEND);
+		this->parent->previousResponseSent = false;
+	} else {
+		this->parent->msgQueue.insert(msg);
+	}
 }
 
 }

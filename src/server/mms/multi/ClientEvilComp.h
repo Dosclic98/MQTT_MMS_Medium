@@ -35,6 +35,7 @@ public:
 	virtual int getConnectionState();
 
 	// Gestione segnali
+	simsignal_t genericFakeReqResSignal;
 	simsignal_t measureBlockSignal;
 	simsignal_t measureCompromisedSignal;
 	simsignal_t genericResponseBlockSignal;

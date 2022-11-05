@@ -90,6 +90,7 @@ void MmsClient::sendRequest()
     payload->setServerClose(false);
     payload->addTag<CreationTimeTag>()->setCreationTime(simTime());
     payload->setServerIndex(this->getIndex());
+    EV << "Index: " << this->getIndex();
     if(!isListening) {
     	// Connect kind
         payload->setMessageKind(MMSKind::CONNECT);
@@ -135,7 +136,7 @@ void MmsClient::handleTimer(cMessage *msg)
         case MSGKIND_RES_TIMEOUT:
         	for(auto &i : resTimeoutMap) {
         		if (i.second == msg) {
-        			assert(resTimeoutMap.erase(i.first) == 1);
+        			resTimeoutMap.erase(i.first);
         			delete msg;
         			// Emit signal for generic response timeout
         			emit(genericResponseTimeoutSignal, true);
@@ -196,6 +197,7 @@ void MmsClient::socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent)
         	emit(genericResponseSignal, true);
         	if(resTimeoutMap.find(appmsg->getOriginId()) != resTimeoutMap.end()) {
         		cMessage* tmpTimeout = resTimeoutMap[appmsg->getOriginId()];
+        		resTimeoutMap.erase(appmsg->getOriginId());
         		cancelAndDelete(tmpTimeout);
         	}
         }

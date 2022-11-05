@@ -50,6 +50,7 @@ void ClientEvilComp::initialize(int stage)
             throw cRuntimeError("Invalid startTime/stopTime parameters");
         timeoutMsg = new cMessage("timer");
 
+        genericFakeReqResSignal = registerSignal("genericFakeReqResSignal");
         pcktFromServerSignal = registerSignal("pcktFromServerSignal");
         genericRequestBlockSignal = registerSignal("genericRequestBlockSignal");
         genericRequestCompromisedSignal = registerSignal("genericRequestCompromisedSignal");
@@ -162,6 +163,13 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
     auto chunk = pckt->peekDataAt(B(0), pckt->getTotalLength());
     queue.push(chunk);
     while (const auto& appmsg = queue.pop<MmsMessage>(b(-1), Chunk::PF_ALLOW_NULLPTR)) {
+    	if(appmsg->getMessageKind() == MMSKind::GENRESP && appmsg->getEvilServerConnId() == -1) {
+            // Emit signal for generic fake Req Res
+    		emit(genericFakeReqResSignal, true);
+            TcpAppBase::socketDataArrived(socket, pckt, urgent);
+            return;
+    	}
+
 		const auto& msg = makeShared<MmsMessage>();
 		Packet *packet = new Packet("data");
 		msg->setOriginId(appmsg->getOriginId());
