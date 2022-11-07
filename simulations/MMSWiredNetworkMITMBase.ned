@@ -36,8 +36,12 @@ network MMSWiredNetworkMITMBase {
 		
 	submodules:
 	    configurator: Ipv4NetworkConfigurator;
-	    client[numClients]: StandardHost;
-	    evilClient: StandardHost;
+	    client[numClients]: StandardHost {
+	    	numApps = parent.numServers;
+	    };
+	    evilClient: StandardHost {
+	    	numApps = parent.numServers + 1;
+	    };
 	    server[numServers]: StandardHost;
         router: Router {
             @display("p=157,128");
