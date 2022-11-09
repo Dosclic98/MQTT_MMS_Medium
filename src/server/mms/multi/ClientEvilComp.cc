@@ -69,22 +69,14 @@ void ClientEvilComp::initialize(int stage)
     }
 }
 
-void ClientEvilComp::sendRequest()
-{
-    long requestLength = par("requestLength");
-    long replyLength = par("replyLength");
-    if (requestLength < 1)
-        requestLength = 1;
-    if (replyLength < 1)
-        replyLength = 1;
-
+void ClientEvilComp::sendRequest() {
     if(!msgQueue.isEmpty()) {
     	MmsMessage* msg = check_and_cast<MmsMessage*>(msgQueue.pop());
         const auto& payload = makeShared<MmsMessage>();
         Packet *packet = new Packet("data");
         payload->setOriginId(msg->getOriginId());
-        payload->setChunkLength(B(requestLength));
-        payload->setExpectedReplyLength(B(replyLength));
+        payload->setChunkLength(msg->getChunkLength());
+        payload->setExpectedReplyLength(msg->getExpectedReplyLength());
         payload->setServerClose(msg->getServerClose());
         payload->addTag<CreationTimeTag>()->setCreationTime(msg->getTag<CreationTimeTag>()->getCreationTime());
         payload->setMessageKind(msg->getMessageKind());

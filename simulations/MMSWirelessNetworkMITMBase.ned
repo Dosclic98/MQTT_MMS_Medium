@@ -42,8 +42,14 @@ network MMSWirelessNetworkMITMBase {
 	    visualizer: IntegratedCanvasVisualizer { @display("p=450,50"); }
 	    configurator: Ipv4NetworkConfigurator;
 	    radioMedium: Ieee80211RadioMedium { @display("p=300,50"); }
-	    client[numClients]: WirelessHost { @display("p=200,200"); }
-	    evilClient: WirelessHost { @display("p=200,200"); }
+	    client[numClients]: WirelessHost { 
+	        @display("p=200,200");
+	        numApps = parent.numServers;
+	    }
+	    evilClient: WirelessHost { 
+	        @display("p=200,200"); 
+	   		numApps = parent.numServers + 1;
+	   	}
 	    server[numServers]: WirelessHost { @display("p=600,215"); }
 	    accessPoint: AccessPoint { @display("p=374,215"); }
 }

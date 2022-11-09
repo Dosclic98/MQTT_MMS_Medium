@@ -51,10 +51,15 @@ network MMSWiredWirelessNetworkMITMBase
         radioMedium: Ieee80211RadioMedium {
             @display("p=49,32");
         }
-        wiredClient[numWiredClients]: StandardHost;
-        wirelessClient[numWirelessClients]: WirelessHost;
+        wiredClient[numWiredClients]: StandardHost {
+        	numApps = parent.numServers;
+        };
+        wirelessClient[numWirelessClients]: WirelessHost {
+        	numApps = parent.numServers;
+        };
         evilClient: StandardHost {
             @display("p=374,57");
+            numApps = parent.numServers + 1;
         }
         server[numServers]: StandardHost {
             @display("p=589,142");
