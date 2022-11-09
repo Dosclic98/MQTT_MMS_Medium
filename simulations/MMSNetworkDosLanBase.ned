@@ -32,11 +32,17 @@ network MMSNetworkDosLanBase
             @display("p=140,200");
         }
         router: Router {
-        	@display("i=abstract/router2");
+            @display("i=abstract/router2");
         }
-        goodCliLan: <> like ICliLan;
-        badCliLan: <> like ICliLan;
-        derLan: WiredDerLan;
+        goodCliLan: <> like ICliLan {
+            @display("i=misc/house");
+        }
+        badCliLan: <> like ICliLan {
+            @display("i=device/mainframe");
+        }
+        derLan: WiredDerLan {
+            @display("i=device/lan");
+        }
     connections:
         goodCliLan.gate <--> Eth1G <--> router.ethg++;
         badCliLan.gate <--> Eth1G <--> router.ethg++;

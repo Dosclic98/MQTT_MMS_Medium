@@ -46,7 +46,7 @@ network MMSWirelessNetworkDoSHandoverBase
             @display("p=199,224");
         }
         server[numServers]: StandardHost {
-            @display("p=315,635");
+            @display("i=misc/windturbine;p=315,635");
         }
         accessPoint1: AccessPoint {
             @display("p=130,385");

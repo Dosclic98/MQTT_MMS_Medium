@@ -27,6 +27,7 @@ import inet.physicallayer.wireless.ieee80211.packetlevel.Ieee80211RadioMedium;
 network MMSNetworkMITMLanBase
 {
     parameters:
+        volatile int numDerLan = default(1);
         @statistic[measureBlockGlobal](source=measureBlockSignal; record=count);
         @statistic[measureCompromisedGlobal](source=measureCompromisedSignal; record=count);
         
@@ -44,13 +45,17 @@ network MMSNetworkMITMLanBase
         router: Router {
         	@display("i=abstract/router2");
         }
-        goodCliLan: <> like ICliLan;
-        evilCliLan: <> like ICliLan;
-        derLan: WiredDerLan;
+        goodCliLan: <> like ICliLan {
+        	@display("i=misc/house");
+        };
+        derLan[numDerLan]: WiredDerLan {
+        	@display("i=device/lan");
+        };
         
     connections:
         goodCliLan.gate <--> Eth1G <--> router.ethg++;
-        evilCliLan.gate <--> Eth1G <--> router.ethg++;
-        derLan.gate <--> Eth1G <--> router.ethg++;
+        for i=0..(numDerLan-1) {
+            derLan[i].gate <--> Eth1G <--> router.ethg++;	
+        }
 
 }

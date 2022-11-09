@@ -26,7 +26,9 @@ module WiredDerLan {
         inout gate;
 
     submodules:
-        server[numServers]: StandardHost;
+        server[numServers]: StandardHost {
+        	@display("i=misc/windturbine");
+        };
         router: Router {
             @display("p=78,283");
         }

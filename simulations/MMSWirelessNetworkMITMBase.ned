@@ -47,9 +47,9 @@ network MMSWirelessNetworkMITMBase {
 	        numApps = parent.numServers;
 	    }
 	    evilClient: WirelessHost { 
-	        @display("p=200,200"); 
+	        @display("i=old/comp_a;p=200,200"); 
 	   		numApps = parent.numServers + 1;
 	   	}
-	    server[numServers]: WirelessHost { @display("p=600,215"); }
+	    server[numServers]: WirelessHost { @display("i=misc/windturbine;p=600,215"); }
 	    accessPoint: AccessPoint { @display("p=374,215"); }
 }

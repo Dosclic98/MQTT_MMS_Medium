@@ -40,9 +40,12 @@ network MMSWiredNetworkMITMBase {
 	    	numApps = parent.numServers;
 	    };
 	    evilClient: StandardHost {
+	        @display("i=old/comp_a");
 	    	numApps = parent.numServers + 1;
 	    };
-	    server[numServers]: StandardHost;
+	    server[numServers]: StandardHost {
+	    	@display("i=misc/windturbine");
+	    };
         router: Router {
             @display("p=157,128");
         }

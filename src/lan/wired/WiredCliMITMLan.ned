@@ -13,41 +13,39 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package tx_medium_exp.simulations;
+package tx_medium_exp.lan.wired;
 
 import inet.node.inet.StandardHost;
-import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 import inet.node.inet.Router;
 import inet.node.ethernet.*;
+import tx_medium_exp.lan.ICliLan;
 
-network MMSWiredNetworkDoSBase
-{
+
+module WiredCliMITMLan like ICliLan {
+
     parameters:
         int numGoodClient = default(1);
-        int numBadClient = default(1);
 
-        int numServers = default(1);
+    gates:
+        inout gate;
 
     submodules:
-        configurator: Ipv4NetworkConfigurator;
-        client[numGoodClient + numBadClient]: StandardHost;
-        server[numServers]: StandardHost {
-        	@display("i=misc/windturbine");
+        client[numGoodClient]: StandardHost;
+        evilClient: StandardHost {
+        	@display("i=old/comp_a");
         };
         router: Router {
-            @display("p=157,128");
+            @display("p=476,289");
         }
         switch: EthernetSwitch {
-            @display("p=157,339");
+            @display("p=343,288");
         }
-
-    connections:
-        switch.ethg++ <--> Eth1G <--> router.ethg++;
-        for j=0..(numServers-1) {
-            router.ethg++ <--> Eth1G <--> server[j].ethg++;
-        }
-        for i=0..(numGoodClient + numBadClient)-1 {
-            client[i].ethg++ <--> Eth1G <--> switch.ethg++;
-        }
-
+	
+	connections:
+	    switch.ethg++ <--> Eth1G <--> router.ethg++;
+	    router.ethg++ <--> gate;
+	    evilClient.ethg++ <--> Eth1G <--> switch.ethg++;
+	    for i=0..(numGoodClient)-1{
+	    	client[i].ethg++ <--> Eth1G <--> switch.ethg++;
+	    }
 }

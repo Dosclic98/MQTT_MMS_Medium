@@ -44,7 +44,9 @@ network MMSWiredWirelessNetworkDoSBase
         }
         wiredClient[numWiredGoodClient]: StandardHost;
         wirelessClient[numWirelessBadClient]: WirelessHost;
-        server[numServers]: StandardHost;
+        server[numServers]: StandardHost {
+        	@display("i=misc/windturbine");
+        };
         accessPoint: AccessPoint {
             @display("p=359,240");
         }

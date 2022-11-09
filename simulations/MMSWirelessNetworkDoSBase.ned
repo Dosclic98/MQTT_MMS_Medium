@@ -36,6 +36,6 @@ network MMSWirelessNetworkDoSBase {
 	    configurator: Ipv4NetworkConfigurator;
 	    radioMedium: Ieee80211RadioMedium { @display("p=300,50"); }
 	    client[numGoodClient + numBadClient]: WirelessHost { @display("p=200,200"); }
-	    server[numServers]: WirelessHost { @display("p=600,215"); }
+	    server[numServers]: WirelessHost { @display("i=misc/windturbine;p=600,215"); }
 	    accessPoint: AccessPoint { @display("p=374,215"); }
 }

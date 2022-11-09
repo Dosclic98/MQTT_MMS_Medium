@@ -13,12 +13,31 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package tx_medium_exp.lan;
+package tx_medium_exp.lan.wireless;
 
-moduleinterface ICliLan {
+import inet.node.wireless.AccessPoint;
+import inet.node.inet.WirelessHost;
+import tx_medium_exp.lan.ICliLan;
+
+module WirelessCliMITMLan like ICliLan
+{
     parameters:
-        int numGoodClient;
-    
+        int numGoodClient = default(1);
+
     gates:
         inout gate;
+
+    submodules:
+        evilClient: WirelessHost {
+            @display("p=392,272,i=old/comp_a");
+        }
+        client[numGoodClient]: WirelessHost {
+            @display("p=106,157");
+        }
+        accessPoint: AccessPoint {
+            @display("p=258,156");
+        }
+
+    connections:
+        accessPoint.ethg++ <--> gate;
 }

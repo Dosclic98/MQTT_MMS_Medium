@@ -58,11 +58,11 @@ network MMSWiredWirelessNetworkMITMBase
         	numApps = parent.numServers;
         };
         evilClient: StandardHost {
-            @display("p=374,57");
+            @display("p=374,57;i=old/comp_a");
             numApps = parent.numServers + 1;
         }
         server[numServers]: StandardHost {
-            @display("p=589,142");
+            @display("p=589,142;i=misc/windturbine");
         }
         accessPoint: AccessPoint {
             @display("p=364,235");
