@@ -44,10 +44,10 @@ network MMSWiredNetworkDoSBase
     connections:
         switch.ethg++ <--> Eth1G <--> router.ethg++;
         for j=0..(numServers-1) {
-            router.ethg++ <--> Eth1G <--> server[j].ethg++;
+            router.ethg++ <--> Eth100M <--> server[j].ethg++;
         }
         for i=0..(numGoodClient + numBadClient)-1 {
-            client[i].ethg++ <--> Eth1G <--> switch.ethg++;
+            client[i].ethg++ <--> Eth100M <--> switch.ethg++;
         }
 
 }

@@ -45,7 +45,7 @@ network MMSNetworkDosLanBase
         }
     connections:
         goodCliLan.gate <--> Eth100M <--> router.ethg++;
-        badCliLan.gate <--> Eth1G <--> router.ethg++;
-        derLan.gate <--> Eth1G <--> router.ethg++;
+        badCliLan.gate <--> Eth100M <--> router.ethg++;
+        derLan.gate <--> Eth100M <--> router.ethg++;
 
 }
