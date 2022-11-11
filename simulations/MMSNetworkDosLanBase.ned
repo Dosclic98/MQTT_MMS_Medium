@@ -44,7 +44,7 @@ network MMSNetworkDosLanBase
             @display("i=device/lan");
         }
     connections:
-        goodCliLan.gate <--> Eth1G <--> router.ethg++;
+        goodCliLan.gate <--> Eth100M <--> router.ethg++;
         badCliLan.gate <--> Eth1G <--> router.ethg++;
         derLan.gate <--> Eth1G <--> router.ethg++;
 

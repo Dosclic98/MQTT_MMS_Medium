@@ -59,11 +59,11 @@ network MMSWiredWirelessNetworkDoSBase
 
     connections:
         switch.ethg++ <--> Eth1G <--> router.ethg++;
-        accessPoint.ethg++ <--> Eth1G <--> router.ethg++;
+        accessPoint.ethg++ <--> Eth100M <--> router.ethg++;
         for j=0..(numServers-1) {
-            router.ethg++ <--> Eth1G <--> server[j].ethg++;
+            router.ethg++ <--> Eth100M <--> server[j].ethg++;
         }
         for i=0..numWiredGoodClient-1 {
-            wiredClient[i].ethg++ <--> Eth1G <--> switch.ethg++;
+            wiredClient[i].ethg++ <--> Eth100M <--> switch.ethg++;
         }
 }

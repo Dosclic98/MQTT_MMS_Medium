@@ -55,12 +55,12 @@ network MMSWiredNetworkMITMBase {
     
     connections:
         switch.ethg++ <--> Eth1G <--> router.ethg++;
-        evilClient.ethg++ <--> Eth1G <--> router.ethg++;
+        evilClient.ethg++ <--> Eth100M <--> router.ethg++;
         for i = 0..numClients-1 {
-        	client[i].ethg++ <--> Eth1G <--> switch.ethg++;
+        	client[i].ethg++ <--> Eth100M <--> switch.ethg++;
         }
         for j = 0..numServers-1 {
-        	router.pppg++ <--> { datarate = 1Gbps; } <--> server[j].pppg++;
+        	router.ethg++ <--> Eth100M <--> server[j].ethg++;
         }
 	
 }

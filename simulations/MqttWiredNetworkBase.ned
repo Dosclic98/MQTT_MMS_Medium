@@ -40,9 +40,9 @@ network MqttWiredNetworkBase
             @display("p=150,330");
         }
     connections:
-        router.pppg++ <--> {  datarate = 1Gbps; } <--> broker.pppg++;
-        switch.ethg++ <--> Eth1G <--> router.ethg++;
+        router.ethg++ <--> Eth1G <--> broker.ethg++;
+        switch.ethg++ <--> Eth100M <--> router.ethg++;
         for i=0..numClients-1 {
-            client[i].ethg++ <--> Eth1G <--> switch.ethg++;
+            client[i].ethg++ <--> Eth100M <--> switch.ethg++;
         }
 }

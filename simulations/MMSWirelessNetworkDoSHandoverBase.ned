@@ -62,7 +62,7 @@ network MMSWirelessNetworkDoSHandoverBase
         accessPoint1.ethg++ <--> Eth1G <--> router.ethg++;
         accessPoint2.ethg++ <--> Eth1G <--> router.ethg++;
         for j = 0..(numServers-1) {
-        	router.ethg++ <--> Eth1G <--> server[j].ethg++;
+        	router.ethg++ <--> Eth100M <--> server[j].ethg++;
         }
         
 }
