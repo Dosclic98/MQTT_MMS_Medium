@@ -21,6 +21,7 @@ import tx_medium_exp.lan.wired.WiredDerLan;
 import inet.node.ethernet.*;
 import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 import tx_medium_exp.lan.ICliLan;
+import tx_medium_exp.lan.IDerLan;
 import inet.physicallayer.wireless.ieee80211.packetlevel.Ieee80211RadioMedium;
 
 
@@ -48,7 +49,7 @@ network MMSNetworkMITMLanBase
         goodCliLan: <> like ICliLan {
         	@display("i=misc/house");
         };
-        derLan[numDerLan]: WiredDerLan {
+        derLan[numDerLan]: <> like IDerLan {
         	@display("i=device/lan");
         };
         

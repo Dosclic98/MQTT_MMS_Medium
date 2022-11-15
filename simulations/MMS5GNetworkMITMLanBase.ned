@@ -15,23 +15,23 @@
 
 package tx_medium_exp.simulations;
 
-import inet.node.inet.StandardHost;
-import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 import inet.node.inet.Router;
+import tx_medium_exp.lan.wired.WiredCliLan;
+import tx_medium_exp.lan.wired.WiredDerLan;
 import inet.node.ethernet.*;
+import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
+import tx_medium_exp.lan.ICliLan;
+import tx_medium_exp.lan.IDerLan;
+import inet.physicallayer.wireless.ieee80211.packetlevel.Ieee80211RadioMedium;
 import simu5g.common.binder.Binder;
-import simu5g.common.carrierAggregation.CarrierAggregation;
-import simu5g.nodes.NR.NRUe;
-import simu5g.nodes.NR.gNodeB;
-import simu5g.nodes.PgwStandard;
 import simu5g.world.radio.LteChannelControl;
+import simu5g.common.carrierAggregation.CarrierAggregation;
+import simu5g.common.binder.Binder;
 
-network MMS5GNetworkMITMBase
-{
+
+network MMS5GNetworkMITMLanBase{
     parameters:
-        int numClients = default(3);
-        int numServers = default(1);
-
+        volatile int numDerLan = default(1);
         @statistic[measureBlockGlobal](source=measureBlockSignal; record=count);
         @statistic[measureCompromisedGlobal](source=measureCompromisedSignal; record=count);
 
@@ -42,45 +42,36 @@ network MMS5GNetworkMITMBase
         @statistic[genericResponseCompromisedGlobal](source=genericResponseCompromisedSignal; record=count);
 
     submodules:
-        configurator: Ipv4NetworkConfigurator;
-        binder: Binder;
+        configurator: Ipv4NetworkConfigurator {
+            @display("p=51,168");
+        }
+
         carrierAggregation: CarrierAggregation {
-            @display("p=50.993748,258.7;is=s");
+            @display("p=142,100;is=s");
         }
         channelControl: LteChannelControl {
             @display("p=50,25;is=s");
         }
-        // Must be called "upf" for the network to work correctly
-        upf: PgwStandard {
-            @display("p=157,54");
-        }
-        client[numClients]: StandardHost {
-            numApps = parent.numServers;
-        }
-        evilClient: StandardHost {
-            @display("i=old/comp_a;p=43,128");
-            numApps = parent.numServers + 1;
-        }
-        server[numServers]: NRUe {
-            @display("i=misc/windturbine;p=510,76");
-        }
-        antenna: gNodeB {
-            @display("p=308,54");
+        radioMedium: Ieee80211RadioMedium {
+            @display("p=51,88");
         }
         router: Router {
-            @display("p=157,128");
+            @display("i=abstract/router2");
         }
-        switch: EthernetSwitch {
-            @display("p=157,213");
+        goodCliLan: <> like ICliLan {
+            @display("i=misc/house");
+        }
+        derLan[numDerLan]: <> like IDerLan {
+            @display("i=device/lan");
+        }
+        binder: Binder {
+            @display("p=35,38");
         }
 
     connections:
-        switch.ethg++ <--> Eth1G <--> router.ethg++;
-        evilClient.ethg++ <--> Eth100M <--> router.ethg++;
-        antenna.ppp <--> Eth1G <--> upf.pppg++;
-        router.pppg++ <--> Eth1G <--> upf.filterGate;
-        for i=0..numClients-1 {
-            client[i].ethg++ <--> Eth100M <--> switch.ethg++;
+        goodCliLan.gate <--> Eth1G <--> router.ethg++;
+        for i=0..(numDerLan-1) {
+            derLan[i].gate <--> Eth1G <--> router.ethg++;
         }
 
 }

@@ -13,34 +13,43 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package tx_medium_exp.lan.wired;
+package tx_medium_exp.lan.mobile;
 
 import inet.node.inet.StandardHost;
 import inet.node.inet.Router;
 import inet.node.ethernet.*;
+import simu5g.nodes.NR.NRUe;
+import simu5g.nodes.NR.gNodeB;
+import simu5g.nodes.PgwStandard;
 import tx_medium_exp.lan.IDerLan;
+import simu5g.common.binder.Binder;
 
-module WiredDerLan like IDerLan {
+module Wireless5GDerLan like IDerLan {
     parameters:
         int numServers = default(1);
     gates:
         inout gate;
 
     submodules:
-        server[numServers]: StandardHost {
-        	@display("i=misc/windturbine");
-        };
         router: Router {
-            @display("p=78,283");
+            @display("p=157,278");
         }
-        switch: EthernetSwitch {
-            @display("p=297,282");
+        // Must be called "upf" for the network to work correctly
+        upf: PgwStandard {
+            @display("p=157,175");
         }
-
+        server[numServers]: NRUe {
+            @display("i=misc/windturbine;p=502,102");
+        }
+        antenna: gNodeB {
+            @display("p=304,102");
+        }
+        binder: Binder {
+            @display("p=697,262");
+        }
     connections:
-        switch.ethg++ <--> Eth1G <--> router.ethg++;
         router.ethg++ <--> gate;
-        for i=0..numServers-1 {
-            server[i].ethg++ <--> Eth1G <--> switch.ethg++;
-        }
+        antenna.ppp <--> Eth1G <--> upf.pppg++;
+        router.pppg++ <--> Eth1G <--> upf.filterGate;
+
 }
