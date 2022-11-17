@@ -29,8 +29,6 @@ simple ClientEvilComp extends TcpBasicClientApp {
         @signal[genericFakeReqResSignal](type=bool);
         @statistic[genericFakeReqRes](source=genericFakeReqResSignal; record=count);
 	    
-	    @signal[topicAmount](type=int);
-        @statistic[topicAmountStat](source=topicAmount; record=vector);
         @signal[genericResponseSignal](type=bool);
         @statistic[genericResponse](source=genericResponseSignal; record=count);
         
