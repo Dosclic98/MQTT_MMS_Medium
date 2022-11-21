@@ -168,3 +168,4 @@ backups
 
 # Mine
 simulations/results/*
+simulations/logs
