@@ -21,6 +21,7 @@
 #include "inet/applications/tcpapp/TcpAppBase.h"
 #include "inet/common/lifecycle/ILifecycle.h"
 #include "inet/common/lifecycle/NodeStatus.h"
+#include "../../message/mms/MmsMessage_m.h"
 
 namespace inet {
 
@@ -45,12 +46,13 @@ class INET_API MmsClient : public TcpAppBase
 
     //Gestione richiesta di misure e risposta casuale
     bool isListening;
-    bool previousResponseSent;
+    simsignal_t readSentSignal;
+    simsignal_t commandSentSignal;
     simsignal_t genericResponseSignal;
     simsignal_t genericResponseTimeoutSignal;
 
 
-    virtual void sendRequest();
+    virtual void sendRequest(MMSKind kind = MMSKind::CONNECT, ReqResKind reqKind = ReqResKind::READ);
     virtual void rescheduleOrDeleteTimer(simtime_t d, short int msgKind);
 
     virtual int numInitStages() const override { return NUM_INIT_STAGES; }

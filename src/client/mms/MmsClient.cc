@@ -1,7 +1,6 @@
 
 #include "MmsClient.h"
 
-#include "../../message/mms/MmsMessage_m.h"
 #include "inet/common/ModuleAccess.h"
 #include "inet/common/lifecycle/ModuleOperations.h"
 #include "inet/common/packet/Packet.h"
@@ -9,9 +8,10 @@
 
 namespace inet {
 
-#define MSGKIND_CONNECT    		0
-#define MSGKIND_SEND       		1
-#define MSGKIND_RES_TIMEOUT	   	2
+#define MSGKIND_CONNECT    				0
+#define MSGKIND_SEND_READ       		1
+#define MSGKIND_SEND_COMMAND       		2
+#define MSGKIND_RES_TIMEOUT	   			3
 
 Define_Module(MmsClient);
 
@@ -26,9 +26,7 @@ void MmsClient::initialize(int stage)
     TcpAppBase::initialize(stage);
     if (stage == INITSTAGE_LOCAL) {
         numRequestsToSend = 0;
-        earlySend = false;    // TBD make it parameter
         WATCH(numRequestsToSend);
-        WATCH(earlySend);
         WATCH(measureCounter);
         startTime = par("startTime");
         stopTime = par("stopTime");
@@ -39,12 +37,13 @@ void MmsClient::initialize(int stage)
 
         measureAmountEvent = new cMessage("Topic Amount Event");
         measureReceivedCount = registerSignal("measureReceivedCount");
+        readSentSignal = registerSignal("readSentSignal");
+        commandSentSignal = registerSignal("commandSentSignal");
         genericResponseSignal = registerSignal("genericResponseSignal");
         genericResponseTimeoutSignal = registerSignal("genericResponseTimeoutSignal");
 
         measureCounter = 0;
         isListening = false;
-        previousResponseSent = true;
         scheduleAt(simTime() + SimTime(measureAmountEventDelay, SIMTIME_S), measureAmountEvent);
     }
 }
@@ -73,7 +72,7 @@ void MmsClient::handleCrashOperation(LifecycleOperation *operation)
         socket.destroy();
 }
 
-void MmsClient::sendRequest()
+void MmsClient::sendRequest(MMSKind kind, ReqResKind reqKind)
 {
     long requestLength = par("requestLength");
     long replyLength = par("replyLength");
@@ -91,15 +90,21 @@ void MmsClient::sendRequest()
     payload->addTag<CreationTimeTag>()->setCreationTime(simTime());
     payload->setServerIndex(this->getIndex());
     EV << "Index: " << this->getIndex();
-    if(!isListening) {
+    if(!isListening && kind == MMSKind::CONNECT) {
     	// Connect kind
-        payload->setMessageKind(MMSKind::CONNECT);
+        payload->setMessageKind(kind);
         isListening = true;
     }
     else {
-        previousResponseSent = true;
-        payload->setMessageKind(MMSKind::GENREQ);
-        // TODO Add a probability exraction of 0.5 to send a READ or a COMMAND
+        payload->setMessageKind(kind);
+        // Send a Read or a Command
+        payload->setReqResKind(reqKind);
+
+        if(reqKind == ReqResKind::READ) {
+        	emit(readSentSignal, true);
+        } else if(reqKind == ReqResKind::COMMAND) {
+        	emit(commandSentSignal, true);
+        }
 
         // Add the timeout event for the respective response
         cMessage* resTimeoutMsg = new cMessage("Response timeout");
@@ -121,16 +126,30 @@ void MmsClient::handleTimer(cMessage *msg)
         scheduleAt(simTime() + SimTime(measureAmountEventDelay, SIMTIME_S), measureAmountEvent);
         return;
     }
+    simtime_t dRead = 0;
+    simtime_t dCommand = 0;
     switch (msg->getKind()) {
         case MSGKIND_CONNECT:
             connect();
-            if (earlySend)
-                sendRequest();
+            delete msg;
             break;
 
-        case MSGKIND_SEND:
-            sendRequest();
+        case MSGKIND_SEND_READ:
+            sendRequest(MMSKind::GENREQ, ReqResKind::READ);
             numRequestsToSend--;
+            delete msg;
+            // Schedule a Read send
+			dRead = simTime() + SimTime(par("sendReadInterval").intValue(), SIMTIME_S);
+			rescheduleOrDeleteTimer(dRead, MSGKIND_SEND_READ);
+            break;
+
+        case MSGKIND_SEND_COMMAND:
+            sendRequest(MMSKind::GENREQ, ReqResKind::COMMAND);
+            numRequestsToSend--;
+            delete msg;
+            // Schedule a Command send
+            dCommand = simTime() + SimTime(par("sendCommandInterval").intValue(), SIMTIME_S);
+            rescheduleOrDeleteTimer(dCommand, MSGKIND_SEND_COMMAND);
             break;
 
         case MSGKIND_RES_TIMEOUT:
@@ -159,16 +178,23 @@ void MmsClient::socketEstablished(TcpSocket *socket)
     if (numRequestsToSend < 1)
         numRequestsToSend = 1;
 
-    // perform first request if not already done (next one will be sent when reply arrives)
-    if (!earlySend)
-        sendRequest();
 
+    // Send the register for measure MMS message
+    sendRequest();
     numRequestsToSend--;
+
+    // Schedule a Read send
+    simtime_t dRead = simTime() + SimTime(par("sendReadInterval").intValue(), SIMTIME_S);
+    rescheduleOrDeleteTimer(dRead, MSGKIND_SEND_READ);
+    // // Schedule a Command send
+    simtime_t dCommand = simTime() + SimTime(par("sendCommandInterval").intValue(), SIMTIME_S);
+    rescheduleOrDeleteTimer(dCommand, MSGKIND_SEND_COMMAND);
 }
 
 void MmsClient::rescheduleOrDeleteTimer(simtime_t d, short int msgKind)
 {
-    cancelEvent(timeoutMsg);
+    //cancelEvent(timeoutMsg);
+	timeoutMsg = new cMessage("timer");
 
     if (stopTime < SIMTIME_ZERO || d < stopTime) {
         timeoutMsg->setKind(msgKind);
@@ -202,6 +228,7 @@ void MmsClient::socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent)
         	}
         }
     }
+/*
     if (numRequestsToSend > 0) {
         if (previousResponseSent) {
             simtime_t d = simTime() + SimTime(par("thinkTime").intValue(), SIMTIME_MS);
@@ -211,7 +238,7 @@ void MmsClient::socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent)
     } else {
         close();
     }
-
+*/
     TcpAppBase::socketDataArrived(socket, msg, urgent);
 }
 

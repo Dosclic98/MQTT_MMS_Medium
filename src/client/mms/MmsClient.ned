@@ -28,6 +28,9 @@ simple MmsClient like IApp
         double stopOperationExtraTime @unit(s) = default(-1s);    // extra time after lifecycle stop operation finished
         double stopOperationTimeout @unit(s) = default(2s);    // timeout value for lifecycle stop operation
         volatile int resTimeoutInterval @unit(s) = default(1s);		// timeout for generic responses
+        bool isLogging = default(false);	// specify if the specific client must Log the packets on file
+        volatile int sendReadInterval @unit(s) = default(intuniform(8s, 10s));	// specify the interval between a read request and the next 
+        volatile int sendCommandInterval @unit(s) = default(intuniform(12s, 15s));	// specify the interval between a command request and the next
         @signal[packetSent](type=inet::Packet);
         @signal[packetReceived](type=inet::Packet);
         @signal[connect](type=long);  // 1 for open, -1 for close
@@ -39,6 +42,15 @@ simple MmsClient like IApp
         
         @signal[measureReceivedCount](type=int);
         @statistic[measureReceivedAmount](source=measureReceivedCount; record=vector);
+        
+        @signal[readSentSignal](type=bool);
+        @statistic[readSent](source=readSentSignal; record=count);
+        
+        @signal[commandSentSignal](type=bool);
+        @statistic[commandSent](source=commandSentSignal; record=count);
+        
+        @signal[genericResponseSignal](type=bool);
+        @statistic[genericResponse](source=genericResponseSignal; record=count);
         
         @signal[genericResponseSignal](type=bool);
         @statistic[genericResponse](source=genericResponseSignal; record=count);
