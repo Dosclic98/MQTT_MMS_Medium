@@ -80,6 +80,7 @@ void ClientEvilComp::sendRequest() {
         payload->setServerClose(msg->getServerClose());
         payload->addTag<CreationTimeTag>()->setCreationTime(msg->getTag<CreationTimeTag>()->getCreationTime());
         payload->setMessageKind(msg->getMessageKind());
+        payload->setReqResKind(msg->getReqResKind());
         payload->setEvilServerConnId(msg->getEvilServerConnId());
         packet->insertAtBack(payload);
 
@@ -166,6 +167,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 		Packet *packet = new Packet("data");
 		msg->setOriginId(appmsg->getOriginId());
 		msg->setMessageKind(appmsg->getMessageKind());
+		msg->setReqResKind(appmsg->getReqResKind());
 		msg->setConnId(appmsg->getEvilServerConnId());
 		msg->setExpectedReplyLength(appmsg->getExpectedReplyLength());
 		msg->setChunkLength(appmsg->getChunkLength());

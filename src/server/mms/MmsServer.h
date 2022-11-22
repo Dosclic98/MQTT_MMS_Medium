@@ -60,7 +60,7 @@ class INET_API MmsServer : public cSimpleModule, public LifecycleUnsupported
     virtual void refreshDisplay() const override;
     //--
     virtual void handleDeparture();
-    virtual void sendPacketDeparture(int connId, msgid_t originId, int evilConnId, B requestedBytes, B replyLength, MMSKind messageKind);
+    virtual void sendPacketDeparture(int connId, msgid_t originId, int evilConnId, B requestedBytes, B replyLength, MMSKind messageKind, ReqResKind reqResKind);
 
   public:
     virtual ~MmsServer();

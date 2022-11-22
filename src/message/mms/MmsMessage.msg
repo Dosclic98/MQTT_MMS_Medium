@@ -39,6 +39,7 @@ enum MMSKind {
 }
 
 enum ReqResKind {
+    UNSET = -1;
     READ = 0;
 	COMMAND = 1;
 }

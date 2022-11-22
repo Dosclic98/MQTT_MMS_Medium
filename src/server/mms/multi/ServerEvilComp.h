@@ -57,7 +57,7 @@ class INET_API ServerEvilComp : public TcpGenericServerApp {
 		virtual void handleMessage(cMessage *msg) override;
 		virtual void finish() override;
 		virtual void handleDeparture();
-		virtual void sendPacketDeparture(int connId, msgid_t originId, simtime_t fakeCreationTime, B requestedBytes, B replyLength, MMSKind messageKind, int clientConnId);
+		virtual void sendPacketDeparture(int connId, msgid_t originId, simtime_t fakeCreationTime, B requestedBytes, B replyLength, MMSKind messageKind, ReqResKind reqResKind, int clientConnId);
 		void handleForward();
 };
 

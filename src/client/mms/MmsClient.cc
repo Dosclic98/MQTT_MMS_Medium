@@ -39,8 +39,10 @@ void MmsClient::initialize(int stage)
         measureReceivedCount = registerSignal("measureReceivedCount");
         readSentSignal = registerSignal("readSentSignal");
         commandSentSignal = registerSignal("commandSentSignal");
-        genericResponseSignal = registerSignal("genericResponseSignal");
-        genericResponseTimeoutSignal = registerSignal("genericResponseTimeoutSignal");
+        readResponseSignal = registerSignal("readResponseSignal");
+        commandResponseSignal = registerSignal("commandResponseSignal");
+        readResponseTimeoutSignal = registerSignal("readResponseTimeoutSignal");
+        commandResponseTimeoutSignal = registerSignal("commandResponseTimeoutSignal");
 
         measureCounter = 0;
         isListening = false;
@@ -100,16 +102,18 @@ void MmsClient::sendRequest(MMSKind kind, ReqResKind reqKind)
         // Send a Read or a Command
         payload->setReqResKind(reqKind);
 
+        // Add the timeout event for the respective response
+		cMessage* resTimeoutMsg = new cMessage("Response timeout");
+		resTimeoutMsg->setKind(MSGKIND_RES_TIMEOUT);
+
         if(reqKind == ReqResKind::READ) {
+        	readResTimeoutMap.insert({payload->getOriginId(), resTimeoutMsg});
         	emit(readSentSignal, true);
         } else if(reqKind == ReqResKind::COMMAND) {
+        	commandResTimeoutMap.insert({payload->getOriginId(), resTimeoutMsg});
         	emit(commandSentSignal, true);
         }
 
-        // Add the timeout event for the respective response
-        cMessage* resTimeoutMsg = new cMessage("Response timeout");
-        resTimeoutMsg->setKind(MSGKIND_RES_TIMEOUT);
-        resTimeoutMap.insert({payload->getOriginId(), resTimeoutMsg});
         scheduleAt(simTime() + SimTime(resTimeout, SIMTIME_S), resTimeoutMsg);
     }
 
@@ -128,6 +132,7 @@ void MmsClient::handleTimer(cMessage *msg)
     }
     simtime_t dRead = 0;
     simtime_t dCommand = 0;
+    bool found = false;
     switch (msg->getKind()) {
         case MSGKIND_CONNECT:
             connect();
@@ -153,14 +158,26 @@ void MmsClient::handleTimer(cMessage *msg)
             break;
 
         case MSGKIND_RES_TIMEOUT:
-        	for(auto &i : resTimeoutMap) {
+        	for(auto &i : readResTimeoutMap) {
         		if (i.second == msg) {
-        			resTimeoutMap.erase(i.first);
+        			readResTimeoutMap.erase(i.first);
         			delete msg;
         			// Emit signal for generic response timeout
-        			emit(genericResponseTimeoutSignal, true);
+        			emit(readResponseTimeoutSignal, true);
+        			found = true;
         			break;
         		}
+        	}
+        	if(!found) {
+            	for(auto &i : commandResTimeoutMap) {
+    				if (i.second == msg) {
+    					commandResTimeoutMap.erase(i.first);
+    					delete msg;
+    					// Emit signal for generic response timeout
+    					emit(commandResponseTimeoutSignal, true);
+    					break;
+    				}
+    			}
         	}
         	break;
 
@@ -220,11 +237,20 @@ void MmsClient::socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent)
         	measureCounter++;
         }
         if(appmsg->getMessageKind() == MMSKind::GENRESP) {
-        	emit(genericResponseSignal, true);
-        	if(resTimeoutMap.find(appmsg->getOriginId()) != resTimeoutMap.end()) {
-        		cMessage* tmpTimeout = resTimeoutMap[appmsg->getOriginId()];
-        		resTimeoutMap.erase(appmsg->getOriginId());
-        		cancelAndDelete(tmpTimeout);
+        	if(appmsg->getReqResKind() == ReqResKind::READ) {
+            	emit(readResponseSignal, true);
+            	if(readResTimeoutMap.find(appmsg->getOriginId()) != readResTimeoutMap.end()) {
+            		cMessage* tmpTimeout = readResTimeoutMap[appmsg->getOriginId()];
+            		readResTimeoutMap.erase(appmsg->getOriginId());
+            		cancelAndDelete(tmpTimeout);
+            	}
+        	} else if(appmsg->getReqResKind() == ReqResKind::COMMAND) {
+            	emit(commandResponseSignal, true);
+            	if(commandResTimeoutMap.find(appmsg->getOriginId()) != commandResTimeoutMap.end()) {
+            		cMessage* tmpTimeout = commandResTimeoutMap[appmsg->getOriginId()];
+            		commandResTimeoutMap.erase(appmsg->getOriginId());
+            		cancelAndDelete(tmpTimeout);
+            	}
         	}
         }
     }

@@ -36,7 +36,8 @@ class INET_API MmsClient : public TcpAppBase
     ChunkQueue queue;
     int resTimeout;
 
-    std::map<msgid_t, cMessage*> resTimeoutMap;
+    std::map<msgid_t, cMessage*> readResTimeoutMap;
+    std::map<msgid_t, cMessage*> commandResTimeoutMap;
 
     //Gestione conteggio pacchetti nel range temporale
     int measureCounter;
@@ -48,8 +49,10 @@ class INET_API MmsClient : public TcpAppBase
     bool isListening;
     simsignal_t readSentSignal;
     simsignal_t commandSentSignal;
-    simsignal_t genericResponseSignal;
-    simsignal_t genericResponseTimeoutSignal;
+    simsignal_t readResponseSignal;
+    simsignal_t commandResponseSignal;
+    simsignal_t readResponseTimeoutSignal;
+    simsignal_t commandResponseTimeoutSignal;
 
 
     virtual void sendRequest(MMSKind kind = MMSKind::CONNECT, ReqResKind reqKind = ReqResKind::READ);

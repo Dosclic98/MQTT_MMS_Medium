@@ -55,6 +55,8 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 				// Useless, could also not be set
 				msg->setOriginId(pckt->getId());
 				msg->setMessageKind(MMSKind::GENREQ);
+				// Set to read for now
+				msg->setReqResKind(ReqResKind::READ);
 				msg->setConnId(appmsg->getConnId());
 				msg->setExpectedReplyLength(appmsg->getExpectedReplyLength());
 				msg->setChunkLength(appmsg->getChunkLength());
@@ -71,6 +73,7 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 		MmsMessage* msg = new MmsMessage();
 		msg->setOriginId(appmsg->getOriginId());
 		msg->setMessageKind(appmsg->getMessageKind());
+		msg->setReqResKind(appmsg->getReqResKind());
 		msg->setConnId(appmsg->getConnId());
 		msg->setExpectedReplyLength(appmsg->getExpectedReplyLength());
 		msg->setChunkLength(appmsg->getChunkLength());

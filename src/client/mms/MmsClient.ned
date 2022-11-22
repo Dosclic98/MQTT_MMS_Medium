@@ -49,14 +49,17 @@ simple MmsClient like IApp
         @signal[commandSentSignal](type=bool);
         @statistic[commandSent](source=commandSentSignal; record=count);
         
-        @signal[genericResponseSignal](type=bool);
-        @statistic[genericResponse](source=genericResponseSignal; record=count);
+        @signal[readResponseSignal](type=bool);
+        @statistic[readResponse](source=readResponseSignal; record=count);
         
-        @signal[genericResponseSignal](type=bool);
-        @statistic[genericResponse](source=genericResponseSignal; record=count);
+        @signal[commandResponseSignal](type=bool);
+        @statistic[commandResponse](source=commandResponseSignal; record=count);
         
-        @signal[genericResponseTimeoutSignal](type=bool);
-        @statistic[genericResponseTimeout](source=genericResponseTimeoutSignal; record=count);
+        @signal[readResponseTimeoutSignal](type=bool);
+        @statistic[readResponseTimeout](source=readResponseTimeoutSignal; record=count);
+        
+        @signal[commandResponseTimeoutSignal](type=bool);
+        @statistic[commandResponseTimeout](source=commandResponseTimeoutSignal; record=count);
     gates:
         input socketIn @labels(TcpCommand/up);
         output socketOut @labels(TcpCommand/down);
