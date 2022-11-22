@@ -52,12 +52,29 @@ void ClientEvilComp::initialize(int stage)
 
         genericFakeReqResSignal = registerSignal("genericFakeReqResSignal");
         pcktFromServerSignal = registerSignal("pcktFromServerSignal");
-        genericRequestBlockSignal = registerSignal("genericRequestBlockSignal");
-        genericRequestCompromisedSignal = registerSignal("genericRequestCompromisedSignal");
+        readRequestBlockSignal = registerSignal("readRequestBlockSignal");
+        readRequestCompromisedSignal = registerSignal("readRequestCompromisedSignal");
+        commandRequestBlockSignal = registerSignal("commandRequestBlockSignal");
+        commandRequestCompromisedSignal = registerSignal("commandRequestCompromisedSignal");
         measureBlockSignal = registerSignal("measureBlockSignal");
         measureCompromisedSignal = registerSignal("measureCompromisedSignal");
-        genericResponseBlockSignal = registerSignal("genericResponseBlockSignal");
-        genericResponseCompromisedSignal = registerSignal("genericResponseCompromisedSignal");
+        readResponseBlockSignal = registerSignal("readResponseBlockSignal");
+        readResponseCompromisedSignal = registerSignal("readResponseCompromisedSignal");
+        commandResponseBlockSignal = registerSignal("commandResponseBlockSignal");
+        commandResponseCompromisedSignal = registerSignal("commandResponseCompromisedSignal");
+
+    	readResponseBlockProb = par("readResponseBlockProb").doubleValue();
+    	readResponseCompromisedProb = par("readResponseCompromisedProb").doubleValue();
+    	commandResponseBlockProb = par("commandResponseBlockProb").doubleValue();
+    	commandResponseCompromisedProb = par("commandResponseCompromisedProb").doubleValue();
+
+    	readRequestBlockProb = par("readRequestBlockProb").doubleValue();
+    	readRequestCompromisedProb = par("readRequestCompromisedProb").doubleValue();
+    	commandRequestBlockProb = par("commandRequestBlockProb").doubleValue();
+    	commandRequestCompromisedProb = par("commandRequestCompromisedProb").doubleValue();
+
+    	measureBlockProb = par("measureBlockProb").doubleValue();
+    	measureCompromisedProb = par("measureCompromisedProb").doubleValue();
 
         previousResponseSent = true;
         // Initialize listener and subscribe to the serverComp forwarding signal
@@ -180,34 +197,50 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 		bubble("Sent to internal client!");
 		EV_INFO << "Conn ID:" << msg->getEvilServerConnId() << "\n";
 
-		int messageKind = appmsg->getMessageKind();
+		MMSKind messageKind = appmsg->getMessageKind();
+		ReqResKind reqResKind = appmsg->getReqResKind();
 	    double p = this->uniform(0.0, 1.0);
 	    if (messageKind == MMSKind::MEASURE) {
-	        if (p < 0.15) { //Block
+	        if (p < measureBlockProb) { //Block
 	        	bubble("Measure blocked");
 	            emit(measureBlockSignal, true);
 	            delete packet;
 	            TcpAppBase::socketDataArrived(socket, pckt, urgent);
 	            return;
-	        } else if (p < 0.4){ //Compromise
+	        } else if (p < measureCompromisedProb){ //Compromise
 	        	bubble("Measure compromised");
 	            emit(measureCompromisedSignal, true);
 	        } else {
 	        	bubble("Measure arrived from server");
 	        }
 	    } else if (messageKind == MMSKind::GENRESP) {
-	        if (p < 0.1) { // Block
-	        	bubble("Generic response blocked");
-	            emit(genericResponseBlockSignal, true);
-	            delete packet;
-	            TcpAppBase::socketDataArrived(socket, pckt, urgent);
-	            return;
-	        } else if (p < 0.6) { // Compromise
-	        	bubble("Generic response compromised");
-	            emit(genericResponseCompromisedSignal, true);
-	        } else {
-	        	bubble("Generic response arrived from server");
-	        }
+	    	if(reqResKind == ReqResKind::READ) {
+		        if (p < readResponseBlockProb) { // Block
+		        	bubble("Read response blocked");
+		            emit(readResponseBlockSignal, true);
+		            delete packet;
+		            TcpAppBase::socketDataArrived(socket, pckt, urgent);
+		            return;
+		        } else if (p < readResponseCompromisedProb) { // Compromise
+		        	bubble("Read response compromised");
+		            emit(readResponseCompromisedSignal, true);
+		        } else {
+		        	bubble("Read response arrived from server");
+		        }
+	    	} else if(reqResKind == ReqResKind::COMMAND) {
+		        if (p < commandResponseBlockProb) { // Block
+		        	bubble("Command response blocked");
+		            emit(commandResponseBlockSignal, true);
+		            delete packet;
+		            TcpAppBase::socketDataArrived(socket, pckt, urgent);
+		            return;
+		        } else if (p < commandResponseCompromisedProb) { // Compromise
+		        	bubble("Command response compromised");
+		            emit(commandResponseCompromisedSignal, true);
+		        } else {
+		        	bubble("Command response arrived from server");
+		        }
+	    	}
 	    }
 
 		emit(pcktFromServerSignal, packet);

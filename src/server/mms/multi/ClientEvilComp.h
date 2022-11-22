@@ -38,10 +38,27 @@ public:
 	simsignal_t genericFakeReqResSignal;
 	simsignal_t measureBlockSignal;
 	simsignal_t measureCompromisedSignal;
-	simsignal_t genericResponseBlockSignal;
-	simsignal_t genericResponseCompromisedSignal;
-	simsignal_t genericRequestBlockSignal;
-	simsignal_t genericRequestCompromisedSignal;
+	simsignal_t readResponseBlockSignal;
+	simsignal_t readResponseCompromisedSignal;
+	simsignal_t commandResponseBlockSignal;
+	simsignal_t commandResponseCompromisedSignal;
+	simsignal_t readRequestBlockSignal;
+	simsignal_t readRequestCompromisedSignal;
+	simsignal_t commandRequestBlockSignal;
+	simsignal_t commandRequestCompromisedSignal;
+
+	double readResponseBlockProb;
+	double readResponseCompromisedProb;
+	double commandResponseBlockProb;
+	double commandResponseCompromisedProb;
+
+	double readRequestBlockProb;
+	double readRequestCompromisedProb;
+	double commandRequestBlockProb;
+	double commandRequestCompromisedProb;
+
+	double measureBlockProb;
+	double measureCompromisedProb;
 
 	virtual ~ClientEvilComp();
 

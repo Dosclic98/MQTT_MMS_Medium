@@ -26,26 +26,47 @@ simple ClientEvilComp extends TcpBasicClientApp {
 	    
 	    volatile int fakeGenReqThresh = default(10);
 	    
+	    volatile double readResponseBlockProb = default(0.1);
+	    volatile double readResponseCompromisedProb = default(0.6);
+	    volatile double commandResponseBlockProb = default(0.1);
+	    volatile double commandResponseCompromisedProb = default(0.6);
+	    
+	    volatile double readRequestBlockProb = default(0.2);
+	    volatile double readRequestCompromisedProb = default(0.8);
+	    volatile double commandRequestBlockProb = default(0.2);
+	    volatile double commandRequestCompromisedProb = default(0.8);
+	    	    
+	    volatile double measureBlockProb = default(0.15);
+	    volatile double measureCompromisedProb = default(0.4);
+	    
+	    
         @signal[genericFakeReqResSignal](type=bool);
         @statistic[genericFakeReqRes](source=genericFakeReqResSignal; record=count);
-	    
-        @signal[genericResponseSignal](type=bool);
-        @statistic[genericResponse](source=genericResponseSignal; record=count);
         
         @signal[measureBlockSignal](type=bool);
         @statistic[measureBlock](source=measureBlockSignal; record=count);
         @signal[measureCompromisedSignal](type=bool);
         @statistic[measureCompromised](source=measureCompromisedSignal; record=count);
         
-        @signal[genericRequestBlockSignal](type=bool);
-        @statistic[genericRequestBlock](source=genericRequestBlockSignal; record=count);
-        @signal[genericRequestCompromisedSignal](type=bool);
-        @statistic[genericRequestCompromised](source=genericRequestCompromisedSignal; record=count);
+        @signal[readRequestBlockSignal](type=bool);
+        @statistic[readRequestBlock](source=readRequestBlockSignal; record=count);
+        @signal[readRequestCompromisedSignal](type=bool);
+        @statistic[readRequestCompromised](source=readRequestCompromisedSignal; record=count);
         
-        @signal[genericResponseBlockSignal](type=bool);
-        @statistic[genericResponseBlock](source=genericResponseBlockSignal; record=count);
-        @signal[genericResponseCompromisedSignal](type=bool);
-        @statistic[genericResponseCompromised](source=genericResponseCompromisedSignal; record=count);
+        @signal[commandRequestBlockSignal](type=bool);
+        @statistic[commandRequestBlock](source=commandRequestBlockSignal; record=count);
+        @signal[commandRequestCompromisedSignal](type=bool);
+        @statistic[commandRequestCompromised](source=commandRequestCompromisedSignal; record=count);
+        
+        @signal[readResponseBlockSignal](type=bool);
+        @statistic[readResponseBlock](source=readResponseBlockSignal; record=count);
+        @signal[readResponseCompromisedSignal](type=bool);
+        @statistic[readResponseCompromised](source=readResponseCompromisedSignal; record=count);
+        
+        @signal[commandResponseBlockSignal](type=bool);
+        @statistic[commandResponseBlock](source=commandResponseBlockSignal; record=count);
+        @signal[commandResponseCompromisedSignal](type=bool);
+        @statistic[commandResponseCompromised](source=commandResponseCompromisedSignal; record=count);
 		
 		@signal[pcktFromServerSignal](type=cObject*);
 }

@@ -32,11 +32,17 @@ network MMSWirelessNetworkMITMBase {
         @statistic[measureBlockGlobal](source=measureBlockSignal; record=count);
         @statistic[measureCompromisedGlobal](source=measureCompromisedSignal; record=count);
         
-        @statistic[genericRequestBlockGlobal](source=genericRequestBlockSignal; record=count);
-        @statistic[genericRequestCompromisedGlobal](source=genericRequestCompromisedSignal; record=count);
+        @statistic[readRequestBlockGlobal](source=readRequestBlockSignal; record=count);
+        @statistic[readRequestCompromisedGlobal](source=readRequestCompromisedSignal; record=count);
         
-        @statistic[genericResponseBlockGlobal](source=genericResponseBlockSignal; record=count);
-        @statistic[genericResponseCompromisedGlobal](source=genericResponseCompromisedSignal; record=count);
+        @statistic[commandRequestBlockGlobal](source=commandRequestBlockSignal; record=count);
+        @statistic[commandRequestCompromisedGlobal](source=commandRequestCompromisedSignal; record=count);
+        
+        @statistic[readResponseBlockGlobal](source=readResponseBlockSignal; record=count);
+        @statistic[readResponseCompromisedGlobal](source=readResponseCompromisedSignal; record=count);
+        
+        @statistic[commandResponseBlockGlobal](source=commandResponseBlockSignal; record=count);
+        @statistic[commandResponseCompromisedGlobal](source=commandResponseCompromisedSignal; record=count);
     
 	submodules:
 	    visualizer: IntegratedCanvasVisualizer { @display("p=450,50"); }

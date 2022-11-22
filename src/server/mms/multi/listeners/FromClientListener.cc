@@ -85,13 +85,24 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 		// Signal if a generic request gets blocked or compromised
 		double p = this->parent->uniform(0.0, 1.0);
 		if(appmsg->getMessageKind() == MMSKind::GENREQ) {
-			if (p < 0.2) { // Block
-				this->parent->emit(this->parent->genericRequestBlockSignal, true);
-				delete pckt;
-				delete msg;
-				return;
-			} else if (p < 0.8) { // Compromise
-				this->parent->emit(this->parent->genericRequestCompromisedSignal, true);
+			if(appmsg->getReqResKind() == ReqResKind::READ) {
+				if (p < this->parent->readRequestBlockProb) { // Block
+					this->parent->emit(this->parent->readRequestBlockSignal, true);
+					delete pckt;
+					delete msg;
+					return;
+				} else if (p < this->parent->readRequestCompromisedProb) { // Compromise
+					this->parent->emit(this->parent->readRequestCompromisedSignal, true);
+				}
+			} else if(appmsg->getReqResKind() == ReqResKind::COMMAND) {
+				if (p < this->parent->commandRequestBlockProb) { // Block
+					this->parent->emit(this->parent->commandRequestBlockSignal, true);
+					delete pckt;
+					delete msg;
+					return;
+				} else if (p < this->parent->commandRequestCompromisedProb) { // Compromise
+					this->parent->emit(this->parent->commandRequestCompromisedSignal, true);
+				}
 			}
 		}
 
