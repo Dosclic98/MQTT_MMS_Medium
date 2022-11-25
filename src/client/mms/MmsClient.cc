@@ -17,6 +17,10 @@ Define_Module(MmsClient);
 
 MmsClient::~MmsClient()
 {
+	if(isLogging) {
+		logger->close();
+		delete logger;
+	}
     cancelAndDelete(measureAmountEvent);
     cancelAndDelete(timeoutMsg);
 }
@@ -31,6 +35,10 @@ void MmsClient::initialize(int stage)
         startTime = par("startTime");
         stopTime = par("stopTime");
         resTimeout = par("resTimeoutInterval");
+        isLogging = par("isLogging");
+        if(isLogging) {
+        	logger = new MmsPacketLogger("test.csv");
+        }
         if (stopTime >= SIMTIME_ZERO && stopTime < startTime)
             throw cRuntimeError("Invalid startTime/stopTime parameters");
         timeoutMsg = new cMessage("timer");

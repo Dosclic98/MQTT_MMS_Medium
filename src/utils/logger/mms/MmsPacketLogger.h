@@ -16,18 +16,24 @@
 #ifndef UTILS_LOGGER_MMS_MMSPACKETLOGGER_H_
 #define UTILS_LOGGER_MMS_MMSPACKETLOGGER_H_
 
+#include <iostream>
+#include <fstream>
 #include "../../../message/mms/MmsMessage_m.h"
 
 namespace inet {
 
 class MmsPacketLogger {
 public:
-	MmsPacketLogger();
+	MmsPacketLogger(std::string fileName);
 	virtual ~MmsPacketLogger();
 
 	std::string path = "simulations/logs/";
 
 	void log(MmsMessage msg);
+	void close();
+
+protected:
+	std::ofstream logFile;
 };
 
 };

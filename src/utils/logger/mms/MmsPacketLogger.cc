@@ -17,16 +17,22 @@
 
 namespace inet {
 
-MmsPacketLogger::MmsPacketLogger()
-{
-	// TODO Auto-generated constructor stub
-
-
+MmsPacketLogger::MmsPacketLogger(std::string fileName) {
+	logFile.open(this->path + fileName);
+	logFile << "id,messageKind,reqResKind,creationTime,timestampn\n";
 }
 
 MmsPacketLogger::~MmsPacketLogger()
 {
 	// TODO Auto-generated destructor stub
+}
+
+void MmsPacketLogger::log(MmsMessage msg) {
+
+}
+
+void MmsPacketLogger::close() {
+
 }
 
 };

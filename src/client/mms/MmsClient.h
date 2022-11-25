@@ -22,6 +22,7 @@
 #include "inet/common/lifecycle/ILifecycle.h"
 #include "inet/common/lifecycle/NodeStatus.h"
 #include "../../message/mms/MmsMessage_m.h"
+#include "../../utils/logger/mms/MmsPacketLogger.h"
 
 namespace inet {
 
@@ -35,6 +36,7 @@ class INET_API MmsClient : public TcpAppBase
     simtime_t stopTime;
     ChunkQueue queue;
     int resTimeout;
+    MmsPacketLogger* logger = nullptr;
 
     std::map<msgid_t, cMessage*> readResTimeoutMap;
     std::map<msgid_t, cMessage*> commandResTimeoutMap;
@@ -53,6 +55,9 @@ class INET_API MmsClient : public TcpAppBase
     simsignal_t commandResponseSignal;
     simsignal_t readResponseTimeoutSignal;
     simsignal_t commandResponseTimeoutSignal;
+
+    // Variable to know if the client is logging
+    bool isLogging;
 
 
     virtual void sendRequest(MMSKind kind = MMSKind::CONNECT, ReqResKind reqKind = ReqResKind::READ);
