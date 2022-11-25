@@ -18,7 +18,6 @@ Define_Module(MmsClient);
 MmsClient::~MmsClient()
 {
 	if(isLogging) {
-		logger->close();
 		delete logger;
 	}
     cancelAndDelete(measureAmountEvent);
@@ -37,7 +36,7 @@ void MmsClient::initialize(int stage)
         resTimeout = par("resTimeoutInterval");
         isLogging = par("isLogging");
         if(isLogging) {
-        	logger = new MmsPacketLogger("test.csv");
+        	logger = new MmsPacketLogger(getParentModule()->getIndex(), getIndex());
         }
         if (stopTime >= SIMTIME_ZERO && stopTime < startTime)
             throw cRuntimeError("Invalid startTime/stopTime parameters");
@@ -126,6 +125,8 @@ void MmsClient::sendRequest(MMSKind kind, ReqResKind reqKind)
     }
 
     packet->insertAtBack(payload);
+
+    if(isLogging) logger->log(payload.get(), simTime());
 
     sendPacket(packet);
 }
@@ -241,6 +242,7 @@ void MmsClient::socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent)
     auto chunk = msg->peekDataAt(B(0), msg->getTotalLength());
     queue.push(chunk);
     while (const auto& appmsg = queue.pop<MmsMessage>(b(-1), Chunk::PF_ALLOW_NULLPTR)) {
+    	if(isLogging) logger->log(const_cast<MmsMessage*>(appmsg.get()), simTime());
         if(appmsg->getMessageKind() == MMSKind::MEASURE) {
         	measureCounter++;
         }

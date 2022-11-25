@@ -24,13 +24,14 @@ namespace inet {
 
 class MmsPacketLogger {
 public:
-	MmsPacketLogger(std::string fileName);
+	MmsPacketLogger(int numClient, int numApp);
 	virtual ~MmsPacketLogger();
 
-	std::string path = "simulations/logs/";
+	std::string mmsKindToStr[5] = {"CONNECT", "MEASURE", "GENREQ", "GENRESP"};
+	std::string reqResKindToStr[3] = {"READ", "COMMAND"};
+	std::string path = "logs/";
 
-	void log(MmsMessage msg);
-	void close();
+	void log(MmsMessage* msg, simtime_t timestamp);
 
 protected:
 	std::ofstream logFile;

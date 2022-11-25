@@ -14,25 +14,31 @@
 // 
 
 #include "MmsPacketLogger.h"
+#include "inet/common/TimeTag_m.h"
+#include "inet/common/socket/SocketTag_m.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 namespace inet {
 
-MmsPacketLogger::MmsPacketLogger(std::string fileName) {
+MmsPacketLogger::MmsPacketLogger(int numClient, int numApp) {
+	std::string fileName = "client[" + std::to_string(numClient) + "].app[" + std::to_string(numApp) + "].csv";
 	logFile.open(this->path + fileName);
-	logFile << "id,messageKind,reqResKind,creationTime,timestampn\n";
+	logFile << "id,messageKind,reqResKind,creationTime,timestamp\n";
 }
 
-MmsPacketLogger::~MmsPacketLogger()
-{
-	// TODO Auto-generated destructor stub
+MmsPacketLogger::~MmsPacketLogger() {
+	logFile.close();
 }
 
-void MmsPacketLogger::log(MmsMessage msg) {
-
-}
-
-void MmsPacketLogger::close() {
-
+void MmsPacketLogger::log(MmsMessage* msg, simtime_t timestamp) {
+	std::string mmsKindStr = "";
+	std::string reqResKindStr = "";
+	if(msg->getMessageKind() == MMSKind::FAKE) { mmsKindStr = "FAKE"; }
+	else mmsKindStr = mmsKindToStr[msg->getMessageKind()];
+	if(msg->getReqResKind() == ReqResKind::UNSET) { reqResKindStr = "UNSET"; }
+	else reqResKindStr = reqResKindToStr[msg->getReqResKind()];
+	logFile << msg->getOriginId() << "," << mmsKindStr << "," << reqResKindStr << "," << msg->getTag<CreationTimeTag>()->getCreationTime() << "," << timestamp << "\n";
 }
 
 };
