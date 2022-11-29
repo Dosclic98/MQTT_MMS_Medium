@@ -20,7 +20,7 @@ import inet.node.inet.Router;
 import inet.node.ethernet.*;
 import simu5g.nodes.NR.NRUe;
 import simu5g.nodes.NR.gNodeB;
-import simu5g.nodes.PgwStandard;
+import simu5g.nodes.Upf;
 import tx_medium_exp.lan.IDerLan;
 import simu5g.common.binder.Binder;
 
@@ -35,7 +35,7 @@ module Wireless5GDerLan like IDerLan {
             @display("p=157,278");
         }
         // Must be called "upf" for the network to work correctly
-        upf: PgwStandard {
+        upf: Upf {
             @display("p=157,175");
         }
         server[numServers]: NRUe {
@@ -43,9 +43,6 @@ module Wireless5GDerLan like IDerLan {
         }
         antenna: gNodeB {
             @display("p=304,102");
-        }
-        binder: Binder {
-            @display("p=697,262");
         }
     connections:
         router.ethg++ <--> gate;
