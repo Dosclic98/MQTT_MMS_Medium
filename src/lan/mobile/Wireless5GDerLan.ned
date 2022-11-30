@@ -24,7 +24,8 @@ import simu5g.nodes.Upf;
 import tx_medium_exp.lan.IDerLan;
 import simu5g.common.binder.Binder;
 
-module Wireless5GDerLan like IDerLan {
+module Wireless5GDerLan like IDerLan
+{
     parameters:
         int numServers = default(1);
     gates:
@@ -36,17 +37,17 @@ module Wireless5GDerLan like IDerLan {
         }
         // Must be called "upf" for the network to work correctly
         upf: Upf {
-            @display("p=157,175");
+            @display("p=157,192");
         }
         server[numServers]: NRUe {
-            @display("i=misc/windturbine;p=502,102");
+            @display("i=misc/windturbine;p=524,85");
         }
         antenna: gNodeB {
             @display("p=304,102");
         }
     connections:
         router.ethg++ <--> gate;
-        antenna.ppp <--> Eth1G <--> upf.pppg++;
+        upf.pppg++ <--> Eth10G <--> antenna.ppp;
         router.pppg++ <--> Eth1G <--> upf.filterGate;
 
 }
