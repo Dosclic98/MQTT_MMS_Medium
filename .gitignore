@@ -170,3 +170,4 @@ backups
 simulations/results/*
 simulations/logs
 *.anf
+src/Makefile
