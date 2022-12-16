@@ -60,6 +60,12 @@ simple MmsClient like IApp
         
         @signal[commandResponseTimeoutSignal](type=bool);
         @statistic[commandResponseTimeout](source=commandResponseTimeoutSignal; record=count);
+        
+        @signal[readResponseReceivedTimeSignal](type=int);
+        @statistic[readResponseReceivedTime](source=readResponseReceivedTimeSignal; record=vector);
+        
+        @signal[commandResponseReceivedTimeSignal](type=int);
+        @statistic[commandResponseReceivedTime](source=commandResponseReceivedTimeSignal; record=vector);
     gates:
         input socketIn @labels(TcpCommand/up);
         output socketOut @labels(TcpCommand/down);

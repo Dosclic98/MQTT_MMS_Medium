@@ -19,10 +19,9 @@ import inet.node.inet.StandardHost;
 import inet.node.inet.Router;
 import inet.node.ethernet.*;
 import simu5g.nodes.NR.NRUe;
+import tx_medium_exp.lan.IDerLan;
 import simu5g.nodes.NR.gNodeB;
 import simu5g.nodes.Upf;
-import tx_medium_exp.lan.IDerLan;
-import simu5g.common.binder.Binder;
 
 module Wireless5GDerLan like IDerLan
 {
@@ -32,22 +31,15 @@ module Wireless5GDerLan like IDerLan
         inout gate;
 
     submodules:
-        router: Router {
-            @display("p=157,278");
-        }
-        // Must be called "upf" for the network to work correctly
-        upf: Upf {
-            @display("p=157,192");
-        }
         server[numServers]: NRUe {
             @display("i=misc/windturbine;p=524,85");
         }
         antenna: gNodeB {
-            @display("p=304,102");
+            @display("p=456,157");
         }
+        upf: Upf;
     connections:
-        router.ethg++ <--> gate;
-        upf.pppg++ <--> Eth10G <--> antenna.ppp;
-        router.pppg++ <--> Eth1G <--> upf.filterGate;
+        antenna.ppp <--> Eth1G <--> upf.pppg++;
+        upf.filterGate <--> gate;
 
 }

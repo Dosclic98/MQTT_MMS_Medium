@@ -27,9 +27,10 @@ import simu5g.common.binder.Binder;
 import simu5g.world.radio.LteChannelControl;
 import simu5g.common.carrierAggregation.CarrierAggregation;
 import simu5g.common.binder.Binder;
+//import simu5g.nodes.PgwStandard;
 
-
-network MMS5GNetworkMITMLanBase{
+network MMS5GNetworkMITMLanBase
+{
     parameters:
         volatile int numDerLan = default(1);
         @statistic[measureBlockGlobal](source=measureBlockSignal; record=count);
@@ -37,19 +38,22 @@ network MMS5GNetworkMITMLanBase{
 
         @statistic[readRequestBlockGlobal](source=readRequestBlockSignal; record=count);
         @statistic[readRequestCompromisedGlobal](source=readRequestCompromisedSignal; record=count);
-        
+
         @statistic[commandRequestBlockGlobal](source=commandRequestBlockSignal; record=count);
         @statistic[commandRequestCompromisedGlobal](source=commandRequestCompromisedSignal; record=count);
-        
+
         @statistic[readResponseBlockGlobal](source=readResponseBlockSignal; record=count);
         @statistic[readResponseCompromisedGlobal](source=readResponseCompromisedSignal; record=count);
-        
+
         @statistic[commandResponseBlockGlobal](source=commandResponseBlockSignal; record=count);
         @statistic[commandResponseCompromisedGlobal](source=commandResponseCompromisedSignal; record=count);
 
     submodules:
         configurator: Ipv4NetworkConfigurator {
             @display("p=51,168");
+        }
+        binder: Binder {
+            @display("p=35,38");
         }
 
         carrierAggregation: CarrierAggregation {
@@ -70,11 +74,8 @@ network MMS5GNetworkMITMLanBase{
         derLan[numDerLan]: <> like IDerLan {
             @display("i=device/lan");
         }
-        binder: Binder {
-            @display("p=35,38");
-        }
 
-    connections:
+    connections allowunconnected:
         goodCliLan.gate <--> Eth1G <--> router.ethg++;
         for i=0..(numDerLan-1) {
             derLan[i].gate <--> Eth1G <--> router.ethg++;

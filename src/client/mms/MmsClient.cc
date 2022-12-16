@@ -50,6 +50,9 @@ void MmsClient::initialize(int stage)
         commandResponseSignal = registerSignal("commandResponseSignal");
         readResponseTimeoutSignal = registerSignal("readResponseTimeoutSignal");
         commandResponseTimeoutSignal = registerSignal("commandResponseTimeoutSignal");
+        readResponseReceivedTimeSignal = registerSignal("readResponseReceivedTimeSignal");
+        commandResponseReceivedTimeSignal = registerSignal("commandResponseReceivedTimeSignal");
+
 
         measureCounter = 0;
         isListening = false;
@@ -122,6 +125,9 @@ void MmsClient::sendRequest(MMSKind kind, ReqResKind reqKind)
         }
 
         scheduleAt(simTime() + SimTime(resTimeout, SIMTIME_S), resTimeoutMsg);
+
+        // Memorize when the message has been sent
+        genReqSentTimeMap.insert({payload->getOriginId(), simTime()});
     }
 
     packet->insertAtBack(payload);
@@ -170,6 +176,7 @@ void MmsClient::handleTimer(cMessage *msg)
         	for(auto &i : readResTimeoutMap) {
         		if (i.second == msg) {
         			readResTimeoutMap.erase(i.first);
+        			genReqSentTimeMap.erase(i.first);
         			delete msg;
         			// Emit signal for generic response timeout
         			emit(readResponseTimeoutSignal, true);
@@ -181,6 +188,7 @@ void MmsClient::handleTimer(cMessage *msg)
             	for(auto &i : commandResTimeoutMap) {
     				if (i.second == msg) {
     					commandResTimeoutMap.erase(i.first);
+    					genReqSentTimeMap.erase(i.first);
     					delete msg;
     					// Emit signal for generic response timeout
     					emit(commandResponseTimeoutSignal, true);
@@ -188,6 +196,7 @@ void MmsClient::handleTimer(cMessage *msg)
     				}
     			}
         	}
+
         	break;
 
         default:
@@ -247,8 +256,10 @@ void MmsClient::socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent)
         	measureCounter++;
         }
         if(appmsg->getMessageKind() == MMSKind::GENRESP) {
+        	simtime_t sendTime = genReqSentTimeMap.find(appmsg->getOriginId())->second;
         	if(appmsg->getReqResKind() == ReqResKind::READ) {
             	emit(readResponseSignal, true);
+            	emit(readResponseReceivedTimeSignal, simTime() - sendTime);
             	if(readResTimeoutMap.find(appmsg->getOriginId()) != readResTimeoutMap.end()) {
             		cMessage* tmpTimeout = readResTimeoutMap[appmsg->getOriginId()];
             		readResTimeoutMap.erase(appmsg->getOriginId());
@@ -256,12 +267,14 @@ void MmsClient::socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent)
             	}
         	} else if(appmsg->getReqResKind() == ReqResKind::COMMAND) {
             	emit(commandResponseSignal, true);
+            	emit(commandResponseReceivedTimeSignal, simTime() - sendTime);
             	if(commandResTimeoutMap.find(appmsg->getOriginId()) != commandResTimeoutMap.end()) {
             		cMessage* tmpTimeout = commandResTimeoutMap[appmsg->getOriginId()];
             		commandResTimeoutMap.erase(appmsg->getOriginId());
             		cancelAndDelete(tmpTimeout);
             	}
         	}
+        	genReqSentTimeMap.erase(appmsg->getOriginId());
         }
     }
 /*

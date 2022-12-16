@@ -40,6 +40,8 @@ class INET_API MmsClient : public TcpAppBase
 
     std::map<msgid_t, cMessage*> readResTimeoutMap;
     std::map<msgid_t, cMessage*> commandResTimeoutMap;
+    std::map<msgid_t, simtime_t> genReqSentTimeMap;
+
 
     //Gestione conteggio pacchetti nel range temporale
     int measureCounter;
@@ -55,6 +57,9 @@ class INET_API MmsClient : public TcpAppBase
     simsignal_t commandResponseSignal;
     simsignal_t readResponseTimeoutSignal;
     simsignal_t commandResponseTimeoutSignal;
+    simsignal_t readResponseReceivedTimeSignal;
+    simsignal_t commandResponseReceivedTimeSignal;
+
 
     // Variable to know if the client is logging
     bool isLogging;

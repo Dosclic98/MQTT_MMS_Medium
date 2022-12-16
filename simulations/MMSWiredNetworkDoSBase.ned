@@ -32,8 +32,8 @@ network MMSWiredNetworkDoSBase
         configurator: Ipv4NetworkConfigurator;
         client[numGoodClient + numBadClient]: StandardHost;
         server[numServers]: StandardHost {
-        	@display("i=misc/windturbine");
-        };
+            @display("i=misc/windturbine");
+        }
         router: Router {
             @display("p=157,128");
         }
