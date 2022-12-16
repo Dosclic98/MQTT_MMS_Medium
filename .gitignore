@@ -171,3 +171,5 @@ simulations/results/*
 simulations/logs
 *.anf
 src/Makefile
+simulations/analysis/.env
+simulations/analysis/*.csv
