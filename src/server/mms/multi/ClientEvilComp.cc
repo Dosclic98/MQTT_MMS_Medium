@@ -172,7 +172,8 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
     }
     auto chunk = pckt->peekDataAt(B(0), pckt->getTotalLength());
     queue.push(chunk);
-    while (const auto& appmsg = queue.pop<MmsMessage>(b(-1), Chunk::PF_ALLOW_NULLPTR)) {
+    while (queue.has<MmsMessage>(b(-1))) {
+    	const auto& appmsg = queue.pop<MmsMessage>(b(-1));
     	if(appmsg->getMessageKind() == MMSKind::GENRESP && appmsg->getEvilServerConnId() == -1) {
             // Emit signal for generic fake Req Res
     		emit(genericFakeReqResSignal, true);

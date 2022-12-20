@@ -42,7 +42,8 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 	Packet* pckt = check_and_cast<Packet*>(value);
     auto chunk = pckt->peekDataAt(B(0), pckt->getTotalLength());
     queue.push(chunk);
-    while (const auto& appmsg = queue.pop<MmsMessage>(b(-1), Chunk::PF_ALLOW_NULLPTR)) {
+    while (queue.has<MmsMessage>(b(-1))) {
+    	const auto& appmsg = queue.pop<MmsMessage>(b(-1));
 		if(appmsg->getMessageKind() == MMSKind::GENREQ) {
 			numGenReq++;
 			// If at least a certain number of generic requests has been sent

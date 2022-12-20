@@ -102,7 +102,8 @@ void inet::Broker::handleDeparture()
     emit(packetReceivedSignal, packet);
     bool doClose = false;
 
-    while (const auto& appmsg = queue.pop<MqttMessage>(b(-1), Chunk::PF_ALLOW_NULLPTR)) {
+    while (queue.has<MqttMessage>(b(-1))) {
+    	const auto& appmsg = queue.pop<MqttMessage>(b(-1));
         msgsRcvd++;
         bytesRcvd += B(appmsg->getChunkLength()).get();
         B requestedBytes = appmsg->getExpectedReplyLength();

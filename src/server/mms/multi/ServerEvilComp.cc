@@ -86,7 +86,8 @@ void ServerEvilComp::handleDeparture() {
     queue.push(chunk);
     emit(packetReceivedSignal, packet);
     bool doClose = false;
-    while (const auto& appmsg = queue.pop<MmsMessage>(b(-1), Chunk::PF_ALLOW_NULLPTR)) {
+    while (queue.has<MmsMessage>(b(-1))) {
+    	const auto& appmsg = queue.pop<MmsMessage>(b(-1));
         msgsRcvd++;
         bytesRcvd += B(appmsg->getChunkLength()).get();
         // I set the chunk length as response length because we must forward the data
