@@ -173,3 +173,4 @@ simulations/logs
 src/Makefile
 simulations/analysis/.env
 simulations/analysis/*.csv
+simulations/analysis/plotsNRes/*
