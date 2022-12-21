@@ -78,7 +78,7 @@ network MMS5GNetworkMITMLanBase
     connections allowunconnected:
         goodCliLan.gate <--> Eth1G <--> router.ethg++;
         for i=0..(numDerLan-1) {
-            derLan[i].gate <--> Eth1G <--> router.ethg++;
+            derLan[i].gate <--> Eth1G <--> router.pppg++;
         }
 
 }

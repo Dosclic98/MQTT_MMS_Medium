@@ -84,7 +84,7 @@ network MMS5GNetworkMITMBase
         switch.ethg++ <--> Eth1G <--> router.ethg++;
         evilClient.ethg++ <--> Eth100M <--> router.ethg++;
         antenna.ppp <--> Eth1G <--> upf.pppg++;
-        router.ethg++ <--> Eth1G <--> upf.filterGate;
+        router.pppg++ <--> Eth1G <--> upf.filterGate;
         for i=0..numClients-1 {
             client[i].ethg++ <--> Eth100M <--> switch.ethg++;
         }
