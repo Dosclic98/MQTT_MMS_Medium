@@ -18,12 +18,14 @@
 
 #include "../ClientEvilComp.h"
 #include "../../../../message/mms/MmsMessage_m.h"
+#include "../../../../utils/factories/mms/MmsMessageCopier.h"
 
 namespace inet {
 
 class FromClientListener : public cListener {
 protected:
 	ChunkQueue queue;
+	MmsMessageCopier* messageCopier;
 public:
 	FromClientListener();
 	FromClientListener(ClientEvilComp* parent);

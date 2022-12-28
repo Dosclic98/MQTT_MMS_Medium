@@ -49,6 +49,7 @@ void ClientEvilComp::initialize(int stage)
         if (stopTime >= SIMTIME_ZERO && stopTime < startTime)
             throw cRuntimeError("Invalid startTime/stopTime parameters");
         timeoutMsg = new cMessage("timer");
+        messageCopier = new MmsMessageCopier();
 
         genericFakeReqResSignal = registerSignal("genericFakeReqResSignal");
         pcktFromServerSignal = registerSignal("pcktFromServerSignal");
@@ -89,16 +90,8 @@ void ClientEvilComp::initialize(int stage)
 void ClientEvilComp::sendRequest() {
     if(!msgQueue.isEmpty()) {
     	MmsMessage* msg = check_and_cast<MmsMessage*>(msgQueue.pop());
-        const auto& payload = makeShared<MmsMessage>();
+        const auto& payload = messageCopier->copyMessage(msg, true);
         Packet *packet = new Packet("data");
-        payload->setOriginId(msg->getOriginId());
-        payload->setChunkLength(msg->getChunkLength());
-        payload->setExpectedReplyLength(msg->getExpectedReplyLength());
-        payload->setServerClose(msg->getServerClose());
-        payload->addTag<CreationTimeTag>()->setCreationTime(msg->getTag<CreationTimeTag>()->getCreationTime());
-        payload->setMessageKind(msg->getMessageKind());
-        payload->setReqResKind(msg->getReqResKind());
-        payload->setEvilServerConnId(msg->getEvilServerConnId());
         packet->insertAtBack(payload);
 
         sendPacket(packet);
@@ -181,18 +174,9 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
             return;
     	}
 
-		const auto& msg = makeShared<MmsMessage>();
+		const auto& msg = messageCopier->copyMessage(appmsg.get(), appmsg->getEvilServerConnId(), true);
 		Packet *packet = new Packet("data");
-		msg->setOriginId(appmsg->getOriginId());
-		msg->setMessageKind(appmsg->getMessageKind());
-		msg->setReqResKind(appmsg->getReqResKind());
-		msg->setConnId(appmsg->getEvilServerConnId());
-		msg->setExpectedReplyLength(appmsg->getExpectedReplyLength());
-		msg->setChunkLength(appmsg->getChunkLength());
-		msg->setEvilServerConnId(appmsg->getEvilServerConnId());
-		msg->setServerClose(appmsg->getServerClose());
-		msg->addTag<CreationTimeTag>()->setCreationTime(appmsg->getTag<CreationTimeTag>()->getCreationTime());
-		msg->setServerIndex(appmsg->getServerIndex());
+
 		packet->insertAtBack(msg);
 		packet->addTag<SocketInd>()->setSocketId(appmsg->getEvilServerConnId());
 		bubble("Sent to internal client!");

@@ -19,6 +19,7 @@
 #include <omnetpp.h>
 #include "inet/applications/tcpapp/TcpGenericServerApp.h"
 #include "../../../message/mms/MmsMessage_m.h"
+#include "../../../utils/factories/mms/MmsMessageCopier.h"
 #include "inet/common/TimeTag_m.h"
 #include "inet/common/lifecycle/NodeStatus.h"
 #include "inet/networklayer/common/L3AddressResolver.h"
@@ -33,6 +34,7 @@ class FromServerListener;
  */
 class INET_API ServerEvilComp : public TcpGenericServerApp {
 	public:
+		MmsMessageCopier* messageCopier;
 		//Gestione servitore e coda
 		bool evilServerStatus;
 		cQueue serverQueue;
@@ -57,7 +59,7 @@ class INET_API ServerEvilComp : public TcpGenericServerApp {
 		virtual void handleMessage(cMessage *msg) override;
 		virtual void finish() override;
 		virtual void handleDeparture();
-		virtual void sendPacketDeparture(int connId, msgid_t originId, simtime_t fakeCreationTime, B requestedBytes, B replyLength, MMSKind messageKind, ReqResKind reqResKind, int clientConnId);
+		virtual void sendPacketDeparture(const MmsMessage* appmsg);
 		void handleForward();
 };
 

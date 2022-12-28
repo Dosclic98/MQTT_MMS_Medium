@@ -24,6 +24,7 @@ namespace inet {
 
 FromClientListener::FromClientListener() {
 	// TODO Auto-generated constructor stub
+	messageCopier = new MmsMessageCopier();
 }
 
 FromClientListener::FromClientListener(ClientEvilComp* parent) {
@@ -71,7 +72,8 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 		}
 
 		// Add to the forward to the server queue
-		MmsMessage* msg = new MmsMessage();
+		MmsMessage* msg = messageCopier->copyMessageNorm(appmsg.get(), true);
+		/*
 		msg->setOriginId(appmsg->getOriginId());
 		msg->setMessageKind(appmsg->getMessageKind());
 		msg->setReqResKind(appmsg->getReqResKind());
@@ -82,7 +84,7 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 		msg->setServerClose(appmsg->getServerClose());
 		msg->addTag<CreationTimeTag>()->setCreationTime(appmsg->getTag<CreationTimeTag>()->getCreationTime());
 		msg->setServerIndex(appmsg->getServerIndex());
-
+*/
 		// Signal if a generic request gets blocked or compromised
 		double p = this->parent->uniform(0.0, 1.0);
 		if(appmsg->getMessageKind() == MMSKind::GENREQ) {

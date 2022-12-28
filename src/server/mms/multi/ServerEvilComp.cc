@@ -43,6 +43,7 @@ void ServerEvilComp::initialize(int stage) {
         evilServerStatus = false;
         forwardStatus = false;
         forwardQueue = new cQueue();
+        messageCopier = new MmsMessageCopier();
 
         int numApps = getContainingNode(this)->par("numApps").intValue();
         pcktFromClientSignal = new simsignal_t[numApps-1];
@@ -62,6 +63,14 @@ void ServerEvilComp::initialize(int stage) {
     }
 }
 
+void ServerEvilComp::sendPacketDeparture(const MmsMessage* appmsg) {
+    Packet *outPacket = new Packet("Generic Data", TCP_C_SEND);
+    outPacket->addTag<SocketReq>()->setSocketId(appmsg->getConnId());
+    const auto& payload = messageCopier->copyMessage(appmsg, true);
+    outPacket->insertAtBack(payload);
+    sendOrSchedule(outPacket, SimTime(par("replyDelay").doubleValue(), SIMTIME_MS));
+}
+/*
 void ServerEvilComp::sendPacketDeparture(int connId, msgid_t originId, simtime_t fakeCreationTime, B requestedBytes, B replyLength, MMSKind messageKind, ReqResKind reqResKind, int clientConnId) {
     Packet *outPacket = new Packet("Generic Data", TCP_C_SEND);
     outPacket->addTag<SocketReq>()->setSocketId(connId);
@@ -77,7 +86,7 @@ void ServerEvilComp::sendPacketDeparture(int connId, msgid_t originId, simtime_t
     outPacket->insertAtBack(payload);
     sendOrSchedule(outPacket, SimTime(par("replyDelay").doubleValue(), SIMTIME_MS));
 }
-
+*/
 void ServerEvilComp::handleDeparture() {
     Packet *packet = check_and_cast<Packet *>(serverQueue.pop());
     int connId = packet->getTag<SocketInd>()->getSocketId();
@@ -92,9 +101,9 @@ void ServerEvilComp::handleDeparture() {
         bytesRcvd += B(appmsg->getChunkLength()).get();
         // I set the chunk length as response length because we must forward the data
         B requestedBytes = appmsg->getChunkLength();
-        if(appmsg->getMessageKind() == MMSKind::MEASURE) sendPacketDeparture(appmsg->getConnId(), appmsg->getOriginId(), appmsg->getTag<CreationTimeTag>()->getCreationTime(), requestedBytes, B(0), MMSKind::MEASURE, ReqResKind::UNSET, -1);
+        if(appmsg->getMessageKind() == MMSKind::MEASURE) sendPacketDeparture(appmsg.get());
         else if (appmsg->getMessageKind() == MMSKind::GENRESP) { //Generic Response From Server
-            if (requestedBytes > B(0)) sendPacketDeparture(appmsg->getConnId(), appmsg->getOriginId(), appmsg->getTag<CreationTimeTag>()->getCreationTime(), requestedBytes, B(0), MMSKind::GENRESP, appmsg->getReqResKind(), -1);
+            if (requestedBytes > B(0)) sendPacketDeparture(appmsg.get());
         }
         else { /* Bad Request, not present in MITM */}
     }
@@ -161,18 +170,8 @@ void ServerEvilComp::handleForward() {
 	ChunkQueue &queue = socketQueue[connId];
 	queue.push(chunk);
 	while (const auto& appmsg = queue.pop<MmsMessage>(b(-1), Chunk::PF_ALLOW_NULLPTR)) {
-		const auto& msg = makeShared<MmsMessage>();
+		const auto& msg = messageCopier->copyMessage(appmsg.get(), connId, connId, true);
 		Packet *packet = new Packet("data");
-		msg->setOriginId(appmsg->getOriginId());
-		msg->setMessageKind(appmsg->getMessageKind());
-		msg->setReqResKind(appmsg->getReqResKind());
-		msg->setConnId(connId);
-		msg->setExpectedReplyLength(appmsg->getExpectedReplyLength());
-		msg->setChunkLength(appmsg->getChunkLength());
-		msg->setEvilServerConnId(connId);
-		msg->setServerClose(appmsg->getServerClose());
-		msg->addTag<CreationTimeTag>()->setCreationTime(appmsg->getTag<CreationTimeTag>()->getCreationTime());
-		msg->setServerIndex(appmsg->getServerIndex());
 		packet->insertAtBack(msg);
 		emit(pcktFromClientSignal[appmsg->getServerIndex()], packet);
 		bubble("Sent to internal client!");

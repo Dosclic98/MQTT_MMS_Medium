@@ -19,6 +19,7 @@
 #include <omnetpp.h>
 #include <queue>
 #include "inet/applications/tcpapp/TcpBasicClientApp.h"
+#include "../../../utils/factories/mms/MmsMessageCopier.h"
 
 namespace inet {
 
@@ -28,6 +29,7 @@ class FromClientListener;
  */
 class ClientEvilComp : public TcpBasicClientApp {
 public:
+	MmsMessageCopier* messageCopier;
 	cQueue msgQueue;
 	bool previousResponseSent;
 	cMessage* sendMsgEvent;
