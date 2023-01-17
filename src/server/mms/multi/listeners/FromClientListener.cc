@@ -66,6 +66,8 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 				msg->setEvilServerConnId(-1);
 				msg->setServerClose(false);
 				msg->addTag<CreationTimeTag>()->setCreationTime(simTime());
+				msg->setData(0);
+				msg->setAtkStatus(MITMKind::FAKEGEN);
 
 				enqueueNSchedule(msg);
 			}
@@ -73,38 +75,33 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 
 		// Add to the forward to the server queue
 		MmsMessage* msg = messageCopier->copyMessageNorm(appmsg.get(), true);
-		/*
-		msg->setOriginId(appmsg->getOriginId());
-		msg->setMessageKind(appmsg->getMessageKind());
-		msg->setReqResKind(appmsg->getReqResKind());
-		msg->setConnId(appmsg->getConnId());
-		msg->setExpectedReplyLength(appmsg->getExpectedReplyLength());
-		msg->setChunkLength(appmsg->getChunkLength());
-		msg->setEvilServerConnId(appmsg->getEvilServerConnId());
-		msg->setServerClose(appmsg->getServerClose());
-		msg->addTag<CreationTimeTag>()->setCreationTime(appmsg->getTag<CreationTimeTag>()->getCreationTime());
-		msg->setServerIndex(appmsg->getServerIndex());
-*/
+
 		// Signal if a generic request gets blocked or compromised
 		double p = this->parent->uniform(0.0, 1.0);
 		if(appmsg->getMessageKind() == MMSKind::GENREQ) {
 			if(appmsg->getReqResKind() == ReqResKind::READ) {
 				if (p < this->parent->readRequestBlockProb) { // Block
 					this->parent->emit(this->parent->readRequestBlockSignal, true);
+					msg->setAtkStatus(MITMKind::BLOCK);
 					delete pckt;
 					delete msg;
 					return;
 				} else if (p < this->parent->readRequestCompromisedProb) { // Compromise
+					msg->setAtkStatus(MITMKind::COMPR);
+					msg->setData(9);
 					this->parent->emit(this->parent->readRequestCompromisedSignal, true);
 				}
 			} else if(appmsg->getReqResKind() == ReqResKind::COMMAND) {
 				if (p < this->parent->commandRequestBlockProb) { // Block
 					this->parent->emit(this->parent->commandRequestBlockSignal, true);
+					msg->setAtkStatus(MITMKind::BLOCK);
 					delete pckt;
 					delete msg;
 					return;
 				} else if (p < this->parent->commandRequestCompromisedProb) { // Compromise
 					this->parent->emit(this->parent->commandRequestCompromisedSignal, true);
+					msg->setAtkStatus(MITMKind::COMPR);
+					msg->setData(9);
 				}
 			}
 		}

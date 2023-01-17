@@ -28,8 +28,9 @@ namespace inet;
 //GENERAL
 //[999 I AM THE SERVER]
 enum MMSKind {
+    // Value used by the BadMmsClient
     FAKE = -1;
-	
+    
 	CONNECT = 0;
 	MEASURE = 1;
 	GENREQ = 2;
@@ -42,6 +43,14 @@ enum ReqResKind {
     UNSET = -1;
     READ = 0;
 	COMMAND = 1;
+}
+
+// Expresses the 
+enum MITMKind {
+	UNMOD = 0;
+	COMPR = 1;
+	BLOCK = 2;
+	FAKEGEN = 3;
 }
 
 class MmsMessage extends FieldsChunk
@@ -57,4 +66,7 @@ class MmsMessage extends FieldsChunk
     // Used just for the MMS MIMT Attack
     int evilServerConnId = 0;
     int serverIndex = 0;
+    MITMKind atkStatus = MITMKind::UNMOD;
+    // Data that defines the message data (0-9)
+    int data = 0;
 }

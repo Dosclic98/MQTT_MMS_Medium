@@ -39,6 +39,8 @@ const Ptr<MmsMessage> MmsMessageCopier::copyMessage(const MmsMessage* appmsg, in
 	msg->setChunkLength(appmsg->getChunkLength());
 	msg->setEvilServerConnId(evilServerConnId);
 	msg->setServerClose(appmsg->getServerClose());
+	msg->setData(appmsg->getData());
+	msg->setAtkStatus(appmsg->getAtkStatus());
 	if(fakeCreatTime) msg->addTag<CreationTimeTag>()->setCreationTime(appmsg->getTag<CreationTimeTag>()->getCreationTime());
 	else msg->addTag<CreationTimeTag>()->setCreationTime(simTime());
 	msg->setServerIndex(appmsg->getServerIndex());
@@ -65,6 +67,8 @@ MmsMessage* MmsMessageCopier::copyMessageNorm(const MmsMessage* appmsg, int conn
 	msg->setChunkLength(appmsg->getChunkLength());
 	msg->setEvilServerConnId(evilServerConnId);
 	msg->setServerClose(appmsg->getServerClose());
+	msg->setData(appmsg->getData());
+	msg->setAtkStatus(appmsg->getAtkStatus());
 	if(fakeCreatTime) msg->addTag<CreationTimeTag>()->setCreationTime(appmsg->getTag<CreationTimeTag>()->getCreationTime());
 	else msg->addTag<CreationTimeTag>()->setCreationTime(simTime());
 	msg->setServerIndex(appmsg->getServerIndex());

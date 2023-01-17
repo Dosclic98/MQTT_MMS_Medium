@@ -36,7 +36,7 @@ void MmsClient::initialize(int stage)
         resTimeout = par("resTimeoutInterval");
         isLogging = par("isLogging");
         if(isLogging) {
-        	logger = new MmsPacketLogger(getParentModule()->getIndex(), getIndex());
+        	logger = new MmsPacketLogger("client", getParentModule()->getIndex(), getIndex());
         }
         if (stopTime >= SIMTIME_ZERO && stopTime < startTime)
             throw cRuntimeError("Invalid startTime/stopTime parameters");
@@ -101,6 +101,8 @@ void MmsClient::sendRequest(MMSKind kind, ReqResKind reqKind)
     payload->setServerClose(false);
     payload->addTag<CreationTimeTag>()->setCreationTime(simTime());
     payload->setServerIndex(this->getIndex());
+    payload->setData(0);
+    payload->setAtkStatus(MITMKind::UNMOD);
     EV << "Index: " << this->getIndex();
     if(!isListening && kind == MMSKind::CONNECT) {
     	// Connect kind
@@ -277,17 +279,6 @@ void MmsClient::socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent)
         	genReqSentTimeMap.erase(appmsg->getOriginId());
         }
     }
-/*
-    if (numRequestsToSend > 0) {
-        if (previousResponseSent) {
-            simtime_t d = simTime() + SimTime(par("thinkTime").intValue(), SIMTIME_MS);
-            rescheduleOrDeleteTimer(d, MSGKIND_SEND);
-            previousResponseSent = false;
-        }
-    } else {
-        close();
-    }
-*/
     TcpAppBase::socketDataArrived(socket, msg, urgent);
 }
 

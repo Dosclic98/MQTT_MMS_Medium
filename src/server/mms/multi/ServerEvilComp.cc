@@ -70,23 +70,7 @@ void ServerEvilComp::sendPacketDeparture(const MmsMessage* appmsg) {
     outPacket->insertAtBack(payload);
     sendOrSchedule(outPacket, SimTime(par("replyDelay").doubleValue(), SIMTIME_MS));
 }
-/*
-void ServerEvilComp::sendPacketDeparture(int connId, msgid_t originId, simtime_t fakeCreationTime, B requestedBytes, B replyLength, MMSKind messageKind, ReqResKind reqResKind, int clientConnId) {
-    Packet *outPacket = new Packet("Generic Data", TCP_C_SEND);
-    outPacket->addTag<SocketReq>()->setSocketId(connId);
-    const auto& payload = makeShared<MmsMessage>();
-    payload->setOriginId(originId);
-    payload->setMessageKind(messageKind);
-    payload->setReqResKind(reqResKind);
-    payload->setChunkLength(requestedBytes);
-    payload->setExpectedReplyLength(replyLength);
-    payload->addTag<CreationTimeTag>()->setCreationTime(fakeCreationTime);
-    payload->setConnId(clientConnId);
-    payload->setServerClose(false);
-    outPacket->insertAtBack(payload);
-    sendOrSchedule(outPacket, SimTime(par("replyDelay").doubleValue(), SIMTIME_MS));
-}
-*/
+
 void ServerEvilComp::handleDeparture() {
     Packet *packet = check_and_cast<Packet *>(serverQueue.pop());
     int connId = packet->getTag<SocketInd>()->getSocketId();

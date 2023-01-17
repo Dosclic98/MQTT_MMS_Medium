@@ -177,8 +177,6 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 		const auto& msg = messageCopier->copyMessage(appmsg.get(), appmsg->getEvilServerConnId(), true);
 		Packet *packet = new Packet("data");
 
-		packet->insertAtBack(msg);
-		packet->addTag<SocketInd>()->setSocketId(appmsg->getEvilServerConnId());
 		bubble("Sent to internal client!");
 		EV_INFO << "Conn ID:" << msg->getEvilServerConnId() << "\n";
 
@@ -203,12 +201,15 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 		        if (p < readResponseBlockProb) { // Block
 		        	bubble("Read response blocked");
 		            emit(readResponseBlockSignal, true);
+		            msg->setAtkStatus(MITMKind::BLOCK);
 		            delete packet;
 		            TcpAppBase::socketDataArrived(socket, pckt, urgent);
 		            return;
 		        } else if (p < readResponseCompromisedProb) { // Compromise
 		        	bubble("Read response compromised");
 		            emit(readResponseCompromisedSignal, true);
+		            msg->setAtkStatus(MITMKind::COMPR);
+		            msg->setData(9);
 		        } else {
 		        	bubble("Read response arrived from server");
 		        }
@@ -216,17 +217,22 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 		        if (p < commandResponseBlockProb) { // Block
 		        	bubble("Command response blocked");
 		            emit(commandResponseBlockSignal, true);
+		            msg->setAtkStatus(MITMKind::BLOCK);
 		            delete packet;
 		            TcpAppBase::socketDataArrived(socket, pckt, urgent);
 		            return;
 		        } else if (p < commandResponseCompromisedProb) { // Compromise
 		        	bubble("Command response compromised");
 		            emit(commandResponseCompromisedSignal, true);
+		            msg->setAtkStatus(MITMKind::COMPR);
+		            msg->setData(9);
 		        } else {
 		        	bubble("Command response arrived from server");
 		        }
 	    	}
 	    }
+	    packet->insertAtBack(msg);
+	    packet->addTag<SocketInd>()->setSocketId(appmsg->getEvilServerConnId());
 
 		emit(pcktFromServerSignal, packet);
     }

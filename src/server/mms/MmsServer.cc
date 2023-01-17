@@ -75,7 +75,8 @@ void MmsServer::sendBack(cMessage *msg)
     send(msg, "socketOut");
 }
 
-void MmsServer::sendPacketDeparture(int connId, msgid_t originId, int evilConnId, B requestedBytes, B replyLength, MMSKind messageKind, ReqResKind reqResKind) {
+void MmsServer::sendPacketDeparture(int connId, msgid_t originId, int evilConnId, B requestedBytes, B replyLength,
+		MMSKind messageKind, ReqResKind reqResKind, int data, MITMKind atkStatus) {
     Packet *outPacket = new Packet("Generic Data", TCP_C_SEND);
     outPacket->addTag<SocketReq>()->setSocketId(connId);
     const auto& payload = makeShared<MmsMessage>();
@@ -86,6 +87,8 @@ void MmsServer::sendPacketDeparture(int connId, msgid_t originId, int evilConnId
     payload->setExpectedReplyLength(replyLength);
     payload->addTag<CreationTimeTag>()->setCreationTime(simTime());
     payload->setEvilServerConnId(evilConnId);
+    payload->setData(data);
+    payload->setAtkStatus(atkStatus);
     outPacket->insertAtBack(payload);
     sendOrSchedule(outPacket, SimTime(par("replyDelay").intValue(), SIMTIME_MS));
 }
@@ -111,13 +114,15 @@ void MmsServer::handleDeparture()
         else if(appmsg->getMessageKind() == MMSKind::MEASURE) { // Send data to listeners
             for (auto const& listener : clientConnIdList) {
                 if (requestedBytes > B(0)) {
-                    sendPacketDeparture(listener.first, appmsg->getOriginId(), listener.second, B(100), B(0), MMSKind::MEASURE, ReqResKind::UNSET);
+                    sendPacketDeparture(listener.first, appmsg->getOriginId(), listener.second, B(100), B(0),
+                    		MMSKind::MEASURE, ReqResKind::UNSET, appmsg->getData(), appmsg->getAtkStatus());
                 }
             }
         }
         else if (appmsg->getMessageKind() == MMSKind::GENREQ) { // Response to Generic Request
             if (requestedBytes > B(0)) {
-                sendPacketDeparture(connId, appmsg->getOriginId(), appmsg->getEvilServerConnId(), requestedBytes, B(0), MMSKind::GENRESP, appmsg->getReqResKind());
+                sendPacketDeparture(connId, appmsg->getOriginId(), appmsg->getEvilServerConnId(), requestedBytes, B(0),
+                		MMSKind::GENRESP, appmsg->getReqResKind(), 0, MITMKind::UNMOD);
             }
         }
         else {
@@ -160,6 +165,8 @@ void MmsServer::handleMessage(cMessage *msg)
         payload->setChunkLength(B(100));
         payload->setExpectedReplyLength(B(100));
         payload->setServerClose(false);
+        payload->setData(0);
+        payload->setAtkStatus(MITMKind::UNMOD);
         pkt->insertAtBack(payload);
         if (!clientConnIdList.empty()) {
             if(!serverStatus) {
