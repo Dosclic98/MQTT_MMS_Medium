@@ -44,6 +44,10 @@ void ServerEvilComp::initialize(int stage) {
         forwardStatus = false;
         forwardQueue = new cQueue();
         messageCopier = new MmsMessageCopier();
+        isLogging = par("isLogging");
+        if(isLogging) {
+        	logger = new MmsPacketLogger("evilClient", 0, 0);
+        }
 
         int numApps = getContainingNode(this)->par("numApps").intValue();
         pcktFromClientSignal = new simsignal_t[numApps-1];
@@ -174,6 +178,7 @@ void ServerEvilComp::finish() {
 }
 
 ServerEvilComp::~ServerEvilComp() {
+	if(isLogging) delete logger;
     cancelAndDelete(departureEvent);
     cancelAndDelete(forwardEvent);
     serverQueue.clear();

@@ -39,6 +39,11 @@ void MmsServer::initialize(int stage)
         serverStatus = false;
         scheduleAt(1, sendDataEvent);
 
+        isLogging = true;
+        if(isLogging) {
+        	logger = new MmsPacketLogger("server", getParentModule()->getIndex(), getIndex());
+        }
+
         cModule *node = findContainingNode(this);
         NodeStatus *nodeStatus = node ? check_and_cast_nullable<NodeStatus *>(node->getSubmodule("status")) : nullptr;
         bool isOperational = (!nodeStatus) || nodeStatus->getState() == NodeStatus::UP;
@@ -59,6 +64,7 @@ void MmsServer::sendBack(cMessage *msg)
 {
     Packet *packet = dynamic_cast<Packet *>(msg);
 
+    if(isLogging) logPacket(packet);
     if (packet) {
         msgsSent++;
         bytesSent += packet->getByteLength();
@@ -198,7 +204,7 @@ void MmsServer::handleMessage(cMessage *msg)
         sendOrSchedule(request, SimTime(par("replyDelay").intValue(), SIMTIME_MS));
     }
     else if (msg->getKind() == TCP_I_DATA || msg->getKind() == TCP_I_URGENT_DATA) {
-
+    	if(isLogging) logPacket(check_and_cast<Packet*>(msg));
         if(!serverStatus) {
             serverStatus = true;
             serverQueue.insert(msg);
@@ -216,6 +222,16 @@ void MmsServer::handleMessage(cMessage *msg)
     }
 }
 
+void MmsServer::logPacket(Packet* packet) {
+	ChunkQueue tmpQueue;
+	auto chunk = packet->peekDataAt(B(0), packet->getTotalLength());
+	tmpQueue.push(chunk);
+	while (tmpQueue.has<MmsMessage>(b(-1))) {
+	    const auto& appmsg = tmpQueue.pop<MmsMessage>(b(-1));
+	    logger->log(const_cast<MmsMessage*>(appmsg.get()), simTime());
+	}
+}
+
 void MmsServer::refreshDisplay() const
 {
     char buf[64];
@@ -229,6 +245,9 @@ void MmsServer::finish() {
 }
 
 MmsServer::~MmsServer() {
+	if(isLogging) {
+		delete logger;
+	}
 	cancelAndDelete(departureEvent);
 	cancelAndDelete(sendDataEvent);
 	serverQueue.clear();

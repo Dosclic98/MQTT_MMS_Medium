@@ -21,6 +21,7 @@
 #include "inet/common/packet/ChunkQueue.h"
 #include "inet/transportlayer/contract/tcp/TcpSocket.h"
 #include "../../message/mms/MmsMessage_m.h"
+#include "../../utils/logger/mms/MmsPacketLogger.h"
 
 namespace inet {
 
@@ -48,6 +49,10 @@ class INET_API MmsServer : public cSimpleModule, public LifecycleUnsupported
 
     //Gestione invio misure
     cMessage* sendDataEvent;
+
+    // Logging pacchetti inviati/ricevuti
+    bool isLogging;
+    MmsPacketLogger* logger;
 
   protected:
     virtual void sendBack(cMessage *msg);

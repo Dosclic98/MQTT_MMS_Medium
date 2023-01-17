@@ -78,6 +78,9 @@ void ClientEvilComp::initialize(int stage)
     	measureCompromisedProb = par("measureCompromisedProb").doubleValue();
 
         previousResponseSent = true;
+
+        serverComp = check_and_cast<ServerEvilComp*>(getParentModule()->getSubmodule("app", getParentModule()->par("numApps").intValue()-1));
+
         // Initialize listener and subscribe to the serverComp forwarding signal
         serverCompListener = new FromClientListener(this);
         sendMsgEvent = new cMessage("Send message event");
@@ -187,12 +190,17 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 	        if (p < measureBlockProb) { //Block
 	        	bubble("Measure blocked");
 	            emit(measureBlockSignal, true);
+	            msg->setAtkStatus(MITMKind::BLOCK);
+	            if(serverComp->isLogging) serverComp->logger->log(msg.get(), simTime());
 	            delete packet;
 	            TcpAppBase::socketDataArrived(socket, pckt, urgent);
 	            return;
 	        } else if (p < measureCompromisedProb){ //Compromise
 	        	bubble("Measure compromised");
 	            emit(measureCompromisedSignal, true);
+	            msg->setAtkStatus(MITMKind::COMPR);
+	            msg->setData(9);
+	            if(serverComp->isLogging) serverComp->logger->log(msg.get(), simTime());
 	        } else {
 	        	bubble("Measure arrived from server");
 	        }
@@ -202,6 +210,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 		        	bubble("Read response blocked");
 		            emit(readResponseBlockSignal, true);
 		            msg->setAtkStatus(MITMKind::BLOCK);
+		            if(serverComp->isLogging) serverComp->logger->log(msg.get(), simTime());
 		            delete packet;
 		            TcpAppBase::socketDataArrived(socket, pckt, urgent);
 		            return;
@@ -210,6 +219,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 		            emit(readResponseCompromisedSignal, true);
 		            msg->setAtkStatus(MITMKind::COMPR);
 		            msg->setData(9);
+		            if(serverComp->isLogging) serverComp->logger->log(msg.get(), simTime());
 		        } else {
 		        	bubble("Read response arrived from server");
 		        }
@@ -218,6 +228,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 		        	bubble("Command response blocked");
 		            emit(commandResponseBlockSignal, true);
 		            msg->setAtkStatus(MITMKind::BLOCK);
+		            if(serverComp->isLogging) serverComp->logger->log(msg.get(), simTime());
 		            delete packet;
 		            TcpAppBase::socketDataArrived(socket, pckt, urgent);
 		            return;
@@ -226,6 +237,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 		            emit(commandResponseCompromisedSignal, true);
 		            msg->setAtkStatus(MITMKind::COMPR);
 		            msg->setData(9);
+		            if(serverComp->isLogging) serverComp->logger->log(msg.get(), simTime());
 		        } else {
 		        	bubble("Command response arrived from server");
 		        }

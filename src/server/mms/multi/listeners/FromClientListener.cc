@@ -68,6 +68,7 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 				msg->addTag<CreationTimeTag>()->setCreationTime(simTime());
 				msg->setData(0);
 				msg->setAtkStatus(MITMKind::FAKEGEN);
+				if(parent->serverComp->isLogging) parent->serverComp->logger->log(msg, simTime());
 
 				enqueueNSchedule(msg);
 			}
@@ -83,18 +84,21 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 				if (p < this->parent->readRequestBlockProb) { // Block
 					this->parent->emit(this->parent->readRequestBlockSignal, true);
 					msg->setAtkStatus(MITMKind::BLOCK);
+					if(parent->serverComp->isLogging) parent->serverComp->logger->log(msg, simTime());
 					delete pckt;
 					delete msg;
 					return;
 				} else if (p < this->parent->readRequestCompromisedProb) { // Compromise
 					msg->setAtkStatus(MITMKind::COMPR);
 					msg->setData(9);
+					if(parent->serverComp->isLogging) parent->serverComp->logger->log(msg, simTime());
 					this->parent->emit(this->parent->readRequestCompromisedSignal, true);
 				}
 			} else if(appmsg->getReqResKind() == ReqResKind::COMMAND) {
 				if (p < this->parent->commandRequestBlockProb) { // Block
 					this->parent->emit(this->parent->commandRequestBlockSignal, true);
 					msg->setAtkStatus(MITMKind::BLOCK);
+					if(parent->serverComp->isLogging) parent->serverComp->logger->log(msg, simTime());
 					delete pckt;
 					delete msg;
 					return;
@@ -102,6 +106,7 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 					this->parent->emit(this->parent->commandRequestCompromisedSignal, true);
 					msg->setAtkStatus(MITMKind::COMPR);
 					msg->setData(9);
+					if(parent->serverComp->isLogging) parent->serverComp->logger->log(msg, simTime());
 				}
 			}
 		}

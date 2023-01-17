@@ -24,6 +24,7 @@ simple ServerEvilComp extends TcpGenericServerApp {
     parameters:
         @class("inet::ServerEvilComp");
         
+        bool isLogging = default(false); // For logging purposes
         volatile int serviceTime @unit(ms) = default(intuniform(10ms, 18ms));
         volatile int forwardDelay @unit(us) = default(intuniform(1us, 3us));
         

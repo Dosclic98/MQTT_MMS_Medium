@@ -25,6 +25,7 @@
 #include "inet/networklayer/common/L3AddressResolver.h"
 #include "inet/common/ProtocolTag_m.h"
 #include "inet/common/socket/SocketTag_m.h"
+#include "../../../utils/logger/mms/MmsPacketLogger.h"
 
 namespace inet {
 
@@ -39,6 +40,11 @@ class INET_API ServerEvilComp : public TcpGenericServerApp {
 		bool evilServerStatus;
 		cQueue serverQueue;
 		cMessage* departureEvent;
+
+		// For logging purposes
+		bool isLogging;
+		MmsPacketLogger* logger;
+
 		virtual ~ServerEvilComp();
 
 	protected:

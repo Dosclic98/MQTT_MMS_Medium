@@ -20,6 +20,7 @@
 #include <queue>
 #include "inet/applications/tcpapp/TcpBasicClientApp.h"
 #include "../../../utils/factories/mms/MmsMessageCopier.h"
+#include "ServerEvilComp.h"
 
 namespace inet {
 
@@ -33,6 +34,10 @@ public:
 	cQueue msgQueue;
 	bool previousResponseSent;
 	cMessage* sendMsgEvent;
+
+	// Reference to the ServerEvilComp of the StandardHost
+	ServerEvilComp* serverComp;
+
 	virtual void rescheduleAfterOrDeleteTimer(simtime_t d, short int msgKind) override;
 	virtual int getConnectionState();
 

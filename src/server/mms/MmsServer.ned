@@ -23,6 +23,7 @@ simple MmsServer like IApp
         string localAddress = default(""); // local address; may be left empty ("")
         int localPort = default(1000);     // localPort number to listen on
         volatile int replyDelay @unit(ms) = default(0ms);
+        bool isLogging = default(false); // Parameter to know if the server has to log all the packets it receives
         @display("i=block/app");
         @lifecycleSupport;
         double stopOperationExtraTime @unit(s) = default(-1s);    // extra time after lifecycle stop operation finished

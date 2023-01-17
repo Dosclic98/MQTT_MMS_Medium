@@ -21,10 +21,12 @@
 
 namespace inet {
 
-MmsPacketLogger::MmsPacketLogger(int numClient, int numApp) {
-	std::string fileName = "client[" + std::to_string(numClient) + "].app[" + std::to_string(numApp) + "].csv";
+MmsPacketLogger::MmsPacketLogger(std::string whatCompStr, int num, int numApp) {
+	std::string fileName = "";
+	if(whatCompStr == "evilClient") fileName = whatCompStr + ".csv";
+	else fileName = whatCompStr + "[" + std::to_string(num) + "].app[" + std::to_string(numApp) + "].csv";
 	logFile.open(this->path + fileName);
-	logFile << "id,messageKind,reqResKind,creationTime,timestamp\n";
+	logFile << "id,messageKind,reqResKind,atkStatus,data,creationTime,timestamp\n";
 }
 
 MmsPacketLogger::~MmsPacketLogger() {
@@ -34,11 +36,13 @@ MmsPacketLogger::~MmsPacketLogger() {
 void MmsPacketLogger::log(MmsMessage* msg, simtime_t timestamp) {
 	std::string mmsKindStr = "";
 	std::string reqResKindStr = "";
+	std::string mitmKindStr = mitmKindToStr[msg->getAtkStatus()];
 	if(msg->getMessageKind() == MMSKind::FAKE) { mmsKindStr = "FAKE"; }
 	else mmsKindStr = mmsKindToStr[msg->getMessageKind()];
 	if(msg->getReqResKind() == ReqResKind::UNSET) { reqResKindStr = "UNSET"; }
 	else reqResKindStr = reqResKindToStr[msg->getReqResKind()];
-	logFile << msg->getOriginId() << "," << mmsKindStr << "," << reqResKindStr << "," << msg->getTag<CreationTimeTag>()->getCreationTime() << "," << timestamp << "\n";
+	logFile << msg->getOriginId() << "," << mmsKindStr << "," << reqResKindStr << "," << mitmKindStr << "," << msg->getData()
+			<< "," << msg->getTag<CreationTimeTag>()->getCreationTime() << "," << timestamp << "\n";
 }
 
 };
