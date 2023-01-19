@@ -6,31 +6,28 @@
  */
 
 #include "Inactive.h"
+#include "../../../../server/mms/multi/ServerEvilComp.h"
 
 namespace inet {
 
-Inactive::Inactive()
-{
-	// TODO Auto-generated constructor stub
+Inactive Inactive::singleton = Inactive();
 
+EvilState* Inactive::getInstance() {
+	return &(singleton);
 }
 
-void Inactive::enter(EvilFSM* machine) {
+void Inactive::enter(FSM* machine) {
 	// Schedula l'evento di cambio stato
+	EvilFSM* evilMachine = check_and_cast<EvilFSM*>(machine);
 }
 
-void Inactive::exit(EvilFSM* machine) {
+void Inactive::exit(FSM* machine) {
 	// Fa qualcosa all'uscita dello stato
+	EvilFSM* evilMachine = check_and_cast<EvilFSM*>(machine);
 }
 
-EvilState& Inactive::getInstance() {
-	static Inactive singleton;
-	return singleton;
-}
+Inactive::~Inactive() {
 
-Inactive::~Inactive()
-{
-	// TODO Auto-generated destructor stub
 }
 
 };

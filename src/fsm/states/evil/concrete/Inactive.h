@@ -12,16 +12,20 @@
 
 namespace inet {
 
-class Inactive: public EvilState {
+class Inactive: virtual public EvilState {
 public:
-	void enter(EvilFSM* machine);
-	void exit(EvilFSM* machine);
+	void enter(FSM* machine);
+	void exit(FSM* machine);
 	virtual ~Inactive();
 
-	static EvilState& getInstance();
+	static EvilState* getInstance();
 
 private:
-	Inactive();
+	static Inactive singleton;
+	Inactive():
+		FSMState( { std::make_pair(1.0, this) } ),
+		EvilState(new Inibs(0,0,0,0,0,0), { std::make_pair(1.0, this) })
+	{}
 	Inactive(const Inactive& other);
 	Inactive& operator=(const Inactive& other);
 };

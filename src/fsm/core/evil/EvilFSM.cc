@@ -9,13 +9,14 @@
 
 namespace inet {
 
-EvilFSM::EvilFSM() {
-	// TODO Auto-generated constructor stub
-
+void EvilFSM::next() {
+	getCurrentState()->exit(this);
+	setCurrentState(getCurrentState()->next(this));
+	getCurrentState()->enter(this);
 }
 
-void EvilFSM::next() {
-
+Inibs* EvilFSM::getInibValues() {
+	return dynamic_cast<EvilState*>(getCurrentState())->getInibValues();
 }
 
 EvilFSM::~EvilFSM()

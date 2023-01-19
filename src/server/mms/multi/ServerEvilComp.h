@@ -26,6 +26,7 @@
 #include "inet/common/ProtocolTag_m.h"
 #include "inet/common/socket/SocketTag_m.h"
 #include "../../../utils/logger/mms/MmsPacketLogger.h"
+#include "../../../fsm/core/evil/EvilFSM.h"
 
 namespace inet {
 
@@ -46,6 +47,8 @@ class INET_API ServerEvilComp : public TcpGenericServerApp {
 		MmsPacketLogger* logger;
 
 		virtual ~ServerEvilComp();
+
+		EvilFSM* evilFSM;
 
 	protected:
 

@@ -9,14 +9,22 @@
 #define FSM_CORE_EVILFSM_H_
 
 #include "../FSM.h"
-#include "../../../server/mms/multi/ServerEvilComp.h"
+#include "../../states/evil/concrete/Inactive.h"
+
 
 namespace inet {
 
-class EvilFSM: public FSM {
+class ServerEvilComp;
+
+class EvilFSM: public virtual FSM {
 public:
-	EvilFSM();
+	EvilFSM(ServerEvilComp* owner):
+		FSM(Inactive::getInstance())
+	{
+		this->owner = owner;
+	}
 	void next() override;
+	Inibs* getInibValues();
 	~EvilFSM() override;
 
 	ServerEvilComp* owner;

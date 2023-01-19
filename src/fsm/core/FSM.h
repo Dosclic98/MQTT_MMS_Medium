@@ -16,7 +16,10 @@ class FSM {
 public:
 	virtual void next() = 0;
 	inline FSMState* getCurrentState() { return currentState; };
+	inline void setCurrentState(FSMState* currentState) { this->currentState = currentState; };
 	virtual ~FSM() {};
+protected:
+	inline FSM(FSMState* currentState) { this->currentState = currentState; }
 private:
 	FSMState* currentState;
 };

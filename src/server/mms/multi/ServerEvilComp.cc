@@ -49,6 +49,13 @@ void ServerEvilComp::initialize(int stage) {
         	logger = new MmsPacketLogger("evilClient", 0, 0);
         }
 
+        evilFSM = new EvilFSM(this);
+        // TODO Remove this after the tests
+        evilFSM->next();
+        EvilState* currState = check_and_cast<EvilState*>(evilFSM->getCurrentState());
+        Inibs* inibs = currState->getInibValues();
+        EV << std::to_string(inibs->getMeasureBlockInib()) + "\n";
+
         int numApps = getContainingNode(this)->par("numApps").intValue();
         pcktFromClientSignal = new simsignal_t[numApps-1];
         for(int i = 0; i < numApps-1; i++) {
@@ -185,6 +192,7 @@ ServerEvilComp::~ServerEvilComp() {
     forwardQueue->clear();
     delete forwardQueue;
     delete pcktFromClientSignal;
+    delete evilFSM;
 }
 
 }
