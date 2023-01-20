@@ -25,7 +25,7 @@ private:
 	Inactive():
 		FSMState( { std::make_pair(1.0, this) } ),
 		EvilState(new Inibs(0,0,0,0,0,0), { std::make_pair(1.0, this) })
-	{}
+	{ }
 	Inactive(const Inactive& other);
 	Inactive& operator=(const Inactive& other);
 };

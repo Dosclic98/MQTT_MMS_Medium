@@ -18,6 +18,11 @@ public:
 	virtual ~Inibs();
 
 	inline float getMeasureBlockInib() { return measureBlockInib; }
+	inline float getMeasureCompromisedInib() { return measureCompromisedInib; }
+	inline float getReadResponseBlockInib() { return readResponseBlockInib; }
+	inline float getReadResponseCompromisedInib() { return readResponseCompromisedInib; }
+	inline float getCommandResponseBlockInib() { return commandResponseBlockInib; }
+	inline float getCommandResponseCompromisedInib() { return commandResponseCompromisedInib; }
 
 private:
 	float measureBlockInib;

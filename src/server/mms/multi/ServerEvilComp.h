@@ -47,7 +47,7 @@ class INET_API ServerEvilComp : public TcpGenericServerApp {
 		MmsPacketLogger* logger;
 
 		virtual ~ServerEvilComp();
-
+		// Evil FSM to keep track of the evilServer'state
 		EvilFSM* evilFSM;
 
 	protected:

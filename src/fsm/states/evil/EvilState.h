@@ -18,6 +18,7 @@ class EvilFSM;
 class EvilState: public virtual FSMState {
 public:
 	virtual ~EvilState() {};
+	virtual FSMState* next(FSM* machine) override;
 
 	inline Inibs* getInibValues() { return inibValues.get(); }
 
@@ -26,7 +27,7 @@ protected:
 		FSMState( transitions )
 	{ this->inibValues = std::unique_ptr<Inibs>(inibValues); }
 
-private:
+protected:
 	std::unique_ptr<Inibs> inibValues;
 
 };

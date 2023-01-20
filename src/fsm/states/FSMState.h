@@ -21,25 +21,7 @@ class FSMState
 {
 public:
 	virtual void enter(FSM* machine) = 0;
-	virtual FSMState* next(FSM* machine) {
-		// TODO Using this RNG doesn't guarantee the correctly spaced number generation
-		std::default_random_engine generator;
-		std::uniform_real_distribution<double> distribution(0.0,1.0);
-
-		std::vector<std::pair<float, FSMState*>> trs = this->getTransitions();
-		std::sort(trs.begin(), trs.end());
-		for(int i = 0; i < trs.size(); i++) {
-			std::pair<float, FSMState*>& tmp = trs[i];
-			float p = distribution(generator);
-			if(tmp.second) {
-				if(p < tmp.first) return tmp.second;
-			} else {
-				throw std::invalid_argument("Exception: the next state wasn't valid");
-			}
-
-		}
-		return this;
-	}
+	virtual FSMState* next(FSM* machine) = 0;
 	virtual void exit(FSM* machine) = 0;
 	virtual ~FSMState() {};
 
