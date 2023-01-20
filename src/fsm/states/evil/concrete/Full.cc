@@ -1,40 +1,40 @@
 /*
- * Inactive.cc
+ * Full.cc
  *
- *  Created on: Jan 18, 2023
+ *  Created on: Jan 20, 2023
  *      Author: dosclic98
  */
 
-#include "Inactive.h"
+#include "Full.h"
 #include "../../../../server/mms/multi/ServerEvilComp.h"
 
 namespace inet {
 
-Inactive Inactive::singleton = Inactive();
+Full Full::singleton = Full();
 
-EvilState* Inactive::getInstance() {
+EvilState* Full::getInstance() {
 	return &(singleton);
 }
 
-void Inactive::enter(FSM* machine) {
+void Full::enter(FSM* machine) {
 	// Schedula l'evento di cambio stato
 	EvilFSM* evilMachine = check_and_cast<EvilFSM*>(machine);
 }
 
-void Inactive::exit(FSM* machine) {
+void Full::exit(FSM* machine) {
 	// Fa qualcosa all'uscita dello stato
 	EvilFSM* evilMachine = check_and_cast<EvilFSM*>(machine);
 }
 
-void Inactive::action(FSM* machine) {
+void Full::action(FSM* machine) {
 	// Esegue un'azione caratteristica dello stato (es. se arriva un messaggio dal client
 	// incrementa un accumulatore e verifica se generare una risposta falsa)
 	EvilFSM* evilMachine = check_and_cast<EvilFSM*>(machine);
 }
 
-Inactive::~Inactive() {
-
+Full::~Full()
+{
+	// TODO Auto-generated destructor stub
 }
 
 };
-

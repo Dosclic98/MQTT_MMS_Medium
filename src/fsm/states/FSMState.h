@@ -23,6 +23,7 @@ public:
 	virtual void enter(FSM* machine) = 0;
 	virtual FSMState* next(FSM* machine) = 0;
 	virtual void exit(FSM* machine) = 0;
+	virtual void action(FSM* machine) = 0;
 	virtual ~FSMState() {};
 
 	inline std::vector<std::pair<float, FSMState*>> getTransitions() { return transitions; }
