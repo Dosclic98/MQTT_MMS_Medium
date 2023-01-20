@@ -19,6 +19,7 @@ class EvilState: public virtual FSMState {
 public:
 	virtual ~EvilState() {};
 	virtual FSMState* next(FSM* machine) override;
+	void enter(FSM* machine) override;
 
 	inline Inibs* getInibValues() { return inibValues.get(); }
 

@@ -40,6 +40,10 @@ FromClientListener::~FromClientListener() {
 
 void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID, cObject* value, cObject *obj){
 	this->parent->bubble("Packet received from fwd signal!");
+    EvilState* currState = dynamic_cast<EvilState*>(parent->serverComp->evilFSM->getCurrentState());
+    Inibs* inibs = currState->getInibValues();
+    EV << std::to_string(inibs->getMeasureBlockInib()) + "\n";
+
 	Packet* pckt = check_and_cast<Packet*>(value);
     auto chunk = pckt->peekDataAt(B(0), pckt->getTotalLength());
     queue.push(chunk);
@@ -81,28 +85,28 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 		double p = this->parent->uniform(0.0, 1.0);
 		if(appmsg->getMessageKind() == MMSKind::GENREQ) {
 			if(appmsg->getReqResKind() == ReqResKind::READ) {
-				if (p < this->parent->readRequestBlockProb) { // Block
+				if (p < this->parent->readRequestBlockProb * inibs->getReadRequestBlockInib()) { // Block
 					this->parent->emit(this->parent->readRequestBlockSignal, true);
 					msg->setAtkStatus(MITMKind::BLOCK);
 					if(parent->serverComp->isLogging) parent->serverComp->logger->log(msg, simTime());
 					delete pckt;
 					delete msg;
 					return;
-				} else if (p < this->parent->readRequestCompromisedProb) { // Compromise
+				} else if (p < this->parent->readRequestCompromisedProb * inibs->getReadRequestCompromisedInib()) { // Compromise
 					msg->setAtkStatus(MITMKind::COMPR);
 					msg->setData(9);
 					if(parent->serverComp->isLogging) parent->serverComp->logger->log(msg, simTime());
 					this->parent->emit(this->parent->readRequestCompromisedSignal, true);
 				}
 			} else if(appmsg->getReqResKind() == ReqResKind::COMMAND) {
-				if (p < this->parent->commandRequestBlockProb) { // Block
+				if (p < this->parent->commandRequestBlockProb * inibs->getCommandRequestBlockInib()) { // Block
 					this->parent->emit(this->parent->commandRequestBlockSignal, true);
 					msg->setAtkStatus(MITMKind::BLOCK);
 					if(parent->serverComp->isLogging) parent->serverComp->logger->log(msg, simTime());
 					delete pckt;
 					delete msg;
 					return;
-				} else if (p < this->parent->commandRequestCompromisedProb) { // Compromise
+				} else if (p < this->parent->commandRequestCompromisedProb * inibs->getCommandRequestCompromisedInib()) { // Compromise
 					this->parent->emit(this->parent->commandRequestCompromisedSignal, true);
 					msg->setAtkStatus(MITMKind::COMPR);
 					msg->setData(9);

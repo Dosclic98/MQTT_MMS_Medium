@@ -40,6 +40,7 @@ void ServerEvilComp::initialize(int stage) {
         socket.listen();
         departureEvent = new cMessage("Server Departure");
         forwardEvent = new cMessage("Message Forward");
+        changeStateEvent = new cMessage("Change State");
         evilServerStatus = false;
         forwardStatus = false;
         forwardQueue = new cQueue();
@@ -49,12 +50,8 @@ void ServerEvilComp::initialize(int stage) {
         	logger = new MmsPacketLogger("evilClient", 0, 0);
         }
 
+        // Initialize the evil FSM
         evilFSM = new EvilFSM(this);
-        // TODO Remove this after the tests
-        evilFSM->next();
-        EvilState* currState = check_and_cast<EvilState*>(evilFSM->getCurrentState());
-        Inibs* inibs = currState->getInibValues();
-        EV << std::to_string(inibs->getMeasureBlockInib()) + "\n";
 
         int numApps = getContainingNode(this)->par("numApps").intValue();
         pcktFromClientSignal = new simsignal_t[numApps-1];
@@ -123,6 +120,7 @@ void ServerEvilComp::handleMessage(cMessage *msg)
 {
     if (msg == departureEvent) handleDeparture();
     else if(msg == forwardEvent) handleForward();
+    else if(msg == changeStateEvent) evilFSM->next();
     else if (msg->isSelfMessage()) {
         sendBack(msg);
     }
@@ -188,6 +186,7 @@ ServerEvilComp::~ServerEvilComp() {
 	if(isLogging) delete logger;
     cancelAndDelete(departureEvent);
     cancelAndDelete(forwardEvent);
+    cancelAndDelete(changeStateEvent);
     serverQueue.clear();
     forwardQueue->clear();
     delete forwardQueue;

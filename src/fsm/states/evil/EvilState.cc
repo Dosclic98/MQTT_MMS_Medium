@@ -30,5 +30,16 @@ FSMState* EvilState::next(FSM* machine) {
 	return this;
 }
 
+// Default behaviour when entering the new state (schedule the next state change)
+void EvilState::enter(FSM* machine) {
+	// Schedula l'evento di cambio stato
+	EvilFSM* evilMachine = check_and_cast<EvilFSM*>(machine);
+	ServerEvilComp* serverComp = evilMachine->owner;
+
+	int changeStateDelay = round(serverComp->par("stateChangeDelay").doubleValue());
+	serverComp->scheduleAt(simTime() + SimTime(changeStateDelay, SIMTIME_S),
+			serverComp->changeStateEvent);
+}
+
 };
 

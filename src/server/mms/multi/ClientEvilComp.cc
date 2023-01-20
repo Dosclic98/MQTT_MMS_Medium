@@ -185,9 +185,12 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 
 		MMSKind messageKind = appmsg->getMessageKind();
 		ReqResKind reqResKind = appmsg->getReqResKind();
+		EvilState* currState = dynamic_cast<EvilState*>(serverComp->evilFSM->getCurrentState());
+		Inibs* inibs = currState->getInibValues();
+		EV << std::to_string(inibs->getMeasureBlockInib()) + "\n";
 	    double p = this->uniform(0.0, 1.0);
 	    if (messageKind == MMSKind::MEASURE) {
-	        if (p < measureBlockProb) { //Block
+	        if (p < measureBlockProb * inibs->getMeasureBlockInib()) { //Block
 	        	bubble("Measure blocked");
 	            emit(measureBlockSignal, true);
 	            msg->setAtkStatus(MITMKind::BLOCK);
@@ -195,7 +198,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 	            delete packet;
 	            TcpAppBase::socketDataArrived(socket, pckt, urgent);
 	            return;
-	        } else if (p < measureCompromisedProb){ //Compromise
+	        } else if (p < measureCompromisedProb * inibs->getMeasureCompromisedInib()){ //Compromise
 	        	bubble("Measure compromised");
 	            emit(measureCompromisedSignal, true);
 	            msg->setAtkStatus(MITMKind::COMPR);
@@ -206,7 +209,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 	        }
 	    } else if (messageKind == MMSKind::GENRESP) {
 	    	if(reqResKind == ReqResKind::READ) {
-		        if (p < readResponseBlockProb) { // Block
+		        if (p < readResponseBlockProb * inibs->getReadResponseBlockInib()) { // Block
 		        	bubble("Read response blocked");
 		            emit(readResponseBlockSignal, true);
 		            msg->setAtkStatus(MITMKind::BLOCK);
@@ -214,7 +217,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 		            delete packet;
 		            TcpAppBase::socketDataArrived(socket, pckt, urgent);
 		            return;
-		        } else if (p < readResponseCompromisedProb) { // Compromise
+		        } else if (p < readResponseCompromisedProb * inibs->getReadResponseCompromisedInib()) { // Compromise
 		        	bubble("Read response compromised");
 		            emit(readResponseCompromisedSignal, true);
 		            msg->setAtkStatus(MITMKind::COMPR);
@@ -224,7 +227,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 		        	bubble("Read response arrived from server");
 		        }
 	    	} else if(reqResKind == ReqResKind::COMMAND) {
-		        if (p < commandResponseBlockProb) { // Block
+		        if (p < commandResponseBlockProb * inibs->getCommandResponseBlockInib()) { // Block
 		        	bubble("Command response blocked");
 		            emit(commandResponseBlockSignal, true);
 		            msg->setAtkStatus(MITMKind::BLOCK);
@@ -232,7 +235,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 		            delete packet;
 		            TcpAppBase::socketDataArrived(socket, pckt, urgent);
 		            return;
-		        } else if (p < commandResponseCompromisedProb) { // Compromise
+		        } else if (p < commandResponseCompromisedProb * inibs->getCommandResponseCompromisedInib()) { // Compromise
 		        	bubble("Command response compromised");
 		            emit(commandResponseCompromisedSignal, true);
 		            msg->setAtkStatus(MITMKind::COMPR);

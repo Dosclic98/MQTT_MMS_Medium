@@ -22,6 +22,9 @@ public:
 		FSM(Inactive::getInstance())
 	{
 		this->owner = owner;
+		// When the FSM is created we must execute the
+		// 'enter' routine for the initial state
+		this->getCurrentState()->enter(this);
 	}
 	void next() override;
 	Inibs* getInibValues();

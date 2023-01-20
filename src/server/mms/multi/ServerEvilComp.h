@@ -48,6 +48,7 @@ class INET_API ServerEvilComp : public TcpGenericServerApp {
 
 		virtual ~ServerEvilComp();
 		// Evil FSM to keep track of the evilServer'state
+		cMessage* changeStateEvent;
 		EvilFSM* evilFSM;
 
 	protected:

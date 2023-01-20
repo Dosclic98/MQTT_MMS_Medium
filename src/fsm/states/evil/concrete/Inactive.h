@@ -16,7 +16,6 @@ namespace inet {
 class Inactive: virtual public EvilState {
 
 public:
-	void enter(FSM* machine);
 	void exit(FSM* machine);
 	void action(FSM* machine);
 
@@ -28,7 +27,7 @@ private:
 	static Inactive singleton;
 	Inactive():
 		FSMState( { std::make_pair(1.0, Full::getInstance()) } ),
-		EvilState(new Inibs(0,0,0,0,0,0), { std::make_pair(1.0, Full::getInstance()) })
+		EvilState(new Inibs(0,0,0,0,0,0,0,0,0,0), { std::make_pair(1.0, Full::getInstance()) })
 	{ }
 	Inactive(const Inactive& other);
 	Inactive& operator=(const Inactive& other);
