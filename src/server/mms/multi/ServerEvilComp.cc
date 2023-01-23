@@ -128,7 +128,6 @@ void ServerEvilComp::handleMessage(cMessage *msg)
 
         // we'll close too, but only after there's surely no message
         // pending to be sent back in this connection
-    	// TODO Maybe it makes sense to forward the message to the server
         int connId = check_and_cast<Indication *>(msg)->getTag<SocketInd>()->getSocketId();
         delete msg;
         auto request = new Request("close", TCP_C_CLOSE);

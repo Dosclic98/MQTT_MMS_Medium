@@ -29,7 +29,12 @@ public:
 	inline std::vector<std::pair<float, FSMState*>> getTransitions() { return transitions; }
 
 protected:
-	inline FSMState(std::vector<std::pair<float, FSMState*>> transitions) { this->transitions = transitions; }
+	inline FSMState(std::vector<std::pair<float, FSMState*>> transitions) {
+		float sum = 0;
+		for(std::pair<float, FSMState*> trns : transitions) { sum += trns.first; }
+		if(sum != 1) throw std::invalid_argument("The transition probabilities must sum to 1");
+		this->transitions = transitions;
+	}
 
 private:
 	std::vector<std::pair<float, FSMState*>> transitions;
