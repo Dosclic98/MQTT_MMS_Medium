@@ -97,6 +97,8 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 					msg->setData(9);
 					if(parent->serverComp->isLogging) parent->serverComp->logger->log(msg, simTime());
 					this->parent->emit(this->parent->readRequestCompromisedSignal, true);
+				} else {
+					if(parent->serverComp->isLogging) parent->serverComp->logger->log(msg, simTime());
 				}
 			} else if(appmsg->getReqResKind() == ReqResKind::COMMAND) {
 				if (p < this->parent->commandRequestBlockProb * inibs->getCommandRequestBlockInib()) { // Block
@@ -110,6 +112,8 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 					this->parent->emit(this->parent->commandRequestCompromisedSignal, true);
 					msg->setAtkStatus(MITMKind::COMPR);
 					msg->setData(9);
+					if(parent->serverComp->isLogging) parent->serverComp->logger->log(msg, simTime());
+				} else {
 					if(parent->serverComp->isLogging) parent->serverComp->logger->log(msg, simTime());
 				}
 			}

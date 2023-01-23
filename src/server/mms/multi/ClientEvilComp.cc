@@ -206,6 +206,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 	            if(serverComp->isLogging) serverComp->logger->log(msg.get(), simTime());
 	        } else {
 	        	bubble("Measure arrived from server");
+	        	if(serverComp->isLogging) serverComp->logger->log(msg.get(), simTime());
 	        }
 	    } else if (messageKind == MMSKind::GENRESP) {
 	    	if(reqResKind == ReqResKind::READ) {
@@ -225,6 +226,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 		            if(serverComp->isLogging) serverComp->logger->log(msg.get(), simTime());
 		        } else {
 		        	bubble("Read response arrived from server");
+		        	if(serverComp->isLogging) serverComp->logger->log(msg.get(), simTime());
 		        }
 	    	} else if(reqResKind == ReqResKind::COMMAND) {
 		        if (p < commandResponseBlockProb * inibs->getCommandResponseBlockInib()) { // Block
@@ -243,6 +245,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 		            if(serverComp->isLogging) serverComp->logger->log(msg.get(), simTime());
 		        } else {
 		        	bubble("Command response arrived from server");
+		        	if(serverComp->isLogging) serverComp->logger->log(msg.get(), simTime());
 		        }
 	    	}
 	    }
