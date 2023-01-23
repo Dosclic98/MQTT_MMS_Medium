@@ -26,7 +26,7 @@ private:
 	static Full singleton;
 	Full():
 		FSMState( { std::make_pair(1.0, this) } ),
-		EvilState(new Inibs(1,1,1,1,1,1,1,1,1,1), { std::make_pair(1.0, this) })
+		EvilState("FULL", new Inibs(1,1,1,1,1,1,1,1,1,1), { std::make_pair(1.0, this) })
 	{ }
 	Full(const Full& other);
 	Full& operator=(const Full& other);

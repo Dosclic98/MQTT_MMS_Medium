@@ -188,13 +188,14 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 		EvilState* currState = dynamic_cast<EvilState*>(serverComp->evilFSM->getCurrentState());
 		Inibs* inibs = currState->getInibValues();
 		EV << std::to_string(inibs->getMeasureBlockInib()) + "\n";
+
 	    double p = this->uniform(0.0, 1.0);
 	    if (messageKind == MMSKind::MEASURE) {
 	        if (p < measureBlockProb * inibs->getMeasureBlockInib()) { //Block
 	        	bubble("Measure blocked");
 	            emit(measureBlockSignal, true);
 	            msg->setAtkStatus(MITMKind::BLOCK);
-	            if(serverComp->isLogging) serverComp->logger->log(msg.get(), simTime());
+	            if(serverComp->isLogging) serverComp->logger->log(msg.get(), currState->getStateName(), simTime());
 	            delete packet;
 	            TcpAppBase::socketDataArrived(socket, pckt, urgent);
 	            return;
@@ -203,10 +204,10 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 	            emit(measureCompromisedSignal, true);
 	            msg->setAtkStatus(MITMKind::COMPR);
 	            msg->setData(9);
-	            if(serverComp->isLogging) serverComp->logger->log(msg.get(), simTime());
+	            if(serverComp->isLogging) serverComp->logger->log(msg.get(), currState->getStateName(), simTime());
 	        } else {
 	        	bubble("Measure arrived from server");
-	        	if(serverComp->isLogging) serverComp->logger->log(msg.get(), simTime());
+	        	if(serverComp->isLogging) serverComp->logger->log(msg.get(), currState->getStateName(), simTime());
 	        }
 	    } else if (messageKind == MMSKind::GENRESP) {
 	    	if(reqResKind == ReqResKind::READ) {
@@ -214,7 +215,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 		        	bubble("Read response blocked");
 		            emit(readResponseBlockSignal, true);
 		            msg->setAtkStatus(MITMKind::BLOCK);
-		            if(serverComp->isLogging) serverComp->logger->log(msg.get(), simTime());
+		            if(serverComp->isLogging) serverComp->logger->log(msg.get(), currState->getStateName(), simTime());
 		            delete packet;
 		            TcpAppBase::socketDataArrived(socket, pckt, urgent);
 		            return;
@@ -223,17 +224,17 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 		            emit(readResponseCompromisedSignal, true);
 		            msg->setAtkStatus(MITMKind::COMPR);
 		            msg->setData(9);
-		            if(serverComp->isLogging) serverComp->logger->log(msg.get(), simTime());
+		            if(serverComp->isLogging) serverComp->logger->log(msg.get(), currState->getStateName(), simTime());
 		        } else {
 		        	bubble("Read response arrived from server");
-		        	if(serverComp->isLogging) serverComp->logger->log(msg.get(), simTime());
+		        	if(serverComp->isLogging) serverComp->logger->log(msg.get(), currState->getStateName(), simTime());
 		        }
 	    	} else if(reqResKind == ReqResKind::COMMAND) {
 		        if (p < commandResponseBlockProb * inibs->getCommandResponseBlockInib()) { // Block
 		        	bubble("Command response blocked");
 		            emit(commandResponseBlockSignal, true);
 		            msg->setAtkStatus(MITMKind::BLOCK);
-		            if(serverComp->isLogging) serverComp->logger->log(msg.get(), simTime());
+		            if(serverComp->isLogging) serverComp->logger->log(msg.get(), currState->getStateName(), simTime());
 		            delete packet;
 		            TcpAppBase::socketDataArrived(socket, pckt, urgent);
 		            return;
@@ -242,10 +243,10 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 		            emit(commandResponseCompromisedSignal, true);
 		            msg->setAtkStatus(MITMKind::COMPR);
 		            msg->setData(9);
-		            if(serverComp->isLogging) serverComp->logger->log(msg.get(), simTime());
+		            if(serverComp->isLogging) serverComp->logger->log(msg.get(), currState->getStateName(), simTime());
 		        } else {
 		        	bubble("Command response arrived from server");
-		        	if(serverComp->isLogging) serverComp->logger->log(msg.get(), simTime());
+		        	if(serverComp->isLogging) serverComp->logger->log(msg.get(), currState->getStateName(), simTime());
 		        }
 	    	}
 	    }

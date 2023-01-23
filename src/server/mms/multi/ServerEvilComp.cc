@@ -47,7 +47,7 @@ void ServerEvilComp::initialize(int stage) {
         messageCopier = new MmsMessageCopier();
         isLogging = par("isLogging");
         if(isLogging) {
-        	logger = new MmsPacketLogger("evilClient", 0, 0);
+        	logger = new EvilLogger();
         }
 
         // Initialize the evil FSM

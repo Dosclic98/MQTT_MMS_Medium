@@ -22,9 +22,7 @@
 namespace inet {
 
 MmsPacketLogger::MmsPacketLogger(std::string whatCompStr, int num, int numApp) {
-	std::string fileName = "";
-	if(whatCompStr == "evilClient") fileName = whatCompStr + ".csv";
-	else fileName = whatCompStr + "[" + std::to_string(num) + "].app[" + std::to_string(numApp) + "].csv";
+	std::string fileName = whatCompStr + "[" + std::to_string(num) + "].app[" + std::to_string(numApp) + "].csv";
 	logFile.open(this->path + fileName);
 	logFile << "id,messageKind,reqResKind,atkStatus,data,creationTime,timestamp\n";
 }

@@ -25,7 +25,7 @@
 #include "inet/networklayer/common/L3AddressResolver.h"
 #include "inet/common/ProtocolTag_m.h"
 #include "inet/common/socket/SocketTag_m.h"
-#include "../../../utils/logger/mms/MmsPacketLogger.h"
+#include "../../../utils/logger/evil/EvilLogger.h"
 #include "../../../fsm/core/evil/EvilFSM.h"
 
 namespace inet {
@@ -44,7 +44,7 @@ class INET_API ServerEvilComp : public TcpGenericServerApp {
 
 		// For logging purposes
 		bool isLogging;
-		MmsPacketLogger* logger;
+		EvilLogger* logger;
 
 		virtual ~ServerEvilComp();
 		// Evil FSM to keep track of the evilServer'state

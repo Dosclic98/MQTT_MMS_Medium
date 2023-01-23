@@ -24,6 +24,7 @@ namespace inet {
 
 class MmsPacketLogger {
 public:
+	MmsPacketLogger() {}
 	MmsPacketLogger(std::string whatCompStr, int num, int numApp);
 	virtual ~MmsPacketLogger();
 

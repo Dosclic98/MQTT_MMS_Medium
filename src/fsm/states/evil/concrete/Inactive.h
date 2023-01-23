@@ -27,7 +27,7 @@ private:
 	static Inactive singleton;
 	Inactive():
 		FSMState( { std::make_pair(1.0, Full::getInstance()) } ),
-		EvilState(new Inibs(0,0,0,0,0,0,0,0,0,0), { std::make_pair(1.0, Full::getInstance()) })
+		EvilState("INACTIVE", new Inibs(0,0,0,0,0,0,0,0,0,0), { std::make_pair(1.0, Full::getInstance()) })
 	{ }
 	Inactive(const Inactive& other);
 	Inactive& operator=(const Inactive& other);

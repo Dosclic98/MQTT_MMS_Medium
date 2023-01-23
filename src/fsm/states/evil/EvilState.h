@@ -22,15 +22,19 @@ public:
 	void enter(FSM* machine) override;
 
 	inline Inibs* getInibValues() { return inibValues.get(); }
+	inline std::string& getStateName() { return stateName; }
 
 protected:
-	inline EvilState(Inibs* inibValues, std::vector<std::pair<float, FSMState*>> transitions):
+	inline EvilState(std::string stateName, Inibs* inibValues, std::vector<std::pair<float, FSMState*>> transitions):
 		FSMState( transitions )
-	{ this->inibValues = std::unique_ptr<Inibs>(inibValues); }
+	{
+		this->stateName = stateName;
+		this->inibValues = std::unique_ptr<Inibs>(inibValues);
+	}
 
 protected:
 	std::unique_ptr<Inibs> inibValues;
-
+	std::string stateName;
 };
 
 };
