@@ -33,7 +33,7 @@ public:
 	std::string mitmKindToStr[4] = {"UNMOD", "COMPR", "BLOCK", "FAKEGEN"};
 	std::string path = "logs/";
 
-	void log(MmsMessage* msg, simtime_t timestamp);
+	void log(const MmsMessage* msg, simtime_t timestamp);
 
 protected:
 	std::ofstream logFile;

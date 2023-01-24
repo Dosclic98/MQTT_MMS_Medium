@@ -31,7 +31,7 @@ MmsPacketLogger::~MmsPacketLogger() {
 	logFile.close();
 }
 
-void MmsPacketLogger::log(MmsMessage* msg, simtime_t timestamp) {
+void MmsPacketLogger::log(const MmsMessage* msg, simtime_t timestamp) {
 	std::string mmsKindStr = "";
 	std::string reqResKindStr = "";
 	std::string mitmKindStr = mitmKindToStr[msg->getAtkStatus()];

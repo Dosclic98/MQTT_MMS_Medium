@@ -161,6 +161,9 @@ int ClientEvilComp::getConnectionState() {
 }
 
 void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urgent) {
+	EvilState* currState = dynamic_cast<EvilState*>(serverComp->evilFSM->getCurrentState());
+	Inibs* inibs = currState->getInibValues();
+
     if (socket->getState() == TcpSocket::LOCALLY_CLOSED) {
         EV_INFO << "reply to last request arrived, closing session\n";
         close();
@@ -173,6 +176,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
     	if(appmsg->getMessageKind() == MMSKind::GENRESP && appmsg->getEvilServerConnId() == -1) {
             // Emit signal for generic fake Req Res
     		emit(genericFakeReqResSignal, true);
+    		if(serverComp->isLogging) serverComp->logger->log(appmsg.get(), currState->getStateName(), simTime());
             TcpAppBase::socketDataArrived(socket, pckt, urgent);
             return;
     	}
@@ -185,9 +189,6 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 
 		MMSKind messageKind = appmsg->getMessageKind();
 		ReqResKind reqResKind = appmsg->getReqResKind();
-		EvilState* currState = dynamic_cast<EvilState*>(serverComp->evilFSM->getCurrentState());
-		Inibs* inibs = currState->getInibValues();
-		EV << std::to_string(inibs->getMeasureBlockInib()) + "\n";
 
 	    double p = this->uniform(0.0, 1.0);
 	    if (messageKind == MMSKind::MEASURE) {

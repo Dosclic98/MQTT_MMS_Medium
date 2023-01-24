@@ -20,7 +20,7 @@ EvilLogger::EvilLogger()
 	logFile << "id,messageKind,reqResKind,atkStatus,data,evilState,creationTime,timestamp\n";
 }
 
-void EvilLogger::log(MmsMessage* msg, std::string& evilState, simtime_t timestamp) {
+void EvilLogger::log(const MmsMessage* msg, std::string& evilState, simtime_t timestamp) {
 	std::string mmsKindStr = "";
 	std::string reqResKindStr = "";
 	std::string mitmKindStr = mitmKindToStr[msg->getAtkStatus()];
