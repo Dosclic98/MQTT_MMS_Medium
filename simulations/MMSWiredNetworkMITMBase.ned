@@ -19,6 +19,7 @@ import inet.node.inet.StandardHost;
 import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 import inet.node.inet.Router;
 import inet.node.ethernet.*;
+import inet.node.internetcloud.InternetCloud;
 
 network MMSWiredNetworkMITMBase {
 	parameters:
@@ -52,7 +53,7 @@ network MMSWiredNetworkMITMBase {
 	    server[numServers]: StandardHost {
 	    	@display("i=misc/windturbine");
 	    };
-        router: Router {
+        internetCloud: InternetCloud {
             @display("p=157,128");
         }
         switch: EthernetSwitch {
@@ -60,13 +61,13 @@ network MMSWiredNetworkMITMBase {
         }
     
     connections:
-        switch.ethg++ <--> Eth1G <--> router.ethg++;
-        evilClient.ethg++ <--> Eth100M <--> router.ethg++;
+        switch.ethg++ <--> Eth1G <--> internetCloud.ethg++;
+        evilClient.ethg++ <--> Eth100M <--> internetCloud.ethg++;
         for i = 0..numClients-1 {
         	client[i].ethg++ <--> Eth100M <--> switch.ethg++;
         }
         for j = 0..numServers-1 {
-        	router.ethg++ <--> Eth100M <--> server[j].ethg++;
+        	internetCloud.ethg++ <--> Eth100M <--> server[j].ethg++;
         }
 	
 }
