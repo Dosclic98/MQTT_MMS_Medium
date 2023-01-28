@@ -22,17 +22,37 @@ import inet.node.wireless.AccessPoint;
 import inet.physicallayer.wireless.ieee80211.packetlevel.Ieee80211RadioMedium;
 import inet.node.ethernet.*;
 import inet.visualizer.canvas.integrated.IntegratedCanvasVisualizer;
+import inet.node.internetcloud.InternetCloud;
 
-
-network MqttWirelessNetworkBase {
+network MqttWirelessNetworkBase
+{
     parameters:
         int numClients = default(1);
-    
-	submodules:
-	    visualizer: IntegratedCanvasVisualizer;
-	    configurator: Ipv4NetworkConfigurator;
-	    radioMedium: Ieee80211RadioMedium;
-	    client[numClients]: WirelessHost { @display("p=200,200"); }
-	    broker: WirelessHost { @display("p=500,200"); }
-	    accessPoint: AccessPoint { @display("p=374,200"); }
+
+    submodules:
+        visualizer: IntegratedCanvasVisualizer {
+            @display("p=361,329");
+        }
+        configurator: Ipv4NetworkConfigurator;
+        radioMedium: Ieee80211RadioMedium {
+            @display("p=590,328");
+        }
+        client[numClients]: WirelessHost {
+            @display("p=100,200");
+        }
+        broker: WirelessHost {
+            @display("p=747,200");
+        }
+        clientAP: AccessPoint {
+            @display("p=269,199");
+        }
+        brokerAP: AccessPoint {
+            @display("p=580,199");
+        }
+        internetCloud: InternetCloud {
+            @display("p=424,200");
+        }
+    connections:
+        clientAP.ethg++ <--> Eth1G <--> internetCloud.ethg++;
+        brokerAP.ethg++ <--> Eth1G <--> internetCloud.ethg++;
 }

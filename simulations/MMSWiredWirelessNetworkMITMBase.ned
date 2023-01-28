@@ -24,6 +24,7 @@ import inet.node.ethernet.*;
 import inet.physicallayer.wireless.noise.NoiseSource;
 import inet.visualizer.canvas.integrated.IntegratedCanvasVisualizer;
 import inet.node.inet.StandardHost;
+import inet.node.internetcloud.InternetCloud;
 
 network MMSWiredWirelessNetworkMITMBase
 {
@@ -73,7 +74,7 @@ network MMSWiredWirelessNetworkMITMBase
         accessPoint: AccessPoint {
             @display("p=364,235");
         }
-        router: Router {
+        internetCloud: InternetCloud {
             @display("p=374,142");
         }
         switch: EthernetSwitch {
@@ -81,13 +82,13 @@ network MMSWiredWirelessNetworkMITMBase
         }
 
     connections:
-        switch.ethg++ <--> Eth1G <--> router.ethg++;
-        evilClient.ethg++ <--> Eth100M <--> router.ethg++;
-        accessPoint.ethg++ <--> Eth100M <--> router.ethg++;
+        switch.ethg++ <--> Eth1G <--> internetCloud.ethg++;
+        evilClient.ethg++ <--> Eth100M <--> internetCloud.ethg++;
+        accessPoint.ethg++ <--> Eth100M <--> internetCloud.ethg++;
         for i=0..numWiredClients-1 {
             wiredClient[i].ethg++ <--> Eth100M <--> switch.ethg++;
         }
         for j=0..numServers-1 {
-        	router.ethg++ <--> Eth100M <--> server[j].ethg++;
+        	internetCloud.ethg++ <--> Eth100M <--> server[j].ethg++;
         }
 }

@@ -23,19 +23,43 @@ import inet.physicallayer.wireless.ieee80211.packetlevel.Ieee80211RadioMedium;
 import inet.node.ethernet.*;
 import inet.physicallayer.wireless.noise.NoiseSource;
 import inet.visualizer.canvas.integrated.IntegratedCanvasVisualizer;
+import inet.node.internetcloud.InternetCloud;
 
-network MMSWirelessNetworkDoSBase {
+network MMSWirelessNetworkDoSBase
+{
     parameters:
         int numGoodClient = default(3);
-		int numBadClient = default(0);
-		
-		int numServers = default(1);
-    
-	submodules:
-	    visualizer: IntegratedCanvasVisualizer { @display("p=450,50"); }
-	    configurator: Ipv4NetworkConfigurator;
-	    radioMedium: Ieee80211RadioMedium { @display("p=300,50"); }
-	    client[numGoodClient + numBadClient]: WirelessHost { @display("p=200,200"); }
-	    server[numServers]: WirelessHost { @display("i=misc/windturbine;p=600,215"); }
-	    accessPoint: AccessPoint { @display("p=374,215"); }
+        int numBadClient = default(0);
+
+        int numServers = default(1);
+
+    submodules:
+        visualizer: IntegratedCanvasVisualizer {
+            @display("p=450,50");
+        }
+        configurator: Ipv4NetworkConfigurator {
+            @display("p=592,51");
+        }
+        radioMedium: Ieee80211RadioMedium {
+            @display("p=300,50");
+        }
+        client[numGoodClient + numBadClient]: WirelessHost {
+            @display("p=156,216");
+        }
+        server[numServers]: WirelessHost {
+            @display("i=misc/windturbine;p=860,216");
+        }
+        clientAP: AccessPoint {
+            @display("p=354,215");
+        }
+        serverAP: AccessPoint {
+            @display("p=690,215");
+        }
+        internetCloud: InternetCloud {
+            @display("p=523,216");
+        }
+	
+	connections:
+	    clientAP.ethg++ <--> Eth1G <--> internetCloud.ethg++;
+	    serverAP.ethg++ <--> Eth1G <--> internetCloud.ethg++;
 }

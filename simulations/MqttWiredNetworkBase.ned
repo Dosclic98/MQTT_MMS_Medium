@@ -19,6 +19,7 @@ import inet.node.inet.StandardHost;
 import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 import inet.node.inet.Router;
 import inet.node.ethernet.*;
+import inet.node.internetcloud.InternetCloud;
 
 network MqttWiredNetworkBase
 {
@@ -30,7 +31,7 @@ network MqttWiredNetworkBase
         broker: StandardHost {
             @display("p=157,30");
         }
-        router: Router {
+        internetCloud: InternetCloud {
             @display("p=157,128");
         }
         switch: EthernetSwitch {
@@ -40,8 +41,8 @@ network MqttWiredNetworkBase
             @display("p=150,330");
         }
     connections:
-        router.ethg++ <--> Eth1G <--> broker.ethg++;
-        switch.ethg++ <--> Eth100M <--> router.ethg++;
+        internetCloud.ethg++ <--> Eth1G <--> broker.ethg++;
+        switch.ethg++ <--> Eth100M <--> internetCloud.ethg++;
         for i=0..numClients-1 {
             client[i].ethg++ <--> Eth100M <--> switch.ethg++;
         }

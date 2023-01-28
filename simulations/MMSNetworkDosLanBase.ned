@@ -22,6 +22,7 @@ import inet.node.ethernet.*;
 import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 import tx_medium_exp.lan.ICliLan;
 import inet.physicallayer.wireless.ieee80211.packetlevel.Ieee80211RadioMedium;
+import inet.node.internetcloud.InternetCloud;
 
 
 network MMSNetworkDosLanBase
@@ -31,9 +32,7 @@ network MMSNetworkDosLanBase
         radioMedium: Ieee80211RadioMedium {
             @display("p=140,200");
         }
-        router: Router {
-            @display("i=abstract/router2");
-        }
+        internetCloud: InternetCloud;
         goodCliLan: <> like ICliLan {
             @display("i=misc/house");
         }
@@ -44,8 +43,8 @@ network MMSNetworkDosLanBase
             @display("i=device/lan");
         }
     connections:
-        goodCliLan.gate <--> Eth100M <--> router.ethg++;
-        badCliLan.gate <--> Eth100M <--> router.ethg++;
-        derLan.gate <--> Eth100M <--> router.ethg++;
+        goodCliLan.gate <--> Eth100M <--> internetCloud.ethg++;
+        badCliLan.gate <--> Eth100M <--> internetCloud.ethg++;
+        derLan.gate <--> Eth100M <--> internetCloud.ethg++;
 
 }

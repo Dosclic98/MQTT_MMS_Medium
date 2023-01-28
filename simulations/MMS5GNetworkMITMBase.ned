@@ -25,6 +25,7 @@ import simu5g.nodes.NR.NRUe;
 import simu5g.nodes.NR.gNodeB;
 import simu5g.nodes.PgwStandard;
 import simu5g.world.radio.LteChannelControl;
+import inet.node.internetcloud.InternetCloud;
 
 network MMS5GNetworkMITMBase
 {
@@ -73,7 +74,7 @@ network MMS5GNetworkMITMBase
         antenna: gNodeB {
             @display("p=308,54");
         }
-        router: Router {
+        internetCloud: InternetCloud {
             @display("p=157,128");
         }
         switch: EthernetSwitch {
@@ -81,10 +82,10 @@ network MMS5GNetworkMITMBase
         }
 
     connections:
-        switch.ethg++ <--> Eth1G <--> router.ethg++;
-        evilClient.ethg++ <--> Eth100M <--> router.ethg++;
+        switch.ethg++ <--> Eth1G <--> internetCloud.ethg++;
+        evilClient.ethg++ <--> Eth100M <--> internetCloud.ethg++;
         antenna.ppp <--> Eth1G <--> upf.pppg++;
-        router.pppg++ <--> Eth1G <--> upf.filterGate;
+        internetCloud.pppg++ <--> Eth1G <--> upf.filterGate;
         for i=0..numClients-1 {
             client[i].ethg++ <--> Eth100M <--> switch.ethg++;
         }
