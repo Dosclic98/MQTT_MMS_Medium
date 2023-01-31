@@ -20,13 +20,15 @@ public:
 
 	virtual ~Full();
 
-	static EvilState* getInstance();
+	static EvilState* getInstance() {
+		static Full singleton;
+		return &(singleton);
+	}
 
 private:
-	static Full singleton;
 	Full():
-		FSMState( { std::make_pair(1.0, this) } ),
-		EvilState("FULL", new Inibs(1,1,1,1,1,1,1,1,1,1), { std::make_pair(1.0, this) })
+		FSMState( {  } ),
+		EvilState("FULL", new Inibs(1,1,1,1,1,1,1,1,1,1), {  })
 	{ }
 	Full(const Full& other);
 	Full& operator=(const Full& other);

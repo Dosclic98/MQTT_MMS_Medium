@@ -27,13 +27,21 @@ public:
 	virtual ~FSMState() {};
 
 	inline std::vector<std::pair<float, FSMState*>> getTransitions() { return transitions; }
+	inline void setTransitions(std::vector<std::pair<float, FSMState*>> trans) {
+		transitions = trans;
+		checkTransitions();
+	}
+	inline void checkTransitions() {
+		float sum = 0;
+		for(std::pair<float, FSMState*> trns : transitions) { sum += trns.first; }
+		// If the transitions vector is empty it means there is only a self-loop
+		if(transitions.size() > 0 && sum != 1) throw std::invalid_argument("The transition probabilities must sum to 1");
+	}
 
 protected:
 	inline FSMState(std::vector<std::pair<float, FSMState*>> transitions) {
-		float sum = 0;
-		for(std::pair<float, FSMState*> trns : transitions) { sum += trns.first; }
-		if(sum != 1) throw std::invalid_argument("The transition probabilities must sum to 1");
 		this->transitions = transitions;
+		checkTransitions();
 	}
 
 private:
