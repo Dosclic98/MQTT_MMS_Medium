@@ -9,13 +9,14 @@
 #define UTILS_LOGGER_EVIL_EVILLOGGER_H_
 
 #include "../mms/MmsPacketLogger.h"
+#include "../../../fsm/states/evil/EvilState.h"
 
 namespace inet {
 
 class EvilLogger : public MmsPacketLogger {
 public:
 	EvilLogger();
-	void log(const MmsMessage* msg, std::string& evilState, simtime_t timestamp);
+	void log(const MmsMessage* msg, EvilStateName evilState, simtime_t timestamp);
 
 	virtual ~EvilLogger();
 };

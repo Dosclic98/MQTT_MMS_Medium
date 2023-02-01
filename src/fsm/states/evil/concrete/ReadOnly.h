@@ -31,7 +31,7 @@ private:
 
 	ReadOnly():
 		FSMState( { std::make_pair(0.2, CommandOnly::getInstance()), std::make_pair(0.8, Full::getInstance()) } ),
-		EvilState("READONLY", new Inibs(0.5,0.5,0.5,0.5,0,0,0.5,0.5,0,0), { std::make_pair(0.2, CommandOnly::getInstance()), std::make_pair(0.8, Full::getInstance()) })
+		EvilState(EvilStateName::READONLY, new Inibs(0.5,0.5,0.5,0.5,0,0,0.5,0.5,0,0), { std::make_pair(0.2, CommandOnly::getInstance()), std::make_pair(0.8, Full::getInstance()) })
 	{ }
 	ReadOnly(const ReadOnly& other);
 	ReadOnly& operator=(const ReadOnly& other);

@@ -29,7 +29,7 @@ private:
 	static Inactive singleton;
 	Inactive():
 		FSMState( { std::make_pair(0.5, ReadOnly::getInstance()),  std::make_pair(0.5, CommandOnly::getInstance()) } ),
-		EvilState("INACTIVE", new Inibs(0,0,0,0,0,0,0,0,0,0), { std::make_pair(0.5, ReadOnly::getInstance()),  std::make_pair(0.5, CommandOnly::getInstance()) })
+		EvilState(EvilStateName::INACTIVE, new Inibs(0,0,0,0,0,0,0,0,0,0), { std::make_pair(0.5, ReadOnly::getInstance()),  std::make_pair(0.5, CommandOnly::getInstance()) })
 	{ }
 	Inactive(const Inactive& other);
 	Inactive& operator=(const Inactive& other);

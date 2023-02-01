@@ -28,7 +28,7 @@ public:
 private:
 	Full():
 		FSMState( {  } ),
-		EvilState("FULL", new Inibs(1,1,1,1,1,1,1,1,1,1), {  })
+		EvilState(EvilStateName::FULL, new Inibs(1,1,1,1,1,1,1,1,1,1), {  })
 	{ }
 	Full(const Full& other);
 	Full& operator=(const Full& other);

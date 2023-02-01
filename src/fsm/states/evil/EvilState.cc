@@ -9,6 +9,9 @@
 #include "../../../server/mms/multi/ServerEvilComp.h"
 
 namespace inet {
+
+const char* EvilState::stateNames[] = {"INACTIVE", "READONLY", "COMMANDONLY", "FULL"};
+
 // This method is implemented here instead of in the FSMState because it needs a reference to the owner of
 // the FSM which is known at this level of the hierarchy
 FSMState* EvilState::next(FSM* machine) {

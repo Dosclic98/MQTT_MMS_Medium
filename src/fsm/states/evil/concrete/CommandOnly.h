@@ -29,7 +29,7 @@ private:
 
 	CommandOnly():
 		FSMState( { std::make_pair(1, Full::getInstance()) } ),
-		EvilState("COMMANDONLY", new Inibs(0,0,0,0,0.5,0.5,0,0,0.5,0.5), { std::make_pair(1, Full::getInstance()) })
+		EvilState(EvilStateName::COMMANDONLY, new Inibs(0,0,0,0,0.5,0.5,0,0,0.5,0.5), { std::make_pair(1, Full::getInstance()) })
 	{ }
 	CommandOnly(const CommandOnly& other);
 	CommandOnly& operator=(const CommandOnly& other);

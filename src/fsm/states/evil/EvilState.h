@@ -13,6 +13,13 @@
 
 namespace inet {
 
+enum EvilStateName {
+	INACTIVE = 0,
+	READONLY = 1,
+	COMMANDONLY = 2,
+	FULL = 3
+};
+
 class EvilFSM;
 
 class EvilState: public virtual FSMState {
@@ -22,10 +29,12 @@ public:
 	void enter(FSM* machine) override;
 
 	inline Inibs* getInibValues() { return inibValues.get(); }
-	inline std::string& getStateName() { return stateName; }
+	inline EvilStateName getStateName() { return stateName; }
+
+	static const char* stateNames[];
 
 protected:
-	inline EvilState(std::string stateName, Inibs* inibValues, std::vector<std::pair<float, FSMState*>> transitions):
+	inline EvilState(EvilStateName stateName, Inibs* inibValues, std::vector<std::pair<float, FSMState*>> transitions):
 		FSMState( transitions )
 	{
 		this->stateName = stateName;
@@ -34,7 +43,7 @@ protected:
 
 protected:
 	std::unique_ptr<Inibs> inibValues;
-	std::string stateName;
+	EvilStateName stateName;
 };
 
 };

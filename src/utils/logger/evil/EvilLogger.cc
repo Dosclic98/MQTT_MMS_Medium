@@ -20,7 +20,7 @@ EvilLogger::EvilLogger()
 	logFile << "id,messageKind,reqResKind,atkStatus,data,evilState,creationTime,timestamp\n";
 }
 
-void EvilLogger::log(const MmsMessage* msg, std::string& evilState, simtime_t timestamp) {
+void EvilLogger::log(const MmsMessage* msg, EvilStateName evilState, simtime_t timestamp) {
 	std::string mmsKindStr = "";
 	std::string reqResKindStr = "";
 	std::string mitmKindStr = mitmKindToStr[msg->getAtkStatus()];
@@ -29,7 +29,7 @@ void EvilLogger::log(const MmsMessage* msg, std::string& evilState, simtime_t ti
 	if(msg->getReqResKind() == ReqResKind::UNSET) { reqResKindStr = "UNSET"; }
 	else reqResKindStr = reqResKindToStr[msg->getReqResKind()];
 	logFile << msg->getOriginId() << "," << mmsKindStr << "," << reqResKindStr << "," << mitmKindStr << "," << msg->getData()
-			<< "," << evilState << "," << msg->getTag<CreationTimeTag>()->getCreationTime() << "," << timestamp << "\n";
+			<< "," << EvilState::stateNames[evilState] << "," << msg->getTag<CreationTimeTag>()->getCreationTime() << "," << timestamp << "\n";
 }
 
 EvilLogger::~EvilLogger() {
