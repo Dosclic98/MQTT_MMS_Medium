@@ -25,6 +25,7 @@ simple ServerEvilComp extends TcpGenericServerApp {
         @class("inet::ServerEvilComp");
         
         bool isLogging = default(false); // For logging purposes
+        bool startFull = default(false); // Makes the ServerComp start and stay in "Full" state
         volatile int serviceTime @unit(ms) = default(intuniform(10ms, 18ms));
         volatile int forwardDelay @unit(us) = default(intuniform(1us, 3us));
         volatile double stateChangeDelay @unit(s) = default(erlang_k(4, 30s));

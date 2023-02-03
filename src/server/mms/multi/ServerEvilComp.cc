@@ -45,13 +45,14 @@ void ServerEvilComp::initialize(int stage) {
         forwardStatus = false;
         forwardQueue = new cQueue();
         messageCopier = new MmsMessageCopier();
+        startFull = par("startFull").boolValue();
         isLogging = par("isLogging");
         if(isLogging) {
         	logger = new EvilLogger();
         }
 
         // Initialize the evil FSM
-        evilFSM = new EvilFSM(this);
+        evilFSM = new EvilFSM(this, startFull);
 
         int numApps = getContainingNode(this)->par("numApps").intValue();
         pcktFromClientSignal = new simsignal_t[numApps-1];

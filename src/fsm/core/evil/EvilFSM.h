@@ -18,18 +18,8 @@ class ServerEvilComp;
 
 class EvilFSM: public virtual FSM {
 public:
-	EvilFSM(ServerEvilComp* owner):
-		FSM(Inactive::getInstance())
-	{
-		this->owner = owner;
+	EvilFSM(ServerEvilComp* owner, bool startFull);
 
-		// Initialize all the loop-arcs found starting from the Inactive state using a BFS
-		this->initLoops();
-
-		// When the FSM is created we must execute the
-		// 'enter' routine for the initial state
-		this->getCurrentState()->enter(this);
-	}
 	void next() override;
 	Inibs* getInibValues();
 	~EvilFSM() override;
