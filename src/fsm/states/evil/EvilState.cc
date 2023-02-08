@@ -20,13 +20,11 @@ FSMState* EvilState::next(FSM* machine) {
 
 	std::vector<std::pair<float, FSMState*>> trs = this->getTransitions();
 	std::sort(trs.begin(), trs.end());
-	float base = 0;
+	float p = owner->uniform(0.0, 1.0);
 	for(int i = 0; i < trs.size(); i++) {
 		std::pair<float, FSMState*>& tmp = trs[i];
-		float p = owner->uniform(0.0, 1.0);
 		if(tmp.second) {
-			if(p >= base && p < base + tmp.first) return tmp.second;
-			base += p;
+			if(p < tmp.first) return tmp.second;
 		} else {
 			throw std::invalid_argument("Exception: the next state wasn't valid");
 		}
