@@ -27,7 +27,6 @@ EvilFSM::EvilFSM(ServerEvilComp* owner, bool startFull):
 
 // This method adds all the arcs that generate a loop in the graph (self-loop or not found through a BFS starting from the Inactive state)
 void EvilFSM::initLoops() {
-	CommandOnly::getInstance()->setTransitions({ std::make_pair(0.2, ReadOnly::getInstance()), std::make_pair(0.8, Full::getInstance()) });
 	Full::getInstance()->setTransitions({ std::make_pair(1, Full::getInstance()) });
 }
 

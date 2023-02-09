@@ -10,12 +10,6 @@
 
 namespace inet {
 
-Inactive Inactive::singleton = Inactive();
-
-EvilState* Inactive::getInstance() {
-	return &(singleton);
-}
-
 void Inactive::exit(FSM* machine) {
 	// Fa qualcosa all'uscita dello stato
 	EvilFSM* evilMachine = check_and_cast<EvilFSM*>(machine);

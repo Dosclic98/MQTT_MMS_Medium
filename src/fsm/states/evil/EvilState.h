@@ -15,9 +15,10 @@ namespace inet {
 
 enum EvilStateName {
 	INACTIVE = 0,
-	READONLY = 1,
-	COMMANDONLY = 2,
-	FULL = 3
+	MIDDLE = 1,
+	READONLY = 2,
+	COMMANDONLY = 3,
+	FULL = 4
 };
 
 class EvilFSM;

@@ -10,8 +10,7 @@
 
 #include "Full.h"
 #include "../EvilState.h"
-#include "ReadOnly.h"
-#include "CommandOnly.h"
+#include "Middle.h"
 
 namespace inet {
 // Inactive attack state
@@ -23,13 +22,15 @@ public:
 
 	virtual ~Inactive();
 
-	static EvilState* getInstance();
+	static EvilState* getInstance() {
+		static Inactive singleton;
+		return &(singleton);
+	}
 
 private:
-	static Inactive singleton;
 	Inactive():
-		FSMState( { std::make_pair(0.5, ReadOnly::getInstance()),  std::make_pair(0.5, CommandOnly::getInstance()) } ),
-		EvilState(EvilStateName::INACTIVE, new Inibs(0,0,0,0,0,0,0,0,0,0), { std::make_pair(0.5, ReadOnly::getInstance()),  std::make_pair(0.5, CommandOnly::getInstance()) })
+		FSMState( { std::make_pair(1, Middle::getInstance()) } ),
+		EvilState(EvilStateName::INACTIVE, new Inibs(0,0,0,0,0,0,0,0,0,0), {  std::make_pair(1, Middle::getInstance()) })
 	{ }
 	Inactive(const Inactive& other);
 	Inactive& operator=(const Inactive& other);
