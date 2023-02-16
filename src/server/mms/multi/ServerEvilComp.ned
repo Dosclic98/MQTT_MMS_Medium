@@ -28,7 +28,10 @@ simple ServerEvilComp extends TcpGenericServerApp {
         bool startFull = default(false); // Makes the ServerComp start and stay in "Full" state
         volatile int serviceTime @unit(ms) = default(intuniform(10ms, 18ms));
         volatile int forwardDelay @unit(us) = default(intuniform(1us, 3us));
-        volatile double stateChangeDelay @unit(s) = default(erlang_k(4, 30s));
+        // Delay to try to change state
+        volatile int stateChangeDelay @unit(s) = default(5s);
+        // Number of messages to wait between a check and the next
+        volatile int checkEveryK = default(5);
         
         @signal[pcktFromClientSignal-*](type=Packet);
 }

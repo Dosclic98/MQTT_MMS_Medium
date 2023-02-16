@@ -41,12 +41,14 @@ void ServerEvilComp::initialize(int stage) {
         departureEvent = new cMessage("Server Departure");
         forwardEvent = new cMessage("Message Forward");
         changeStateEvent = new cMessage("Change State");
+        scheduleAt(simTime() + SimTime(par("stateChangeDelay").intValue(), SIMTIME_S), changeStateEvent);
         evilServerStatus = false;
         forwardStatus = false;
         forwardQueue = new cQueue();
         messageCopier = new MmsMessageCopier();
         startFull = par("startFull").boolValue();
         isLogging = par("isLogging");
+        checkEveryK = par("checkEveryK").intValue();
         if(isLogging) {
         	logger = new EvilLogger();
         }
@@ -121,7 +123,10 @@ void ServerEvilComp::handleMessage(cMessage *msg)
 {
     if (msg == departureEvent) handleDeparture();
     else if(msg == forwardEvent) handleForward();
-    else if(msg == changeStateEvent) evilFSM->next();
+    else if(msg == changeStateEvent) {
+    	evilFSM->next();
+    	scheduleAt(simTime() + SimTime(par("stateChangeDelay").intValue(), SIMTIME_S), changeStateEvent);
+    }
     else if (msg->isSelfMessage()) {
         sendBack(msg);
     }

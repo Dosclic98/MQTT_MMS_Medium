@@ -28,6 +28,7 @@ public:
 	virtual ~EvilState() {};
 	virtual FSMState* next(FSM* machine) override;
 	void enter(FSM* machine) override;
+	std::vector<float> calcProb(int numMessages, std::vector<std::pair<float, FSMState*>> transitions);
 
 	inline Inibs* getInibValues() { return inibValues.get(); }
 	inline EvilStateName getStateName() { return stateName; }
@@ -36,15 +37,19 @@ public:
 
 protected:
 	inline EvilState(EvilStateName stateName, Inibs* inibValues, std::vector<std::pair<float, FSMState*>> transitions):
-		FSMState( transitions )
-	{
+		FSMState( transitions ) {
 		this->stateName = stateName;
 		this->inibValues = std::unique_ptr<Inibs>(inibValues);
+		q = 6;
+		k = 4;
 	}
 
 protected:
 	std::unique_ptr<Inibs> inibValues;
 	EvilStateName stateName;
+	// Parameters of the sigmoid function
+	float q;
+	float k;
 };
 
 };

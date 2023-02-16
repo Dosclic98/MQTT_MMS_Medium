@@ -80,7 +80,7 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 
 		// Add to the forward to the server queue
 		MmsMessage* msg = messageCopier->copyMessageNorm(appmsg.get(), true);
-
+		parent->serverComp->evilFSM->update(msg, parent->serverComp->checkEveryK);
 		// Signal if a generic request gets blocked or compromised
 		double p = this->parent->uniform(0.0, 1.0);
 		if(appmsg->getMessageKind() == MMSKind::GENREQ) {

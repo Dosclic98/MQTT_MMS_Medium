@@ -12,6 +12,7 @@ namespace inet {
 EvilFSM::EvilFSM(ServerEvilComp* owner, bool startFull):
 	FSM(startFull ? Full::getInstance() : Inactive::getInstance())
 {
+	numMessages = 0;
 	// Initialize all the state graph
 	if(startFull) Inactive::getInstance();
 
@@ -27,18 +28,31 @@ EvilFSM::EvilFSM(ServerEvilComp* owner, bool startFull):
 
 // This method adds all the arcs that generate a loop in the graph (self-loop or not found through a BFS starting from the Inactive state)
 void EvilFSM::initLoops() {
-	Full::getInstance()->setTransitions({ std::make_pair(1, Full::getInstance()) });
+
 }
 
 void EvilFSM::next() {
-	getCurrentState()->exit(this);
-	setCurrentState(getCurrentState()->next(this));
-	getCurrentState()->enter(this);
+	EvilState* currentState = dynamic_cast<EvilState*>(getCurrentState());
+	EvilState* nextState = dynamic_cast<EvilState*>(currentState->next(this));
+	if(nextState->getStateName() != currentState->getStateName()) {
+		numMessages = 0;
+		getCurrentState()->exit(this);
+		setCurrentState(nextState);
+		getCurrentState()->enter(this);
+	}
+}
+
+void EvilFSM::update(const MmsMessage* msg, int checkEveryK) {
+	numMessages++;
+	EV << "Num: " + std::to_string(numMessages) + "\n";
+	if(numMessages % checkEveryK == 0) { next(); }
 }
 
 Inibs* EvilFSM::getInibValues() {
 	return dynamic_cast<EvilState*>(getCurrentState())->getInibValues();
 }
+
+int EvilFSM::getNumMessages() { return numMessages; }
 
 EvilFSM::~EvilFSM()
 {

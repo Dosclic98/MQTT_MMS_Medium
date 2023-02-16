@@ -9,6 +9,7 @@
 #define FSM_CORE_EVILFSM_H_
 
 #include "../FSM.h"
+#include "../../../message/mms/MmsMessage_m.h"
 #include "../../states/evil/concrete/Inactive.h"
 
 
@@ -21,11 +22,14 @@ public:
 	EvilFSM(ServerEvilComp* owner, bool startFull);
 
 	void next() override;
+	void update(const MmsMessage* msg, int checkEveryK);
 	Inibs* getInibValues();
+	int getNumMessages();
 	~EvilFSM() override;
 
 	ServerEvilComp* owner;
 private:
+	int numMessages;
 	void initLoops();
 };
 

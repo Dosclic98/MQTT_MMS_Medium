@@ -181,6 +181,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
             return;
     	}
 
+    	serverComp->evilFSM->update(appmsg.get(), serverComp->checkEveryK);
 		const auto& msg = messageCopier->copyMessage(appmsg.get(), appmsg->getEvilServerConnId(), true);
 		Packet *packet = new Packet("data");
 

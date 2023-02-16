@@ -41,8 +41,10 @@ class INET_API ServerEvilComp : public TcpGenericServerApp {
 		bool evilServerStatus;
 		cQueue serverQueue;
 		cMessage* departureEvent;
+		// Numero di messaggi da attendere tra un controllo e il successivo
+		int checkEveryK;
 
-		// For logging purposes
+		// Per il logging
 		bool isLogging;
 		EvilLogger* logger;
 
