@@ -31,15 +31,15 @@ module Wireless5GDerLan like IDerLan
         inout gate;
 
     submodules:
-        server[numServers]: NRUe {
-            @display("i=misc/windturbine;p=524,85");
-        }
-        antenna: gNodeB {
+        gnb: gNodeB {
             @display("p=456,157");
         }
         upf: Upf;
+        server[numServers]: NRUe {
+            @display("i=misc/windturbine;p=524,85");
+        }
     connections:
-        antenna.ppp <--> Eth1G <--> upf.pppg++;
+        gnb.ppp <--> Eth1G <--> upf.pppg++;
         upf.filterGate <--> gate;
 
 }

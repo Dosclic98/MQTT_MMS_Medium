@@ -27,7 +27,7 @@ import simu5g.common.binder.Binder;
 import simu5g.world.radio.LteChannelControl;
 import simu5g.common.carrierAggregation.CarrierAggregation;
 import simu5g.common.binder.Binder;
-//import simu5g.nodes.PgwStandard;
+import inet.node.internetcloud.InternetCloud;
 
 network MMS5GNetworkMITMLanBase
 {
@@ -53,21 +53,19 @@ network MMS5GNetworkMITMLanBase
             @display("p=51,168");
         }
         binder: Binder {
-            @display("p=35,38");
+            @display("p=48,28");
         }
 
         carrierAggregation: CarrierAggregation {
             @display("p=142,100;is=s");
         }
         channelControl: LteChannelControl {
-            @display("p=50,25;is=s");
+            @display("p=128,28;is=s");
         }
         radioMedium: Ieee80211RadioMedium {
             @display("p=51,88");
         }
-        router: Router {
-            @display("i=abstract/router2");
-        }
+        internetCloud: InternetCloud;
         goodCliLan: <> like ICliLan {
             @display("i=misc/house");
         }
@@ -76,9 +74,9 @@ network MMS5GNetworkMITMLanBase
         }
 
     connections allowunconnected:
-        goodCliLan.gate <--> Eth1G <--> router.ethg++;
+        goodCliLan.gate <--> Eth1G <--> internetCloud.ethg++;
         for i=0..(numDerLan-1) {
-            derLan[i].gate <--> Eth1G <--> router.pppg++;
+            derLan[i].gate <--> Eth1G <--> internetCloud.pppg++;
         }
 
 }

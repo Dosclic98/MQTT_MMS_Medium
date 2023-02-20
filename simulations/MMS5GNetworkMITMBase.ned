@@ -23,7 +23,7 @@ import simu5g.common.binder.Binder;
 import simu5g.common.carrierAggregation.CarrierAggregation;
 import simu5g.nodes.NR.NRUe;
 import simu5g.nodes.NR.gNodeB;
-import simu5g.nodes.PgwStandard;
+import simu5g.nodes.Upf;
 import simu5g.world.radio.LteChannelControl;
 import inet.node.internetcloud.InternetCloud;
 
@@ -57,8 +57,7 @@ network MMS5GNetworkMITMBase
         channelControl: LteChannelControl {
             @display("p=50,25;is=s");
         }
-        // Must be called "upf" for the network to work correctly
-        upf: PgwStandard {
+        upf: Upf {
             @display("p=157,54");
         }
         client[numClients]: StandardHost {
@@ -71,7 +70,7 @@ network MMS5GNetworkMITMBase
         server[numServers]: NRUe {
             @display("i=misc/windturbine;p=510,76");
         }
-        antenna: gNodeB {
+        gnb: gNodeB {
             @display("p=308,54");
         }
         internetCloud: InternetCloud {
@@ -84,7 +83,7 @@ network MMS5GNetworkMITMBase
     connections:
         switch.ethg++ <--> Eth1G <--> internetCloud.ethg++;
         evilClient.ethg++ <--> Eth100M <--> internetCloud.ethg++;
-        antenna.ppp <--> Eth1G <--> upf.pppg++;
+        gnb.ppp <--> Eth1G <--> upf.pppg++;
         internetCloud.pppg++ <--> Eth1G <--> upf.filterGate;
         for i=0..numClients-1 {
             client[i].ethg++ <--> Eth100M <--> switch.ethg++;
