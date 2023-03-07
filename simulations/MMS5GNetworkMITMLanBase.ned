@@ -27,6 +27,7 @@ import simu5g.common.binder.Binder;
 import simu5g.world.radio.LteChannelControl;
 import simu5g.common.carrierAggregation.CarrierAggregation;
 import simu5g.common.binder.Binder;
+import simu5g.nodes.Upf;
 import inet.node.internetcloud.InternetCloud;
 
 network MMS5GNetworkMITMLanBase
@@ -72,11 +73,13 @@ network MMS5GNetworkMITMLanBase
         derLan[numDerLan]: <> like IDerLan {
             @display("i=device/lan");
         }
+        iupf: Upf;
 
     connections allowunconnected:
         goodCliLan.gate <--> Eth1G <--> internetCloud.ethg++;
+        internetCloud.pppg++ <--> Eth1G <--> iupf.filterGate;
         for i=0..(numDerLan-1) {
-            derLan[i].gate <--> Eth1G <--> internetCloud.pppg++;
+            derLan[i].gate <--> Eth1G <--> iupf.pppg++;
         }
 
 }

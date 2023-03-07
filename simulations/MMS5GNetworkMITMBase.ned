@@ -35,30 +35,38 @@ network MMS5GNetworkMITMBase
 
         @statistic[measureBlockGlobal](source=measureBlockSignal; record=count);
         @statistic[measureCompromisedGlobal](source=measureCompromisedSignal; record=count);
-        
+
         @statistic[readRequestBlockGlobal](source=readRequestBlockSignal; record=count);
         @statistic[readRequestCompromisedGlobal](source=readRequestCompromisedSignal; record=count);
-        
+
         @statistic[commandRequestBlockGlobal](source=commandRequestBlockSignal; record=count);
         @statistic[commandRequestCompromisedGlobal](source=commandRequestCompromisedSignal; record=count);
-        
+
         @statistic[readResponseBlockGlobal](source=readResponseBlockSignal; record=count);
         @statistic[readResponseCompromisedGlobal](source=readResponseCompromisedSignal; record=count);
-        
+
         @statistic[commandResponseBlockGlobal](source=commandResponseBlockSignal; record=count);
         @statistic[commandResponseCompromisedGlobal](source=commandResponseCompromisedSignal; record=count);
 
     submodules:
         configurator: Ipv4NetworkConfigurator;
-        binder: Binder;
+        binder: Binder {
+            @display("p=341,266");
+        }
         carrierAggregation: CarrierAggregation {
             @display("p=50.993748,258.7;is=s");
         }
         channelControl: LteChannelControl {
             @display("p=50,25;is=s");
         }
-        upf: Upf {
-            @display("p=157,54");
+        iupf: Upf {
+            @display("p=157,47");
+        }
+        upf1: Upf {
+            @display("p=276,54");
+        }
+        upf2: Upf {
+            @display("p=276,163");
         }
         client[numClients]: StandardHost {
             numApps = parent.numServers;
@@ -70,8 +78,11 @@ network MMS5GNetworkMITMBase
         server[numServers]: NRUe {
             @display("i=misc/windturbine;p=510,76");
         }
-        gnb: gNodeB {
-            @display("p=308,54");
+        gnb1: gNodeB {
+            @display("p=383,47");
+        }
+        gnb2: gNodeB {
+            @display("p=383,145");
         }
         internetCloud: InternetCloud {
             @display("p=157,128");
@@ -83,8 +94,11 @@ network MMS5GNetworkMITMBase
     connections:
         switch.ethg++ <--> Eth1G <--> internetCloud.ethg++;
         evilClient.ethg++ <--> Eth100M <--> internetCloud.ethg++;
-        gnb.ppp <--> Eth1G <--> upf.pppg++;
-        internetCloud.pppg++ <--> Eth1G <--> upf.filterGate;
+        gnb1.ppp <--> Eth1G <--> upf1.pppg++;
+        gnb2.ppp <--> Eth1G <--> upf2.pppg++;
+        internetCloud.pppg++ <--> Eth1G <--> iupf.filterGate;
+        iupf.pppg++ <--> Eth1G <--> upf1.pppg++;
+        iupf.pppg++ <--> Eth1G <--> upf2.pppg++;
         for i=0..numClients-1 {
             client[i].ethg++ <--> Eth100M <--> switch.ethg++;
         }

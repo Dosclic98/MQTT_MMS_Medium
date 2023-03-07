@@ -20,6 +20,7 @@ import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 import inet.node.inet.Router;
 import inet.node.ethernet.*;
 import inet.node.internetcloud.InternetCloud;
+import inet.common.scenario.ScenarioManager;
 
 network MMSWiredNetworkMITMBase {
 	parameters:
@@ -43,6 +44,7 @@ network MMSWiredNetworkMITMBase {
 		
 	submodules:
 	    configurator: Ipv4NetworkConfigurator;
+	    scenarioManager: ScenarioManager;
 	    client[numClients]: StandardHost {
 	    	numApps = parent.numServers;
 	    };
@@ -53,15 +55,19 @@ network MMSWiredNetworkMITMBase {
 	    server[numServers]: StandardHost {
 	    	@display("i=misc/windturbine");
 	    };
-        internetCloud: InternetCloud {
-            @display("p=157,128");
-        }
-        switch: EthernetSwitch {
-            @display("p=157,213");
-        }
+        internetCloud: InternetCloud;
+        router[4]: Router;
+        switch: EthernetSwitch;
     
     connections:
-        switch.ethg++ <--> Eth1G <--> internetCloud.ethg++;
+        switch.ethg++ <--> Eth1G <--> router[0].ethg++;
+        // Router triangle
+        router[0].ethg++ <--> Eth1G <--> router[1].ethg++;
+        router[0].ethg++ <--> Eth1G <--> router[2].ethg++;
+        router[3].ethg++ <--> Eth1G <--> internetCloud.ethg++;
+        router[1].ethg++ <--> Eth1G <--> router[3].ethg++;
+        router[2].ethg++ <--> Eth1G <--> router[3].ethg++;
+        
         evilClient.ethg++ <--> Eth100M <--> internetCloud.ethg++;
         for i = 0..numClients-1 {
         	client[i].ethg++ <--> Eth100M <--> switch.ethg++;

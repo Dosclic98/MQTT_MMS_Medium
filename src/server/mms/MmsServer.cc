@@ -114,7 +114,6 @@ void MmsServer::handleDeparture()
         bytesRcvd += B(appmsg->getChunkLength()).get();
         B requestedBytes = appmsg->getExpectedReplyLength();
         if(appmsg->getMessageKind() == MMSKind::CONNECT) { // Register a listener
-            //clientConnIdList.push_back(connId);
             clientConnIdList.push_back({connId, appmsg->getEvilServerConnId()});
         }
         else if(appmsg->getMessageKind() == MMSKind::MEASURE) { // Send data to listeners
@@ -146,7 +145,6 @@ void MmsServer::handleDeparture()
         TcpCommand *cmd = new TcpCommand();
         request->addTag<SocketReq>()->setSocketId(connId);
         request->setControlInfo(cmd);
-        //clientConnIdList.remove(connId);
         clientConnIdList.remove_if([&](std::pair<int, int>& p) {
             return p.first == connId;
         });
@@ -197,7 +195,6 @@ void MmsServer::handleMessage(cMessage *msg)
         delete msg;
         auto request = new Request("close", TCP_C_CLOSE);
         request->addTag<SocketReq>()->setSocketId(connId);
-        //clientConnIdList.remove(connId);
         clientConnIdList.remove_if([&](std::pair<int, int>& p) {
         	return p.first == connId;
         });

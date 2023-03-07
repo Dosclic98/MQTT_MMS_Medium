@@ -40,6 +40,6 @@ module Wireless5GDerLan like IDerLan
         }
     connections:
         gnb.ppp <--> Eth1G <--> upf.pppg++;
-        upf.filterGate <--> gate;
+        upf.pppg++ <--> gate;
 
 }
