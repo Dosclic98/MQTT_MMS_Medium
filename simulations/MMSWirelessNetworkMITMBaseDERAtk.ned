@@ -61,7 +61,7 @@ network MMSWirelessNetworkMITMBaseDERAtk
             numApps = parent.numServers + 1;
         }
         server[numServers]: WirelessHost {
-            @display("p=99,199");
+            @display("i=misc/windturbine;p=99,199");
         }
         router: Router {
             @display("p=513,168");

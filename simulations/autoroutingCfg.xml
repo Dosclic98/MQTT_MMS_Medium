@@ -1,5 +1,5 @@
 <config>
 	<interface hosts='**' address='10.x.x.x' netmask='255.x.x.x'/>
 	<!-- Specify 'datarate' or 'hopCount' as autorouting metrics -->
-	<autoroute sourceHosts='**' metric='hopCount' />
+	<autoroute sourceHosts='**' metric='dataRate' />
 </config>

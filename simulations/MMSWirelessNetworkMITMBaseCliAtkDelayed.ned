@@ -60,7 +60,9 @@ network MMSWirelessNetworkMITMBaseCliAtkDelayed
             @display("i=old/comp_a;p=108,110");
             numApps = parent.numServers + 1;
         }
-        server[numServers]: StandardHost;
+        server[numServers]: StandardHost {
+        	 @display("i=misc/windturbine");
+        };
         internetCloud: InternetCloud {
             @display("p=513,168");
         }

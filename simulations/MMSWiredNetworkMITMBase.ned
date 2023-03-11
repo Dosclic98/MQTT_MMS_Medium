@@ -56,17 +56,16 @@ network MMSWiredNetworkMITMBase {
 	    	@display("i=misc/windturbine");
 	    };
         internetCloud: InternetCloud;
-        router[4]: Router;
+        router[3]: Router;
         switch: EthernetSwitch;
     
     connections:
         switch.ethg++ <--> Eth1G <--> router[0].ethg++;
         // Router triangle
-        router[0].ethg++ <--> Eth1G <--> router[1].ethg++;
+        router[0].ethg++ <--> Eth100M <--> router[1].ethg++;
         router[0].ethg++ <--> Eth1G <--> router[2].ethg++;
-        router[3].ethg++ <--> Eth1G <--> internetCloud.ethg++;
-        router[1].ethg++ <--> Eth1G <--> router[3].ethg++;
-        router[2].ethg++ <--> Eth1G <--> router[3].ethg++;
+        router[1].ethg++ <--> Eth1G <--> internetCloud.ethg++;
+        router[1].ethg++ <--> Eth1G <--> router[2].ethg++;
         
         evilClient.ethg++ <--> Eth100M <--> internetCloud.ethg++;
         for i = 0..numClients-1 {
