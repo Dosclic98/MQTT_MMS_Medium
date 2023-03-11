@@ -9,7 +9,7 @@
 
 namespace inet {
 
-EvilFSM::EvilFSM(ServerEvilComp* owner, bool startFull):
+EvilFSM::EvilFSM(ClientEvilComp* owner, bool startFull):
 	FSM(startFull ? Full::getInstance() : Inactive::getInstance())
 {
 	numMessages = 0;
@@ -19,7 +19,12 @@ EvilFSM::EvilFSM(ServerEvilComp* owner, bool startFull):
 	this->owner = owner;
 
 	// Initialize all the loop-arcs found starting from the Inactive state using a BFS
-	this->initLoops();
+	// but just if no other EvilFSM has already initialized the graph
+	if(!EvilFSM::isGraphInit) {
+		this->initLoops();
+		EvilFSM::isGraphInit = true;
+	}
+
 
 	// When the FSM is created we must execute the
 	// 'enter' routine for the initial state

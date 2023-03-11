@@ -40,7 +40,7 @@ FromClientListener::~FromClientListener() {
 
 void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID, cObject* value, cObject *obj){
 	this->parent->bubble("Packet received from fwd signal!");
-    EvilState* currState = dynamic_cast<EvilState*>(parent->serverComp->evilFSM->getCurrentState());
+    EvilState* currState = dynamic_cast<EvilState*>(parent->evilFSM->getCurrentState());
     Inibs* inibs = currState->getInibValues();
     EV << std::to_string(inibs->getMeasureBlockInib()) + "\n";
 
@@ -72,7 +72,7 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 				msg->addTag<CreationTimeTag>()->setCreationTime(simTime());
 				msg->setData(0);
 				msg->setAtkStatus(MITMKind::FAKEGEN);
-				if(parent->serverComp->isLogging) parent->serverComp->logger->log(msg, currState->getStateName(), simTime());
+				if(parent->isLogging) parent->logger->log(msg, currState->getStateName(), simTime());
 
 				enqueueNSchedule(msg);
 			}
@@ -80,7 +80,7 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 
 		// Add to the forward to the server queue
 		MmsMessage* msg = messageCopier->copyMessageNorm(appmsg.get(), true);
-		parent->serverComp->evilFSM->update(msg, parent->serverComp->checkEveryK);
+		parent->evilFSM->update(msg, parent->checkEveryK);
 		// Signal if a generic request gets blocked or compromised
 		double p = this->parent->uniform(0.0, 1.0);
 		if(appmsg->getMessageKind() == MMSKind::GENREQ) {
@@ -88,23 +88,23 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 				if (p < this->parent->readRequestBlockProb * inibs->getReadRequestBlockInib()) { // Block
 					this->parent->emit(this->parent->readRequestBlockSignal, true);
 					msg->setAtkStatus(MITMKind::BLOCK);
-					if(parent->serverComp->isLogging) parent->serverComp->logger->log(msg, currState->getStateName(), simTime());
+					if(parent->isLogging) parent->logger->log(msg, currState->getStateName(), simTime());
 					delete pckt;
 					delete msg;
 					return;
 				} else if (p < this->parent->readRequestCompromisedProb * inibs->getReadRequestCompromisedInib()) { // Compromise
 					msg->setAtkStatus(MITMKind::COMPR);
 					msg->setData(9);
-					if(parent->serverComp->isLogging) parent->serverComp->logger->log(msg, currState->getStateName(), simTime());
+					if(parent->isLogging) parent->logger->log(msg, currState->getStateName(), simTime());
 					this->parent->emit(this->parent->readRequestCompromisedSignal, true);
 				} else {
-					if(parent->serverComp->isLogging) parent->serverComp->logger->log(msg, currState->getStateName(), simTime());
+					if(parent->isLogging) parent->logger->log(msg, currState->getStateName(), simTime());
 				}
 			} else if(appmsg->getReqResKind() == ReqResKind::COMMAND) {
 				if (p < this->parent->commandRequestBlockProb * inibs->getCommandRequestBlockInib()) { // Block
 					this->parent->emit(this->parent->commandRequestBlockSignal, true);
 					msg->setAtkStatus(MITMKind::BLOCK);
-					if(parent->serverComp->isLogging) parent->serverComp->logger->log(msg, currState->getStateName(), simTime());
+					if(parent->isLogging) parent->logger->log(msg, currState->getStateName(), simTime());
 					delete pckt;
 					delete msg;
 					return;
@@ -112,9 +112,9 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 					this->parent->emit(this->parent->commandRequestCompromisedSignal, true);
 					msg->setAtkStatus(MITMKind::COMPR);
 					msg->setData(9);
-					if(parent->serverComp->isLogging) parent->serverComp->logger->log(msg, currState->getStateName(), simTime());
+					if(parent->isLogging) parent->logger->log(msg, currState->getStateName(), simTime());
 				} else {
-					if(parent->serverComp->isLogging) parent->serverComp->logger->log(msg, currState->getStateName(), simTime());
+					if(parent->isLogging) parent->logger->log(msg, currState->getStateName(), simTime());
 				}
 			}
 		}

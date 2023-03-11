@@ -32,8 +32,11 @@ namespace inet {
 Define_Module(ClientEvilComp);
 
 ClientEvilComp::~ClientEvilComp() {
+	if(isLogging) delete logger;
+	cancelAndDelete(changeStateEvent);
 	cancelAndDelete(sendMsgEvent);
 	msgQueue.clear();
+	delete evilFSM;
 }
 
 void ClientEvilComp::initialize(int stage)
@@ -50,6 +53,18 @@ void ClientEvilComp::initialize(int stage)
             throw cRuntimeError("Invalid startTime/stopTime parameters");
         timeoutMsg = new cMessage("timer");
         messageCopier = new MmsMessageCopier();
+        changeStateEvent = new cMessage("Change State");
+        scheduleAt(simTime() + SimTime(par("stateChangeDelay").intValue(), SIMTIME_S), changeStateEvent);
+        startFull = par("startFull").boolValue();
+        checkEveryK = par("checkEveryK").intValue();
+
+        // Initialize the evil FSM
+        evilFSM = new EvilFSM(this, startFull);
+
+        isLogging = par("isLogging");
+        if(isLogging) {
+        	logger = new EvilLogger(getIndex());
+        }
 
         genericFakeReqResSignal = registerSignal("genericFakeReqResSignal");
         pcktFromServerSignal = registerSignal("pcktFromServerSignal");
@@ -128,19 +143,24 @@ void ClientEvilComp::rescheduleAfterOrDeleteTimer(simtime_t d, short int msgKind
 
 void ClientEvilComp::handleTimer(cMessage *msg)
 {
-    switch (msg->getKind()) {
-        case MSGKIND_CONNECT:
-            connect();
-            if (earlySend)
+    if(msg == changeStateEvent) {
+    	evilFSM->next();
+    	scheduleAt(simTime() + SimTime(par("stateChangeDelay").intValue(), SIMTIME_S), changeStateEvent);
+    } else {
+        switch (msg->getKind()) {
+            case MSGKIND_CONNECT:
+                connect();
+                if (earlySend)
+                    sendRequest();
+                break;
+
+            case MSGKIND_SEND:
                 sendRequest();
-            break;
+                break;
 
-        case MSGKIND_SEND:
-            sendRequest();
-            break;
-
-        default:
-            throw cRuntimeError("Invalid timer msg: kind=%d", msg->getKind());
+            default:
+                throw cRuntimeError("Invalid timer msg: kind=%d", msg->getKind());
+        }
     }
 }
 
@@ -161,7 +181,7 @@ int ClientEvilComp::getConnectionState() {
 }
 
 void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urgent) {
-	EvilState* currState = dynamic_cast<EvilState*>(serverComp->evilFSM->getCurrentState());
+	EvilState* currState = dynamic_cast<EvilState*>(evilFSM->getCurrentState());
 	Inibs* inibs = currState->getInibValues();
 
     if (socket->getState() == TcpSocket::LOCALLY_CLOSED) {
@@ -176,12 +196,12 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
     	if(appmsg->getMessageKind() == MMSKind::GENRESP && appmsg->getEvilServerConnId() == -1) {
             // Emit signal for generic fake Req Res
     		emit(genericFakeReqResSignal, true);
-    		if(serverComp->isLogging) serverComp->logger->log(appmsg.get(), currState->getStateName(), simTime());
+    		if(isLogging) logger->log(appmsg.get(), currState->getStateName(), simTime());
             TcpAppBase::socketDataArrived(socket, pckt, urgent);
             return;
     	}
 
-    	serverComp->evilFSM->update(appmsg.get(), serverComp->checkEveryK);
+    	evilFSM->update(appmsg.get(), checkEveryK);
 		const auto& msg = messageCopier->copyMessage(appmsg.get(), appmsg->getEvilServerConnId(), true);
 		Packet *packet = new Packet("data");
 
@@ -197,7 +217,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 	        	bubble("Measure blocked");
 	            emit(measureBlockSignal, true);
 	            msg->setAtkStatus(MITMKind::BLOCK);
-	            if(serverComp->isLogging) serverComp->logger->log(msg.get(), currState->getStateName(), simTime());
+	            if(isLogging) logger->log(msg.get(), currState->getStateName(), simTime());
 	            delete packet;
 	            TcpAppBase::socketDataArrived(socket, pckt, urgent);
 	            return;
@@ -206,10 +226,10 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 	            emit(measureCompromisedSignal, true);
 	            msg->setAtkStatus(MITMKind::COMPR);
 	            msg->setData(9);
-	            if(serverComp->isLogging) serverComp->logger->log(msg.get(), currState->getStateName(), simTime());
+	            if(isLogging) logger->log(msg.get(), currState->getStateName(), simTime());
 	        } else {
 	        	bubble("Measure arrived from server");
-	        	if(serverComp->isLogging) serverComp->logger->log(msg.get(), currState->getStateName(), simTime());
+	        	if(isLogging) logger->log(msg.get(), currState->getStateName(), simTime());
 	        }
 	    } else if (messageKind == MMSKind::GENRESP) {
 	    	if(reqResKind == ReqResKind::READ) {
@@ -217,7 +237,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 		        	bubble("Read response blocked");
 		            emit(readResponseBlockSignal, true);
 		            msg->setAtkStatus(MITMKind::BLOCK);
-		            if(serverComp->isLogging) serverComp->logger->log(msg.get(), currState->getStateName(), simTime());
+		            if(isLogging) logger->log(msg.get(), currState->getStateName(), simTime());
 		            delete packet;
 		            TcpAppBase::socketDataArrived(socket, pckt, urgent);
 		            return;
@@ -226,17 +246,17 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 		            emit(readResponseCompromisedSignal, true);
 		            msg->setAtkStatus(MITMKind::COMPR);
 		            msg->setData(9);
-		            if(serverComp->isLogging) serverComp->logger->log(msg.get(), currState->getStateName(), simTime());
+		            if(isLogging) logger->log(msg.get(), currState->getStateName(), simTime());
 		        } else {
 		        	bubble("Read response arrived from server");
-		        	if(serverComp->isLogging) serverComp->logger->log(msg.get(), currState->getStateName(), simTime());
+		        	if(isLogging) logger->log(msg.get(), currState->getStateName(), simTime());
 		        }
 	    	} else if(reqResKind == ReqResKind::COMMAND) {
 		        if (p < commandResponseBlockProb * inibs->getCommandResponseBlockInib()) { // Block
 		        	bubble("Command response blocked");
 		            emit(commandResponseBlockSignal, true);
 		            msg->setAtkStatus(MITMKind::BLOCK);
-		            if(serverComp->isLogging) serverComp->logger->log(msg.get(), currState->getStateName(), simTime());
+		            if(isLogging) logger->log(msg.get(), currState->getStateName(), simTime());
 		            delete packet;
 		            TcpAppBase::socketDataArrived(socket, pckt, urgent);
 		            return;
@@ -245,10 +265,10 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 		            emit(commandResponseCompromisedSignal, true);
 		            msg->setAtkStatus(MITMKind::COMPR);
 		            msg->setData(9);
-		            if(serverComp->isLogging) serverComp->logger->log(msg.get(), currState->getStateName(), simTime());
+		            if(isLogging) logger->log(msg.get(), currState->getStateName(), simTime());
 		        } else {
 		        	bubble("Command response arrived from server");
-		        	if(serverComp->isLogging) serverComp->logger->log(msg.get(), currState->getStateName(), simTime());
+		        	if(isLogging) logger->log(msg.get(), currState->getStateName(), simTime());
 		        }
 	    	}
 	    }

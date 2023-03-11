@@ -69,6 +69,19 @@ public:
 
 	virtual ~ClientEvilComp();
 
+	// Per il logging
+	bool isLogging;
+	EvilLogger* logger;
+
+
+	// Evil FSM to keep track of the evilServer'state
+	cMessage* changeStateEvent;
+	EvilFSM* evilFSM;
+	bool startFull;
+
+	// Number of messages to wait between two consecutive state checks
+	int checkEveryK;
+
 
 protected:
 	ChunkQueue queue;

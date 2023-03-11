@@ -13,9 +13,10 @@
 
 namespace inet {
 
-EvilLogger::EvilLogger()
+EvilLogger::EvilLogger(int loggerIndex)
 {
-	std::string fileName = "evilClient.csv";
+	this->loggerIndex = loggerIndex;
+	std::string fileName = "evilClient.app[" + std::to_string(loggerIndex) + "].csv";
 	logFile.open(this->path + fileName);
 	logFile << "id,messageKind,reqResKind,atkStatus,data,evilState,creationTime,timestamp\n";
 }

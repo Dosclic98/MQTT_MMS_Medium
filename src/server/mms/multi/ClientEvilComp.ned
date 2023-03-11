@@ -39,6 +39,13 @@ simple ClientEvilComp extends TcpBasicClientApp {
 	    volatile double measureBlockProb = default(0.15);
 	    volatile double measureCompromisedProb = default(0.4);
 	    
+	    bool isLogging = default(false); // For logging purposes
+	    
+	    bool startFull = default(false); // Makes the ClientComp start and stay in "Full" state
+	    // Delay to try to change state
+        volatile int stateChangeDelay @unit(s) = default(5s);
+        // Number of messages to wait between a check and the next
+        volatile int checkEveryK = default(5);
 	    
         @signal[genericFakeReqResSignal](type=bool);
         @statistic[genericFakeReqRes](source=genericFakeReqResSignal; record=count);

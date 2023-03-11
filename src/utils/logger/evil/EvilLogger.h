@@ -15,10 +15,12 @@ namespace inet {
 
 class EvilLogger : public MmsPacketLogger {
 public:
-	EvilLogger();
+	EvilLogger(int loggerIndex);
 	void log(const MmsMessage* msg, EvilStateName evilState, simtime_t timestamp);
 
 	virtual ~EvilLogger();
+private:
+	int loggerIndex;
 };
 
 };

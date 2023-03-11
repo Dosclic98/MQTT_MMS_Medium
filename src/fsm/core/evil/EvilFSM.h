@@ -15,11 +15,11 @@
 
 namespace inet {
 
-class ServerEvilComp;
+class ClientEvilComp;
 
 class EvilFSM: public virtual FSM {
 public:
-	EvilFSM(ServerEvilComp* owner, bool startFull);
+	EvilFSM(ClientEvilComp* owner, bool startFull);
 
 	void next() override;
 	void update(const MmsMessage* msg, int checkEveryK);
@@ -27,7 +27,8 @@ public:
 	int getNumMessages();
 	~EvilFSM() override;
 
-	ServerEvilComp* owner;
+	ClientEvilComp* owner;
+	static inline bool isGraphInit = false;
 private:
 	int numMessages;
 	void initLoops();

@@ -6,7 +6,7 @@
  */
 
 #include "EvilState.h"
-#include "../../../server/mms/multi/ServerEvilComp.h"
+#include "../../../server/mms/multi/ClientEvilComp.h"
 
 namespace inet {
 
@@ -16,7 +16,7 @@ const char* EvilState::stateNames[] = {"INACTIVE", "MIDDLE", "READONLY", "COMMAN
 // the FSM which is known at this level of the hierarchy
 FSMState* EvilState::next(FSM* machine) {
 	EvilFSM* evilMachine = check_and_cast<EvilFSM*>(machine);
-	ServerEvilComp* owner = evilMachine->owner;
+	ClientEvilComp* owner = evilMachine->owner;
 
 	std::vector<std::pair<float, FSMState*>> trns = this->getTransitions();
 	std::sort(trns.begin(), trns.end());
@@ -57,7 +57,7 @@ std::vector<float> EvilState::calcProb(int numMessages, std::vector<std::pair<fl
 // Default behaviour when entering the new state (schedule the next state change)
 void EvilState::enter(FSM* machine) {
 	EvilFSM* evilMachine = check_and_cast<EvilFSM*>(machine);
-	ServerEvilComp* serverComp = evilMachine->owner;
+	ClientEvilComp* serverComp = evilMachine->owner;
 }
 
 };

@@ -24,14 +24,8 @@ simple ServerEvilComp extends TcpGenericServerApp {
     parameters:
         @class("inet::ServerEvilComp");
         
-        bool isLogging = default(false); // For logging purposes
-        bool startFull = default(false); // Makes the ServerComp start and stay in "Full" state
         volatile int serviceTime @unit(ms) = default(intuniform(10ms, 18ms));
         volatile int forwardDelay @unit(us) = default(intuniform(1us, 3us));
-        // Delay to try to change state
-        volatile int stateChangeDelay @unit(s) = default(5s);
-        // Number of messages to wait between a check and the next
-        volatile int checkEveryK = default(5);
         
         @signal[pcktFromClientSignal-*](type=Packet);
 }
