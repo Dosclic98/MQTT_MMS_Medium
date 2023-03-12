@@ -61,9 +61,10 @@ void ClientEvilComp::initialize(int stage)
         // Initialize the evil FSM
         evilFSM = new EvilFSM(this, startFull);
 
+        cEnvir* ev = getSimulation()->getActiveEnvir();
         isLogging = par("isLogging");
         if(isLogging) {
-        	logger = new EvilLogger(getIndex());
+        	logger = new EvilLogger(ev->getConfigEx()->getActiveRunNumber(), getIndex());
         }
 
         genericFakeReqResSignal = registerSignal("genericFakeReqResSignal");

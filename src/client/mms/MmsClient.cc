@@ -31,12 +31,13 @@ void MmsClient::initialize(int stage)
         numRequestsToSend = 0;
         WATCH(numRequestsToSend);
         WATCH(measureCounter);
+        cEnvir* ev = getSimulation()->getActiveEnvir();
         startTime = par("startTime");
         stopTime = par("stopTime");
         resTimeout = par("resTimeoutInterval");
         isLogging = par("isLogging");
         if(isLogging) {
-        	logger = new MmsPacketLogger("client", getParentModule()->getIndex(), getIndex());
+        	logger = new MmsPacketLogger(ev->getConfigEx()->getActiveRunNumber(), "client", getParentModule()->getIndex(), getIndex());
         }
         if (stopTime >= SIMTIME_ZERO && stopTime < startTime)
             throw cRuntimeError("Invalid startTime/stopTime parameters");

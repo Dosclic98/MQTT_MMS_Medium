@@ -28,7 +28,7 @@ public:
 	~EvilFSM() override;
 
 	ClientEvilComp* owner;
-	static inline bool isGraphInit = false;
+	static bool isGraphInit;
 private:
 	int numMessages;
 	void initLoops();

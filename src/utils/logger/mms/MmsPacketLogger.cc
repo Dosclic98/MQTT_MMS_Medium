@@ -18,12 +18,20 @@
 #include "inet/common/socket/SocketTag_m.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <experimental/filesystem>
+
+namespace fs = std::experimental::filesystem;
 
 namespace inet {
 
-MmsPacketLogger::MmsPacketLogger(std::string whatCompStr, int num, int numApp) {
+MmsPacketLogger::MmsPacketLogger(int runNumber, std::string whatCompStr, int num, int numApp) {
+	// Create the correct folder structure if does not exists
+	createFolderAtPath(this->path);
+	std::string actualPath = this->path + "run" + std::to_string(runNumber) + "/";
+	createFolderAtPath(actualPath);
+
 	std::string fileName = whatCompStr + "[" + std::to_string(num) + "].app[" + std::to_string(numApp) + "].csv";
-	logFile.open(this->path + fileName);
+	logFile.open(actualPath + fileName);
 	logFile << "id,messageKind,reqResKind,atkStatus,data,creationTime,timestamp\n";
 }
 
@@ -41,6 +49,10 @@ void MmsPacketLogger::log(const MmsMessage* msg, simtime_t timestamp) {
 	else reqResKindStr = reqResKindToStr[msg->getReqResKind()];
 	logFile << msg->getOriginId() << "," << mmsKindStr << "," << reqResKindStr << "," << mitmKindStr << "," << msg->getData()
 			<< "," << msg->getTag<CreationTimeTag>()->getCreationTime() << "," << timestamp << "\n";
+}
+
+void MmsPacketLogger::createFolderAtPath(std::string& path) {
+	fs::create_directory(path); // create folder at path
 }
 
 };

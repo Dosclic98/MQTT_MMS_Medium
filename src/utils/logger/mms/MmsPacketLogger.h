@@ -25,7 +25,7 @@ namespace inet {
 class MmsPacketLogger {
 public:
 	MmsPacketLogger() {}
-	MmsPacketLogger(std::string whatCompStr, int num, int numApp);
+	MmsPacketLogger(int runNumber, std::string whatCompStr, int num, int numApp);
 	virtual ~MmsPacketLogger();
 
 	std::string mmsKindToStr[5] = {"CONNECT", "MEASURE", "GENREQ", "GENRESP"};
@@ -34,6 +34,7 @@ public:
 	std::string path = "logs/";
 
 	void log(const MmsMessage* msg, simtime_t timestamp);
+	void createFolderAtPath(std::string& path);
 
 protected:
 	std::ofstream logFile;

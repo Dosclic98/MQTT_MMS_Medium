@@ -9,6 +9,8 @@
 
 namespace inet {
 
+bool EvilFSM::isGraphInit = false;
+
 EvilFSM::EvilFSM(ClientEvilComp* owner, bool startFull):
 	FSM(startFull ? Full::getInstance() : Inactive::getInstance())
 {

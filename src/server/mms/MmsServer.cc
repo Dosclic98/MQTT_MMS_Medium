@@ -39,9 +39,10 @@ void MmsServer::initialize(int stage)
         serverStatus = false;
         scheduleAt(1, sendDataEvent);
 
-        isLogging = true;
+        cEnvir* ev = getSimulation()->getActiveEnvir();
+        isLogging = par("isLogging").boolValue();
         if(isLogging) {
-        	logger = new MmsPacketLogger("server", getParentModule()->getIndex(), getIndex());
+        	logger = new MmsPacketLogger(ev->getConfigEx()->getActiveRunNumber(), "server", getParentModule()->getIndex(), getIndex());
         }
 
         cModule *node = findContainingNode(this);

@@ -15,8 +15,9 @@ namespace inet {
 
 class EvilLogger : public MmsPacketLogger {
 public:
-	EvilLogger(int loggerIndex);
+	EvilLogger(int runNumber, int loggerIndex);
 	void log(const MmsMessage* msg, EvilStateName evilState, simtime_t timestamp);
+	void createFolderAtPath(std::string& path);
 
 	virtual ~EvilLogger();
 private:
