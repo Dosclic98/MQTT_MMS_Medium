@@ -62,6 +62,7 @@ class MmsMessage extends FieldsChunk
     MMSKind messageKind;
     // Just set if the messageKind is set o GENREQ or GENRESP
     ReqResKind reqResKind;
+    // Mantained for backward compatibility with the old implementation
     int connId;
     // Used just for the MMS MIMT Attack
     int evilServerConnId = 0;

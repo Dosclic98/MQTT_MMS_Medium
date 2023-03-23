@@ -29,15 +29,14 @@ MmsMessageCopier::~MmsMessageCopier()
 	// TODO Auto-generated destructor stub
 }
 
-const Ptr<MmsMessage> MmsMessageCopier::copyMessage(const MmsMessage* appmsg, int connId, int evilServerConnId, bool fakeCreatTime) {
+const Ptr<MmsMessage> MmsMessageCopier::copyMessage(const MmsMessage* appmsg, int connId, bool fakeCreatTime) {
 	const auto& msg = makeShared<MmsMessage>();
 	msg->setOriginId(appmsg->getOriginId());
 	msg->setMessageKind(appmsg->getMessageKind());
 	msg->setReqResKind(appmsg->getReqResKind());
-	msg->setConnId(connId);
 	msg->setExpectedReplyLength(appmsg->getExpectedReplyLength());
 	msg->setChunkLength(appmsg->getChunkLength());
-	msg->setEvilServerConnId(evilServerConnId);
+	msg->setEvilServerConnId(connId);
 	msg->setServerClose(appmsg->getServerClose());
 	msg->setData(appmsg->getData());
 	msg->setAtkStatus(appmsg->getAtkStatus());
@@ -48,21 +47,15 @@ const Ptr<MmsMessage> MmsMessageCopier::copyMessage(const MmsMessage* appmsg, in
 	return msg;
 }
 
-
-const Ptr<MmsMessage> MmsMessageCopier::copyMessage(const MmsMessage* appmsg, int connId, bool fakeCreatTime) {
-	return copyMessage(appmsg, connId, appmsg->getEvilServerConnId(), fakeCreatTime);
-}
-
 const Ptr<MmsMessage> MmsMessageCopier::copyMessage(const MmsMessage* appmsg, bool fakeCreatTime) {
-	return this->copyMessage(appmsg, appmsg->getConnId(), fakeCreatTime);
+	return this->copyMessage(appmsg, appmsg->getEvilServerConnId(), fakeCreatTime);
 }
 
-MmsMessage* MmsMessageCopier::copyMessageNorm(const MmsMessage* appmsg, int connId, int evilServerConnId, bool fakeCreatTime) {
+MmsMessage* MmsMessageCopier::copyMessageNorm(const MmsMessage* appmsg, int evilServerConnId, bool fakeCreatTime) {
 	MmsMessage* msg = new MmsMessage();
 	msg->setOriginId(appmsg->getOriginId());
 	msg->setMessageKind(appmsg->getMessageKind());
 	msg->setReqResKind(appmsg->getReqResKind());
-	msg->setConnId(connId);
 	msg->setExpectedReplyLength(appmsg->getExpectedReplyLength());
 	msg->setChunkLength(appmsg->getChunkLength());
 	msg->setEvilServerConnId(evilServerConnId);
@@ -76,13 +69,10 @@ MmsMessage* MmsMessageCopier::copyMessageNorm(const MmsMessage* appmsg, int conn
 	return msg;
 }
 
-MmsMessage* MmsMessageCopier::copyMessageNorm(const MmsMessage* appmsg, int connId, bool fakeCreatTime) {
-	return copyMessageNorm(appmsg, connId, appmsg->getEvilServerConnId(), fakeCreatTime);
+MmsMessage* MmsMessageCopier::copyMessageNorm(const MmsMessage* appmsg, bool fakeCreatTime) {
+	return copyMessageNorm(appmsg, appmsg->getEvilServerConnId(), fakeCreatTime);
 }
 
-MmsMessage* MmsMessageCopier::copyMessageNorm(const MmsMessage* appmsg, bool fakeCreatTime) {
-	return this->copyMessageNorm(appmsg, appmsg->getConnId(), fakeCreatTime);
-}
 
 };
 

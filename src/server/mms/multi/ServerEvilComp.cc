@@ -65,7 +65,7 @@ void ServerEvilComp::initialize(int stage) {
 
 void ServerEvilComp::sendPacketDeparture(const MmsMessage* appmsg) {
     Packet *outPacket = new Packet("Generic Data", TCP_C_SEND);
-    outPacket->addTag<SocketReq>()->setSocketId(appmsg->getConnId());
+    outPacket->addTag<SocketReq>()->setSocketId(appmsg->getEvilServerConnId());
     const auto& payload = messageCopier->copyMessage(appmsg, true);
     outPacket->insertAtBack(payload);
     sendOrSchedule(outPacket, SimTime(par("replyDelay").doubleValue(), SIMTIME_MS));
@@ -153,7 +153,7 @@ void ServerEvilComp::handleForward() {
 	ChunkQueue &queue = socketQueue[connId];
 	queue.push(chunk);
 	while (const auto& appmsg = queue.pop<MmsMessage>(b(-1), Chunk::PF_ALLOW_NULLPTR)) {
-		const auto& msg = messageCopier->copyMessage(appmsg.get(), connId, connId, true);
+		const auto& msg = messageCopier->copyMessage(appmsg.get(), connId, true);
 		Packet *packet = new Packet("data");
 		packet->insertAtBack(msg);
 		emit(pcktFromClientSignal[appmsg->getServerIndex()], packet);

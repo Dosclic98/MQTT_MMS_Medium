@@ -37,7 +37,7 @@ class FromServerListener;
 class INET_API ServerEvilComp : public TcpGenericServerApp {
 	public:
 		MmsMessageCopier* messageCopier;
-		//Gestione servitore e coda
+		//Server and queue management
 		bool evilServerStatus;
 		cQueue serverQueue;
 		cMessage* departureEvent;
@@ -46,13 +46,12 @@ class INET_API ServerEvilComp : public TcpGenericServerApp {
 
 	protected:
 
-		//Gestione servitore e coda
+		//Server and queue management
 		bool forwardStatus;
 		cQueue* forwardQueue;
 		cMessage* forwardEvent;
-		ChunkQueue tmpQueue;
 
-		// Gestione segnali canali interni
+		// Internal signals and channel management
 		FromServerListener* clientCompListener;
 		simsignal_t* pcktFromClientSignal;
 

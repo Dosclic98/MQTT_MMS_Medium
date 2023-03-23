@@ -27,11 +27,9 @@ public:
 	MmsMessageCopier();
 	virtual ~MmsMessageCopier();
 
-	const Ptr<MmsMessage> copyMessage(const MmsMessage* appmsg, int connId, int serverConnId, bool fakeCreatTime);
 	const Ptr<MmsMessage> copyMessage(const MmsMessage* appmsg, int connId, bool fakeCreatTime);
 	const Ptr<MmsMessage> copyMessage(const MmsMessage* appmsg, bool fakeCreatTime);
-	MmsMessage* copyMessageNorm(const MmsMessage* appmsg, int connId, int evilServerConnId, bool fakeCreatTime);
-	MmsMessage* copyMessageNorm(const MmsMessage* appmsg, int connId, bool fakeCreatTime);
+	MmsMessage* copyMessageNorm(const MmsMessage* appmsg, int evilServerConnId, bool fakeCreatTime);
 	MmsMessage* copyMessageNorm(const MmsMessage* appmsg, bool fakeCreatTime);
 };
 
