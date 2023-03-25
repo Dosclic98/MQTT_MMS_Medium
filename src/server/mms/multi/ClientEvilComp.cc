@@ -22,7 +22,7 @@
 #include "inet/common/packet/Packet.h"
 #include "inet/common/TimeTag_m.h"
 #include "inet/common/socket/SocketTag_m.h"
-
+#include <algorithm>
 
 namespace inet {
 
@@ -93,9 +93,23 @@ void ClientEvilComp::initialize(int stage)
     	measureBlockProb = par("measureBlockProb").doubleValue();
     	measureCompromisedProb = par("measureCompromisedProb").doubleValue();
 
-        previousResponseSent = true;
+    	if(measureBlockProb < 0 || measureCompromisedProb < 0 || (measureBlockProb + measureCompromisedProb) > 1) {
+    		throw std::invalid_argument("Invalid measure block/compromise probability");
+    	}
+    	if(readRequestBlockProb < 0 || readRequestCompromisedProb < 0 || (readRequestBlockProb + readRequestCompromisedProb) > 1) {
+			throw std::invalid_argument("Invalid read request block/compromise probability");
+		}
+    	if(commandRequestBlockProb < 0 || commandRequestCompromisedProb < 0 || (commandRequestBlockProb + commandRequestCompromisedProb) > 1) {
+			throw std::invalid_argument("Invalid command request block/compromise probability");
+		}
+    	if(readResponseBlockProb < 0 || readResponseCompromisedProb < 0 || (readResponseBlockProb + readResponseCompromisedProb) > 1) {
+			throw std::invalid_argument("Invalid read response block/compromise probability");
+		}
+    	if(commandResponseBlockProb < 0 || commandResponseCompromisedProb < 0 || (commandResponseBlockProb + commandResponseCompromisedProb) > 1) {
+			throw std::invalid_argument("Invalid command response block/compromise probability");
+		}
 
-        serverComp = check_and_cast<ServerEvilComp*>(getParentModule()->getSubmodule("app", getParentModule()->par("numApps").intValue()-1));
+        previousResponseSent = true;
 
         // Initialize listener and subscribe to the serverComp forwarding signal
         serverCompListener = new FromClientListener(this);
@@ -222,7 +236,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 	            delete packet;
 	            TcpAppBase::socketDataArrived(socket, pckt, urgent);
 	            return;
-	        } else if (p < measureCompromisedProb * inibs->getMeasureCompromisedInib()){ //Compromise
+	        } else if (p - (measureBlockProb * inibs->getMeasureBlockInib()) < measureCompromisedProb * inibs->getMeasureCompromisedInib()){ //Compromise
 	        	bubble("Measure compromised");
 	            emit(measureCompromisedSignal, true);
 	            msg->setAtkStatus(MITMKind::COMPR);
@@ -242,7 +256,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 		            delete packet;
 		            TcpAppBase::socketDataArrived(socket, pckt, urgent);
 		            return;
-		        } else if (p < readResponseCompromisedProb * inibs->getReadResponseCompromisedInib()) { // Compromise
+		        } else if (p - (readResponseBlockProb * inibs->getReadResponseBlockInib()) < readResponseCompromisedProb * inibs->getReadResponseCompromisedInib()) { // Compromise
 		        	bubble("Read response compromised");
 		            emit(readResponseCompromisedSignal, true);
 		            msg->setAtkStatus(MITMKind::COMPR);
@@ -261,7 +275,7 @@ void ClientEvilComp::socketDataArrived(TcpSocket *socket, Packet *pckt, bool urg
 		            delete packet;
 		            TcpAppBase::socketDataArrived(socket, pckt, urgent);
 		            return;
-		        } else if (p < commandResponseCompromisedProb * inibs->getCommandResponseCompromisedInib()) { // Compromise
+		        } else if (p - (commandResponseBlockProb * inibs->getCommandResponseBlockInib()) < commandResponseCompromisedProb * inibs->getCommandResponseCompromisedInib()) { // Compromise
 		        	bubble("Command response compromised");
 		            emit(commandResponseCompromisedSignal, true);
 		            msg->setAtkStatus(MITMKind::COMPR);

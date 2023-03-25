@@ -92,7 +92,7 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 					delete pckt;
 					delete msg;
 					return;
-				} else if (p < this->parent->readRequestCompromisedProb * inibs->getReadRequestCompromisedInib()) { // Compromise
+				} else if (p - (this->parent->readRequestBlockProb * inibs->getReadRequestBlockInib()) < this->parent->readRequestCompromisedProb * inibs->getReadRequestCompromisedInib()) { // Compromise
 					msg->setAtkStatus(MITMKind::COMPR);
 					msg->setData(9);
 					if(parent->isLogging) parent->logger->log(msg, currState->getStateName(), simTime());
@@ -108,7 +108,7 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 					delete pckt;
 					delete msg;
 					return;
-				} else if (p < this->parent->commandRequestCompromisedProb * inibs->getCommandRequestCompromisedInib()) { // Compromise
+				} else if (p - (this->parent->commandRequestBlockProb * inibs->getCommandRequestBlockInib()) < this->parent->commandRequestCompromisedProb * inibs->getCommandRequestCompromisedInib()) { // Compromise
 					this->parent->emit(this->parent->commandRequestCompromisedSignal, true);
 					msg->setAtkStatus(MITMKind::COMPR);
 					msg->setData(9);

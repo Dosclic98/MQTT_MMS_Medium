@@ -35,13 +35,10 @@ public:
 	bool previousResponseSent;
 	cMessage* sendMsgEvent;
 
-	// Reference to the ServerEvilComp of the StandardHost
-	ServerEvilComp* serverComp;
-
 	virtual void rescheduleAfterOrDeleteTimer(simtime_t d, short int msgKind) override;
 	virtual int getConnectionState();
 
-	// Gestione segnali
+	// Signals management
 	simsignal_t genericFakeReqResSignal;
 	simsignal_t measureBlockSignal;
 	simsignal_t measureCompromisedSignal;
@@ -69,7 +66,7 @@ public:
 
 	virtual ~ClientEvilComp();
 
-	// Per il logging
+	// For logging purposes
 	bool isLogging;
 	EvilLogger* logger;
 
@@ -87,7 +84,7 @@ protected:
 	ChunkQueue queue;
 	FromClientListener* serverCompListener;
 
-	// Gestione segnali canali interni
+	// Internal channel signals
 	simsignal_t pcktFromServerSignal;
 
 protected:
