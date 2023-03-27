@@ -53,7 +53,7 @@ void FromClientListener::receiveSignal(cComponent *source, simsignal_t signalID,
 			numGenReq++;
 			// If at least a certain number of generic requests has been sent
 			// generate a fake request for the server
-			if(numGenReq >= fakeGenReqThresh) {
+			if(numGenReq >= fakeGenReqThresh && currState->getStateName() == Full::getInstance()->getStateName()) {
 				numGenReq = 0;
 
 				// Add to the forward to the server queue
