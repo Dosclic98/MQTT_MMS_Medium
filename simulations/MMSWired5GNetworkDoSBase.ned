@@ -50,17 +50,17 @@ network MMSWired5GNetworkDoSBase
             @display("p=466,33;is=s");
         }
         upf: Upf {
-            @display("p=157,198");
+            @display("p=156,223");
         }
         client[numGoodClient + numBadClient]: StandardHost;
         server[numServers]: NRUe {
             @display("i=misc/windturbine;p=157,33");
         }
         internetCloud: InternetCloud {
-            @display("p=156,267");
+            @display("p=157,306");
         }
         switch: EthernetSwitch {
-            @display("p=157,339");
+            @display("p=156,449");
         }
         gnb1: gNodeB {
             @display("p=86,137");
