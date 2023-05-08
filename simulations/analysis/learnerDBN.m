@@ -21,8 +21,13 @@ intrac = {'MITM', 'SRM';
 'UC', 'UPS';
 'UC', 'CC'};
 
-%Making intraslice adjiacent matrix
-[intra, names] = mk_adj_mat(intrac, names, 1);
+%Making intraslice adjiacent matrix, names1 reordered according to
+%topological order
+[intra, names1] = mk_adj_mat(intrac, names, 1);
+
+% Compute the topological order as a permutation of the cellarray names  
+perm = arrayfun(@(x) find(strcmp(names,x)),names1);
+names = names1;
 
 %Interslice edges
 interc = {'MITM', 'MITM';
@@ -34,12 +39,14 @@ interc = {'MITM', 'MITM';
 %Making interslice adjiacent matrix
 inter = mk_adj_mat(interc, names, 0);
 
-% Number of states (ns(i)=x means variable i has x states)
-% TODO This ordering was initially wrong (must be fixed in the conversion script)
-ns = [4 2 4 4 4 4 2];
+% Number of states (ns(i)=x means variable i has x states). 
+% The vector is defined according to the original order of vector names 
+ns = [4 4 4 2 4 4 2];
+% Reorder number of states according to topological order computed in perm
+ns=ns(perm);
 
 % Creating the DBN
-bnet = mk_dbn(intra, inter, ns, 'names', names, 'observed', onodes);
+bnet = mk_dbn(intra, inter, ns, 'names', names);
 
 % I have a CPT for each node in slice 1 and slice 2 so 2*numNodes
 for i=1:2*nNodes
