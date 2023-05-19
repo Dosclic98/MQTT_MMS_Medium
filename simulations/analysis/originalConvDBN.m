@@ -19,11 +19,10 @@ intrac = {'MITM', 'SRM';
 'UC', 'UPS';
 'UC', 'CC'};
 
-%Making intraslice adjiacent matrix, names1 reordered according to
-%topological order
+%Making intraslice adjiacent matrix
 [intra, names1] = mk_adj_mat(intrac, names, 1);
 
-% Compute the topological order as a permutation of the cellarray names  
+% Compute the topological order as a permutation of the cellarray names
 perm = arrayfun(@(x) find(strcmp(names,x)),names1);
 names = names1;
 
@@ -37,8 +36,7 @@ interc = {'MITM', 'MITM';
 %Making interslice adjiacent matrix
 inter = mk_adj_mat(interc, names, 0);
 
-% Number of states (ns(i)=x means variable i has x states). 
-% The vector is defined according to the original order of vector names 
+% Number of states (ns(i)=x means variable i has x states)
 ns = [4 4 4 2 4 4 2];
 % Reorder number of states according to topological order computed in perm
 ns=ns(perm);
@@ -94,7 +92,7 @@ cpt(4,3,:)=[0.2058568221778793, 0.7941431778221208];
 cpt(4,4,:)=[0.2058568221778793, 0.7941431778221208];
 cpt1=mk_named_CPT({'SRM', 'UC', 'UPS'},names, bnet.dag, cpt);
 bnet.CPD{bnet.names('UPS')}=tabular_CPD(bnet,bnet.names('UPS'),'CPT',cpt1);
-clear cpt; clear cpt1;
+clear cpt;clear cpt1;
 
 %node MeasureCoherence(id=MC) slice 1 
 %parent order:{SRM}
@@ -152,7 +150,7 @@ cpt(4,1,:)=[0.3125, 0.375, 0.3125, 0.0];
 cpt(4,2,:)=[0.0, 0.6779661016949152, 0.2711864406779661, 0.05084745762711865];
 cpt(4,3,:)=[0.0, 0.0, 0.9442508710801394, 0.05574912891986063];
 cpt(4,4,:)=[0.0, 0.0, 0.0, 1.0];
-cpt1=mk_named_CPT_inter({'MITM', 'SRM', 'SRM'},names, bnet.dag, cpt, [1]);
+cpt1=mk_named_CPT_inter({'MITM', 'SRM', 'SRM'},names, bnet.dag, cpt,[1]);
 bnet.CPD{bnet.eclass2(bnet.names('SRM'))}=tabular_CPD(bnet,n+bnet.names('SRM'),'CPT',cpt1);
 clear cpt; clear cpt1;
 
@@ -174,7 +172,7 @@ cpt(4,1,:)=[0.7636363636363636, 0.2181818181818182, 0.01818181818181818, 0.0];
 cpt(4,2,:)=[0.0, 0.9822485207100592, 0.01775147928994083, 0.0];
 cpt(4,3,:)=[0.0, 0.0, 1.0, 0.0];
 cpt(4,4,:)=[0.25, 0.25, 0.25, 0.25];
-cpt1=mk_named_CPT_inter({'MITM', 'UC', 'UC'},names, bnet.dag, cpt, [1]);
+cpt1=mk_named_CPT_inter({'MITM', 'UC', 'UC'},names, bnet.dag, cpt,[1]);
 bnet.CPD{bnet.eclass2(bnet.names('UC'))}=tabular_CPD(bnet,n+bnet.names('UC'),'CPT',cpt1);
 clear cpt; clear cpt1;
 
