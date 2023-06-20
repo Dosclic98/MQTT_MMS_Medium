@@ -16,24 +16,16 @@
 #ifndef __MQTT_TCP_A_H_
 #define __MQTT_TCP_A_H_
 
+#include <omnetpp.h>
+#include "inet/applications/tcpapp/TcpBasicClientApp.h"
 #include "inet/common/INETDefs.h"
-
-#include "inet/applications/tcpapp/TcpAppBase.h"
-#include "inet/common/lifecycle/ILifecycle.h"
-#include "inet/common/lifecycle/NodeStatus.h"
 #include "../../message/mms/MmsMessage_m.h"
 #include "../../utils/logger/mms/MmsPacketLogger.h"
 
 namespace inet {
 
-class INET_API MmsClient : public TcpAppBase
-{
+class MmsClient: public TcpBasicClientApp {
   protected:
-    cMessage *timeoutMsg = nullptr;
-    bool earlySend = false;    // if true, don't wait with sendRequest() until established()
-    int numRequestsToSend = 0;    // requests to send in this session
-    simtime_t startTime;
-    simtime_t stopTime;
     ChunkQueue queue;
     int resTimeout;
     MmsPacketLogger* logger = nullptr;
@@ -65,23 +57,13 @@ class INET_API MmsClient : public TcpAppBase
     bool isLogging;
 
 
+    virtual void initialize(int stage) override;
+    //virtual void sendRequest() override;
     virtual void sendRequest(MMSKind kind = MMSKind::CONNECT, ReqResKind reqKind = ReqResKind::READ);
     virtual void rescheduleOrDeleteTimer(simtime_t d, short int msgKind);
-
-    virtual int numInitStages() const override { return NUM_INIT_STAGES; }
-    virtual void initialize(int stage) override;
-    virtual void handleTimer(cMessage *msg) override;
-
-    virtual void socketEstablished(TcpSocket *socket) override;
+    virtual void handleTimer(cMessage* msg) override;
+    virtual void socketEstablished(TcpSocket* socket) override;
     virtual void socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent) override;
-    virtual void socketClosed(TcpSocket *socket) override;
-    virtual void socketFailure(TcpSocket *socket, int code) override;
-
-    virtual void handleStartOperation(LifecycleOperation *operation) override;
-    virtual void handleStopOperation(LifecycleOperation *operation) override;
-    virtual void handleCrashOperation(LifecycleOperation *operation) override;
-
-    virtual void close() override;
 
   public:
     MmsClient() {}

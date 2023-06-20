@@ -21,7 +21,6 @@ MmsClient::~MmsClient()
 		delete logger;
 	}
     cancelAndDelete(measureAmountEvent);
-    cancelAndDelete(timeoutMsg);
 }
 
 void MmsClient::initialize(int stage)
@@ -59,30 +58,6 @@ void MmsClient::initialize(int stage)
         isListening = false;
         scheduleAt(simTime() + SimTime(measureAmountEventDelay, SIMTIME_S), measureAmountEvent);
     }
-}
-
-void MmsClient::handleStartOperation(LifecycleOperation *operation)
-{
-    simtime_t now = simTime();
-    simtime_t start = std::max(startTime, now);
-    if (timeoutMsg && ((stopTime < SIMTIME_ZERO) || (start < stopTime) || (start == stopTime && startTime == stopTime))) {
-        timeoutMsg->setKind(MSGKIND_CONNECT);
-        scheduleAt(start, timeoutMsg);
-    }
-}
-
-void MmsClient::handleStopOperation(LifecycleOperation *operation)
-{
-    cancelEvent(timeoutMsg);
-    if (socket.getState() == TcpSocket::CONNECTED || socket.getState() == TcpSocket::CONNECTING || socket.getState() == TcpSocket::PEER_CLOSED)
-        close();
-}
-
-void MmsClient::handleCrashOperation(LifecycleOperation *operation)
-{
-    cancelEvent(timeoutMsg);
-    if (operation->getRootModule() != getContainingNode(this))
-        socket.destroy();
 }
 
 void MmsClient::sendRequest(MMSKind kind, ReqResKind reqKind)
@@ -281,35 +256,6 @@ void MmsClient::socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent)
         }
     }
     TcpAppBase::socketDataArrived(socket, msg, urgent);
-}
-
-void MmsClient::close()
-{
-    TcpAppBase::close();
-
-    cancelEvent(timeoutMsg);
-}
-
-void MmsClient::socketClosed(TcpSocket *socket)
-{
-    TcpAppBase::socketClosed(socket);
-
-    // start another session after a delay
-    if (timeoutMsg) {
-        simtime_t d = simTime() + par("idleInterval");
-        rescheduleOrDeleteTimer(d, MSGKIND_CONNECT);
-    }
-}
-
-void MmsClient::socketFailure(TcpSocket *socket, int code)
-{
-    TcpAppBase::socketFailure(socket, code);
-
-    // reconnect after a delay
-    if (timeoutMsg) {
-        simtime_t d = simTime() + par("reconnectInterval");
-        rescheduleOrDeleteTimer(d, MSGKIND_CONNECT);
-    }
 }
 
 } // namespace inet
