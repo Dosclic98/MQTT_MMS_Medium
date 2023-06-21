@@ -14,20 +14,15 @@
 // 
 
 package tx_medium_exp.server.mms;
-import inet.applications.contract.IApp;
+import inet.applications.tcpapp.TcpGenericServerApp;
 
-simple MmsServer like IApp
+simple MmsServer extends TcpGenericServerApp
 {
     parameters:
         @class("inet::MmsServer");
-        string localAddress = default(""); // local address; may be left empty ("")
-        int localPort = default(1000);     // localPort number to listen on
-        volatile int replyDelay @unit(ms) = default(0ms);
         bool isLogging = default(false); // Parameter to know if the server has to log all the packets it receives
         @display("i=block/app");
         @lifecycleSupport;
-        double stopOperationExtraTime @unit(s) = default(-1s);    // extra time after lifecycle stop operation finished
-        double stopOperationTimeout @unit(s) = default(2s);    // timeout value for lifecycle stop operation
         @signal[packetSent](type=inet::Packet);
         @signal[packetReceived](type=inet::Packet);
         @statistic[packetReceived](title="packets received"; source=packetReceived; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);
@@ -36,8 +31,5 @@ simple MmsServer like IApp
         
         volatile int serviceTime @unit(ms) = default(intuniform(2ms, 4ms));
         volatile int emitInterval @unit(ms) = default(4s);
-    gates:
-        input socketIn @labels(TcpCommand/up);
-        output socketOut @labels(TcpCommand/down);
 }
 

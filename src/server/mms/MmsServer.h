@@ -17,7 +17,7 @@
 #define __MQTT_TCP_MMSSERVER_H_
 
 
-#include "inet/common/lifecycle/LifecycleUnsupported.h"
+#include "inet/applications/tcpapp/TcpGenericServerApp.h"
 #include "inet/common/packet/ChunkQueue.h"
 #include "inet/transportlayer/contract/tcp/TcpSocket.h"
 #include "../../message/mms/MmsMessage_m.h"
@@ -31,15 +31,9 @@ namespace inet {
  *
  * @see GenericAppMsg, TcpAppBase
  */
-class INET_API MmsServer : public cSimpleModule, public LifecycleUnsupported
+class MmsServer : public TcpGenericServerApp
 {
   protected:
-    TcpSocket socket;
-    long msgsRcvd;
-    long msgsSent;
-    long bytesRcvd;
-    long bytesSent;
-    std::map<int, ChunkQueue> socketQueue;
     std::list< std::pair<int,int> > clientConnIdList;
 
     //Gestione servitore e coda
@@ -55,14 +49,10 @@ class INET_API MmsServer : public cSimpleModule, public LifecycleUnsupported
     MmsPacketLogger* logger;
 
   protected:
-    virtual void sendBack(cMessage *msg);
-    virtual void sendOrSchedule(cMessage *msg, simtime_t delay);
+    virtual void sendBack(cMessage *msg) override;
 
     virtual void initialize(int stage) override;
-    virtual int numInitStages() const override { return NUM_INIT_STAGES; }
     virtual void handleMessage(cMessage *msg) override;
-    virtual void finish() override;
-    virtual void refreshDisplay() const override;
     //--
     virtual void handleDeparture();
     virtual void sendPacketDeparture(int connId, msgid_t originId, int evilConnId, B requestedBytes, B replyLength,

@@ -1,6 +1,5 @@
 #include "MmsServer.h"
 
-//#include "inet/applications/common/SocketTag_m.h"
 #include "inet/common/socket/SocketTag_m.h"
 #include "inet/common/ModuleAccess.h"
 #include "inet/common/ProtocolTag_m.h"
@@ -17,23 +16,9 @@ Define_Module(MmsServer);
 
 void MmsServer::initialize(int stage)
 {
-    cSimpleModule::initialize(stage);
+	TcpGenericServerApp::initialize(stage);
 
-    if (stage == INITSTAGE_LOCAL) {
-        //statistics
-        msgsRcvd = msgsSent = bytesRcvd = bytesSent = 0;
-
-        WATCH(msgsRcvd);
-        WATCH(msgsSent);
-        WATCH(bytesRcvd);
-        WATCH(bytesSent);
-    }
-    else if (stage == INITSTAGE_APPLICATION_LAYER) {
-        const char *localAddress = par("localAddress");
-        int localPort = par("localPort");
-        socket.setOutputGate(gate("socketOut"));
-        socket.bind(localAddress[0] ? L3AddressResolver().resolve(localAddress) : L3Address(), localPort);
-        socket.listen();
+    if(stage == INITSTAGE_APPLICATION_LAYER) {
         departureEvent = new cMessage("Server Departure");
         sendDataEvent = new cMessage("Register Data To Send Event");
         serverStatus = false;
@@ -44,42 +29,15 @@ void MmsServer::initialize(int stage)
         if(isLogging) {
         	logger = new MmsPacketLogger(ev->getConfigEx()->getActiveRunNumber(), "server", getParentModule()->getIndex(), getIndex());
         }
-
-        cModule *node = findContainingNode(this);
-        NodeStatus *nodeStatus = node ? check_and_cast_nullable<NodeStatus *>(node->getSubmodule("status")) : nullptr;
-        bool isOperational = (!nodeStatus) || nodeStatus->getState() == NodeStatus::UP;
-        if (!isOperational)
-            throw cRuntimeError("This module doesn't support starting in node DOWN state");
     }
-}
-
-void MmsServer::sendOrSchedule(cMessage *msg, simtime_t delay)
-{
-    if (delay == 0)
-        sendBack(msg);
-    else
-        scheduleAt(simTime() + delay, msg);
 }
 
 void MmsServer::sendBack(cMessage *msg)
 {
-    Packet *packet = dynamic_cast<Packet *>(msg);
+	Packet* pckt = dynamic_cast<Packet*>(msg);
+	if(isLogging) logPacket(pckt);
 
-    if(isLogging) logPacket(packet);
-    if (packet) {
-        msgsSent++;
-        bytesSent += packet->getByteLength();
-        emit(packetSentSignal, packet);
-
-        EV_INFO << "sending \"" << packet->getName() << "\" to TCP, " << packet->getByteLength() << " bytes\n";
-    }
-    else {
-        EV_INFO << "sending \"" << msg->getName() << "\" to TCP\n";
-    }
-
-    auto& tags = check_and_cast<ITaggedObject *>(msg)->getTags();
-    tags.addTagIfAbsent<DispatchProtocolReq>()->setProtocol(&Protocol::tcp);
-    send(msg, "socketOut");
+	TcpGenericServerApp::sendBack(msg);
 }
 
 void MmsServer::sendPacketDeparture(int connId, msgid_t originId, int evilConnId, B requestedBytes, B replyLength,
@@ -97,7 +55,7 @@ void MmsServer::sendPacketDeparture(int connId, msgid_t originId, int evilConnId
     payload->setData(data);
     payload->setAtkStatus(atkStatus);
     outPacket->insertAtBack(payload);
-    sendOrSchedule(outPacket, SimTime(par("replyDelay").intValue(), SIMTIME_MS));
+    sendOrSchedule(outPacket, SimTime(par("replyDelay").doubleValue(), SIMTIME_MS));
 }
 
 void MmsServer::handleDeparture()
@@ -149,7 +107,7 @@ void MmsServer::handleDeparture()
         clientConnIdList.remove_if([&](std::pair<int, int>& p) {
             return p.first == connId;
         });
-        sendOrSchedule(request, SimTime(par("replyDelay").intValue(), SIMTIME_MS));
+        sendOrSchedule(request, SimTime(par("replyDelay").doubleValue(), SIMTIME_MS));
     }
 
     if(serverQueue.getLength() > 0) {
@@ -199,7 +157,7 @@ void MmsServer::handleMessage(cMessage *msg)
         clientConnIdList.remove_if([&](std::pair<int, int>& p) {
         	return p.first == connId;
         });
-        sendOrSchedule(request, SimTime(par("replyDelay").intValue(), SIMTIME_MS));
+        sendOrSchedule(request, SimTime(par("replyDelay").doubleValue(), SIMTIME_MS));
     }
     else if (msg->getKind() == TCP_I_DATA || msg->getKind() == TCP_I_URGENT_DATA) {
     	if(isLogging) logPacket(check_and_cast<Packet*>(msg));
@@ -228,18 +186,6 @@ void MmsServer::logPacket(Packet* packet) {
 	    const auto& appmsg = tmpQueue.pop<MmsMessage>(b(-1));
 	    logger->log(const_cast<MmsMessage*>(appmsg.get()), simTime());
 	}
-}
-
-void MmsServer::refreshDisplay() const
-{
-    char buf[64];
-    sprintf(buf, "rcvd: %ld pks %ld bytes\nsent: %ld pks %ld bytes", msgsRcvd, bytesRcvd, msgsSent, bytesSent);
-    getDisplayString().setTagArg("t", 0, buf);
-}
-
-void MmsServer::finish() {
-    EV_INFO << getFullPath() << ": sent " << bytesSent << " bytes in " << msgsSent << " packets\n";
-    EV_INFO << getFullPath() << ": received " << bytesRcvd << " bytes in " << msgsRcvd << " packets\n";
 }
 
 MmsServer::~MmsServer() {
