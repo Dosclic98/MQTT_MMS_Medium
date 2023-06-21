@@ -31,5 +31,9 @@ simple MmsServer extends TcpGenericServerApp
         
         volatile int serviceTime @unit(ms) = default(intuniform(2ms, 4ms));
         volatile int emitInterval @unit(ms) = default(4s);
+        
+        // Unstable prob params
+        volatile int q = default(1);
+        volatile int k = default(4);
 }
 

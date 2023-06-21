@@ -21,7 +21,7 @@
 #include "inet/common/packet/ChunkQueue.h"
 #include "inet/transportlayer/contract/tcp/TcpSocket.h"
 #include "../../message/mms/MmsMessage_m.h"
-#include "../../utils/logger/mms/MmsPacketLogger.h"
+#include "../../utils/logger/server/MmsServerPacketLogger.h"
 
 namespace inet {
 
@@ -31,8 +31,15 @@ namespace inet {
  *
  * @see GenericAppMsg, TcpAppBase
  */
+
+enum ServerOp {
+	STABLE = 0,
+	UNSTABLE = 1
+};
+
 class MmsServer : public TcpGenericServerApp
 {
+
   protected:
     std::list< std::pair<int,int> > clientConnIdList;
 
@@ -41,12 +48,20 @@ class MmsServer : public TcpGenericServerApp
     cQueue serverQueue;
     cMessage* departureEvent;
 
+    // Unstable prob params
+    int q;
+    int k;
+
+    // Status vars
+    ServerOp serverOp;
+    int numComprMsgs;
+
     //Gestione invio misure
     cMessage* sendDataEvent;
 
     // Logging pacchetti inviati/ricevuti
     bool isLogging;
-    MmsPacketLogger* logger;
+    MmsServerPacketLogger* logger;
 
   protected:
     virtual void sendBack(cMessage *msg) override;
@@ -58,7 +73,8 @@ class MmsServer : public TcpGenericServerApp
     virtual void sendPacketDeparture(int connId, msgid_t originId, int evilConnId, B requestedBytes, B replyLength,
     		MMSKind messageKind, ReqResKind reqResKind, int data, MITMKind atkStatus);
 
-    void logPacket(Packet* packet);
+    void logPacket(Packet* packet, ServerOp serverOp);
+    void updateOp(int numComprMsg);
 
   public:
     virtual ~MmsServer();

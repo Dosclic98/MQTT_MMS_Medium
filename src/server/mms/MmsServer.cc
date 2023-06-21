@@ -24,18 +24,33 @@ void MmsServer::initialize(int stage)
         serverStatus = false;
         scheduleAt(1, sendDataEvent);
 
+        // Init unstable probability params
+        q = par("q").intValue();
+        k = par("k").intValue();
+        // Init server status vars
+        serverOp = ServerOp::STABLE;
+        numComprMsgs = 0;
+
         cEnvir* ev = getSimulation()->getActiveEnvir();
         isLogging = par("isLogging").boolValue();
         if(isLogging) {
-        	logger = new MmsPacketLogger(ev->getConfigEx()->getActiveRunNumber(), "server", getParentModule()->getIndex(), getIndex());
+        	logger = new MmsServerPacketLogger(ev->getConfigEx()->getActiveRunNumber(), "server", getParentModule()->getIndex(), getIndex());
         }
     }
+}
+
+void MmsServer::updateOp(int numComprMsg) {
+	if(serverOp == ServerOp::UNSTABLE) return;
+
+	float unstabProb = 1 / (1 + exp(((-1/this->q)*numComprMsg)+this->k));
+	float p = this->uniform(0,1);
+	if(p < unstabProb) { serverOp = ServerOp::UNSTABLE; }
 }
 
 void MmsServer::sendBack(cMessage *msg)
 {
 	Packet* pckt = dynamic_cast<Packet*>(msg);
-	if(isLogging) logPacket(pckt);
+	if(isLogging) logPacket(pckt, serverOp);
 
 	TcpGenericServerApp::sendBack(msg);
 }
@@ -95,6 +110,10 @@ void MmsServer::handleDeparture()
         if (appmsg->getServerClose()) {
             doClose = true;
             break;
+        }
+        if(appmsg->getAtkStatus() == MITMKind::COMPR || appmsg->getAtkStatus() == MITMKind::FAKEGEN) {
+        	numComprMsgs += 1;
+        	updateOp(numComprMsgs);
         }
     }
     delete packet;
@@ -160,7 +179,7 @@ void MmsServer::handleMessage(cMessage *msg)
         sendOrSchedule(request, SimTime(round(par("replyDelay").doubleValue()), SIMTIME_MS));
     }
     else if (msg->getKind() == TCP_I_DATA || msg->getKind() == TCP_I_URGENT_DATA) {
-    	if(isLogging) logPacket(check_and_cast<Packet*>(msg));
+    	if(isLogging) logPacket(check_and_cast<Packet*>(msg), serverOp);
         if(!serverStatus) {
             serverStatus = true;
             serverQueue.insert(msg);
@@ -178,13 +197,13 @@ void MmsServer::handleMessage(cMessage *msg)
     }
 }
 
-void MmsServer::logPacket(Packet* packet) {
+void MmsServer::logPacket(Packet* packet, ServerOp serverOp) {
 	ChunkQueue tmpQueue;
 	auto chunk = packet->peekDataAt(B(0), packet->getTotalLength());
 	tmpQueue.push(chunk);
 	while (tmpQueue.has<MmsMessage>(b(-1))) {
 	    const auto& appmsg = tmpQueue.pop<MmsMessage>(b(-1));
-	    logger->log(const_cast<MmsMessage*>(appmsg.get()), simTime());
+	    logger->log(const_cast<MmsMessage*>(appmsg.get()), serverOp, simTime());
 	}
 }
 
