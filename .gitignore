@@ -174,3 +174,5 @@ src/Makefile
 simulations/analysis/.env
 simulations/analysis/*.csv
 simulations/analysis/plotsNRes/*
+src/TX_Medium_Exp
+src/TX_Medium_Exp_dbg
