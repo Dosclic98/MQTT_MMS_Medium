@@ -55,7 +55,7 @@ void MmsServer::sendPacketDeparture(int connId, msgid_t originId, int evilConnId
     payload->setData(data);
     payload->setAtkStatus(atkStatus);
     outPacket->insertAtBack(payload);
-    sendOrSchedule(outPacket, SimTime(par("replyDelay").doubleValue(), SIMTIME_MS));
+    sendOrSchedule(outPacket, SimTime(round(par("replyDelay").doubleValue()), SIMTIME_MS));
 }
 
 void MmsServer::handleDeparture()
@@ -107,7 +107,7 @@ void MmsServer::handleDeparture()
         clientConnIdList.remove_if([&](std::pair<int, int>& p) {
             return p.first == connId;
         });
-        sendOrSchedule(request, SimTime(par("replyDelay").doubleValue(), SIMTIME_MS));
+        sendOrSchedule(request, SimTime(round(par("replyDelay").doubleValue()), SIMTIME_MS));
     }
 
     if(serverQueue.getLength() > 0) {
@@ -157,7 +157,7 @@ void MmsServer::handleMessage(cMessage *msg)
         clientConnIdList.remove_if([&](std::pair<int, int>& p) {
         	return p.first == connId;
         });
-        sendOrSchedule(request, SimTime(par("replyDelay").doubleValue(), SIMTIME_MS));
+        sendOrSchedule(request, SimTime(round(par("replyDelay").doubleValue()), SIMTIME_MS));
     }
     else if (msg->getKind() == TCP_I_DATA || msg->getKind() == TCP_I_URGENT_DATA) {
     	if(isLogging) logPacket(check_and_cast<Packet*>(msg));
