@@ -21,10 +21,11 @@ import inet.node.inet.Router;
 import inet.node.ethernet.*;
 import inet.node.internetcloud.InternetCloud;
 import inet.common.scenario.ScenarioManager;
+import inet.visualizer.canvas.integrated.IntegratedCanvasVisualizer;
 
-network MMSWiredNetworkMITMBase {
+network MMSWiredSimpleNetworkMITMBase {
 	parameters:
-		int numClients = default(3);
+		int numClients = default(1);
 		int numServers = default(1);
 		
         @statistic[measureBlockGlobal](source=measureBlockSignal; record=count);
@@ -43,6 +44,7 @@ network MMSWiredNetworkMITMBase {
         @statistic[commandResponseCompromisedGlobal](source=commandResponseCompromisedSignal; record=count);
 		
 	submodules:
+	    visualizer: IntegratedCanvasVisualizer;
 	    configurator: Ipv4NetworkConfigurator;
 	    scenarioManager: ScenarioManager;
 	    client[numClients]: StandardHost {
@@ -55,24 +57,22 @@ network MMSWiredNetworkMITMBase {
 	    server[numServers]: StandardHost {
 	    	@display("i=misc/windturbine");
 	    };
-        internetCloud: InternetCloud;
-        router[3]: Router;
-        switch: EthernetSwitch;
-    
+        routerCli: Router;
+        routerSer: Router;
+        switchCli: EthernetSwitch;
+    	switchSer: EthernetSwitch;
+    	
     connections:
-        switch.ethg++ <--> Eth1G <--> router[0].ethg++;
-        // Router triangle
-        router[0].ethg++ <--> Eth100M <--> router[1].ethg++;
-        router[0].ethg++ <--> Eth1G <--> router[2].ethg++;
-        router[1].ethg++ <--> Eth1G <--> internetCloud.ethg++;
-        router[1].ethg++ <--> Eth1G <--> router[2].ethg++;
+        switchCli.ethg++ <--> Eth1G <--> routerCli.ethg++;
+        switchSer.ethg++ <--> Eth1G <--> routerSer.ethg++;
+        evilClient.ethg++ <--> Eth1G <--> switchSer.ethg++;
+        routerSer.ethg++ <--> Eth100M <--> routerCli.ethg++;
         
-        evilClient.ethg++ <--> Eth100M <--> internetCloud.ethg++;
         for i = 0..numClients-1 {
-        	client[i].ethg++ <--> Eth100M <--> switch.ethg++;
+        	client[i].ethg++ <--> Eth100M <--> switchCli.ethg++;
         }
         for j = 0..numServers-1 {
-        	internetCloud.ethg++ <--> Eth100M <--> server[j].ethg++;
+        	switchSer.ethg++ <--> Eth100M <--> server[j].ethg++;
         }
 	
 }
