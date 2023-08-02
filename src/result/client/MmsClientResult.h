@@ -13,33 +13,22 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef RESULT_IRESULT_H_
-#define RESULT_IRESULT_H_
+#ifndef RESULT_CLIENT_MMSCLIENTRESULT_H_
+#define RESULT_CLIENT_MMSCLIENTRESULT_H_
 
-#include <omnetpp.h>
-#include "../controller/IController.h"
+#include "../IResult.h"
 
 namespace inet {
 
-enum ResultOutcome {
-	FAIL, SUCCESS
-};
-
-class IResult: public omnetpp::cObject{
-protected:
-	int opId;
-	IController* controllerOwner;
-	ResultOutcome result;
-
-	virtual IController* getControllerOwner() = 0;
-	virtual void setControllerOwner(IController* controllerOwner) = 0;
-	virtual ResultOutcome getResult();
-	virtual void setResult(ResultOutcome result);
-
-
+class MmsClientResult : public IResult {
 public:
-	virtual ~IResult() = default;
+	MmsClientResult(int opId, ResultOutcome result);
+	virtual ~MmsClientResult();
+
+	virtual IController* getControllerOwner() override;
+	virtual void setControllerOwner(IController* controllerOwner) override;
 };
 
-} // namespace omnetpp
-#endif /* RESULT_IRESULT_H_ */
+} // namespace inet
+
+#endif /* RESULT_CLIENT_MMSCLIENTRESULT_H_ */
