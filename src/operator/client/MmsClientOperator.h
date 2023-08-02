@@ -20,6 +20,7 @@
 #include "inet/applications/tcpapp/TcpBasicClientApp.h"
 #include "../../utils/logger/mms/MmsPacketLogger.h"
 #include "../IOperator.h"
+#include "../listener/MmsOpListener.h"
 
 
 namespace inet {
@@ -27,7 +28,12 @@ namespace inet {
 
 class MmsClientOperator : public TcpBasicClientApp, public IOperator
 {
-	protected:
+public:
+	  virtual void sendMmsConnect(int opId);
+	  virtual void sendMmsDisconnect(int opId);
+	  virtual void sendMmsRequest(int opId, ReqResKind reqKind, int data);
+
+private:
 	  ChunkQueue queue;
 	  int resTimeout;
 	  MmsPacketLogger* logger = nullptr;
@@ -60,18 +66,12 @@ class MmsClientOperator : public TcpBasicClientApp, public IOperator
 
 
 	  virtual void initialize(int stage) override;
-	  //virtual void sendRequest() override;
-	  virtual void sendRequest(MMSKind kind = MMSKind::CONNECT, ReqResKind reqKind = ReqResKind::READ);
+	  virtual void sendRequest(MMSKind kind = MMSKind::CONNECT, ReqResKind reqKind = ReqResKind::READ, int data = 0);
 	  virtual void rescheduleOrDeleteTimer(simtime_t d, short int msgKind);
 	  virtual void handleTimer(cMessage* msg) override;
 	  virtual void socketEstablished(TcpSocket* socket) override;
 	  virtual void socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent) override;
 	  virtual ~MmsClientOperator();
-
-	  // Overriding methods of IOperator
-	  virtual void execute(IOperation* op) override;
-	  virtual void propagate(IResult* res) override;
-	  virtual void propagate(MmsMessage* msg) override;
 };
 
 } // namespace inet

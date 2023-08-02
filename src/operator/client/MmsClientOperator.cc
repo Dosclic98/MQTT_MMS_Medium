@@ -19,6 +19,7 @@
 #include "inet/common/lifecycle/ModuleOperations.h"
 #include "inet/common/packet/Packet.h"
 #include "inet/common/TimeTag_m.h"
+#include "../../result/client/MmsClientResult.h"
 
 #define MSGKIND_CONNECT    				0
 #define MSGKIND_SEND_READ       		1
@@ -67,6 +68,12 @@ void MmsClientOperator::initialize(int stage)
         readResponseReceivedTimeSignal = registerSignal("readResponseReceivedTimeSignal");
         commandResponseReceivedTimeSignal = registerSignal("commandResponseReceivedTimeSignal");
 
+        // Initializing inherited signals
+        resPubSig = registerSignal("cliResSig");
+        msgPubSig = registerSignal("cliMsgSig");
+        cmdListener = new MmsOpListener(this);
+        getContainingNode(this)->subscribe("cliCmdSig", cmdListener);
+
 
         measureCounter = 0;
         isListening = false;
@@ -74,8 +81,7 @@ void MmsClientOperator::initialize(int stage)
     }
 }
 
-void MmsClientOperator::sendRequest(MMSKind kind, ReqResKind reqKind)
-{
+void MmsClientOperator::sendRequest(MMSKind kind, ReqResKind reqKind, int data) {
     long requestLength = par("requestLength");
     long replyLength = par("replyLength");
     if (requestLength < 1)
@@ -83,15 +89,20 @@ void MmsClientOperator::sendRequest(MMSKind kind, ReqResKind reqKind)
     if (replyLength < 1)
         replyLength = 1;
 
+    bool setServerClosed = false;
+    if(kind == MMSKind::DISCONNECT) {
+    	setServerClosed = true;
+    }
+
     const auto& payload = makeShared<MmsMessage>();
     Packet *packet = new Packet("data");
     payload->setOriginId(packet->getId());
     payload->setChunkLength(B(requestLength));
     payload->setExpectedReplyLength(B(replyLength));
-    payload->setServerClose(false);
+    payload->setServerClose(setServerClosed);
     payload->addTag<CreationTimeTag>()->setCreationTime(simTime());
     payload->setServerIndex(this->getIndex());
-    payload->setData(0);
+    payload->setData(data);
     payload->setAtkStatus(MITMKind::UNMOD);
     EV << "Index: " << this->getIndex();
     if(!isListening && kind == MMSKind::CONNECT) {
@@ -196,8 +207,7 @@ void MmsClientOperator::handleTimer(cMessage *msg)
     }
 }
 
-void MmsClientOperator::socketEstablished(TcpSocket *socket)
-{
+void MmsClientOperator::socketEstablished(TcpSocket *socket) {
     TcpAppBase::socketEstablished(socket);
 
     // determine number of requests in this session
@@ -272,18 +282,32 @@ void MmsClientOperator::socketDataArrived(TcpSocket *socket, Packet *msg, bool u
     TcpAppBase::socketDataArrived(socket, msg, urgent);
 }
 
-void MmsClientOperator::execute(IOperation* op) {
-
+void MmsClientOperator::sendMmsConnect(int opId) {
+	if(socket.isOpen()) {
+		sendRequest();
+		propagate(new MmsClientResult(opId, ResultOutcome::SUCCESS));
+	} else {
+		propagate(new MmsClientResult(opId, ResultOutcome::FAIL));
+	}
 }
 
-void MmsClientOperator::propagate(IResult* res) {
-
+// TODO Make this operation succeed if the disconnection packet is sent back
+// (for now we consider the operation successfull if the disconncetion message is sent)
+void MmsClientOperator::sendMmsDisconnect(int opId) {
+	if(socket.isOpen()) {
+		sendRequest(MMSKind::DISCONNECT, ReqResKind::UNSET);
+		propagate(new MmsClientResult(opId, ResultOutcome::SUCCESS));
+	}
 }
 
-void MmsClientOperator::propagate(MmsMessage* msg) {
-
+void MmsClientOperator::sendMmsRequest(int opId, ReqResKind reqKind, int data) {
+	if(socket.isOpen()) {
+		sendRequest(MMSKind::GENREQ, reqKind, data);
+		propagate(new MmsClientResult(opId, ResultOutcome::SUCCESS));
+	} else {
+		propagate(new MmsClientResult(opId, ResultOutcome::FAIL));
+	}
 }
-
 
 
 
