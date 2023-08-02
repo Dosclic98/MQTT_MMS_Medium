@@ -35,6 +35,7 @@ enum MMSKind {
 	MEASURE = 1;
 	GENREQ = 2;
 	GENRESP = 3;
+	DISCONNECT = 4;
 	// TODO this is just used for the old MMS implementation
 	SERVER = 99;
 }
