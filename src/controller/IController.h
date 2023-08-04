@@ -17,17 +17,28 @@
 #define __TX_MEDIUM_EXP_ICONTROLLER_H_
 
 #include <omnetpp.h>
+#include "../message/mms/MmsMessage_m.h"
+#include "../operator/IOperator.h"
+#include "../result/IResult.h"
 
-using namespace omnetpp;
+namespace inet {
 
 /**
  * TODO - Generated class
  */
-class IController : public cSimpleModule
-{
+class IController {
   protected:
-    virtual void initialize() override;
-    virtual void handleMessage(cMessage *msg) override;
+	simsignal_t cmdPubSig;
+	cListener* resListener;
+	cListener* msgListener;
+	// TODO Add the Graph and the FSM
+
+  public:
+    virtual void next(MmsMessage* msg = nullptr) = 0;
+    virtual void propagate(IOperation* operation) = 0;
+    virtual void evalRes(IResult* res) = 0;
 };
+
+} // namespace inet
 
 #endif
