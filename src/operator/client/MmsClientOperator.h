@@ -67,9 +67,9 @@ private:
 
 	  virtual void initialize(int stage) override;
 	  virtual void sendRequest(MMSKind kind = MMSKind::CONNECT, ReqResKind reqKind = ReqResKind::READ, int data = 0);
+	  virtual void socketEstablished(TcpSocket *socket) override;
 	  virtual void rescheduleOrDeleteTimer(simtime_t d, short int msgKind);
 	  virtual void handleTimer(cMessage* msg) override;
-	  virtual void socketEstablished(TcpSocket* socket) override;
 	  virtual void socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent) override;
 	  virtual ~MmsClientOperator();
 };

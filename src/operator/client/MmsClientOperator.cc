@@ -72,13 +72,21 @@ void MmsClientOperator::initialize(int stage)
         resPubSig = registerSignal("cliResSig");
         msgPubSig = registerSignal("cliMsgSig");
         cmdListener = new MmsOpListener(this);
-        getContainingNode(this)->subscribe("cliCmdSig", cmdListener);
+        // TODO NOT THE RIGHT SUBSCRIPTION MODULE (CHANGE IT)
+        getSimulation()->getSystemModule()->subscribe("cliCmdSig", cmdListener);
 
 
         measureCounter = 0;
         isListening = false;
         scheduleAt(simTime() + SimTime(measureAmountEventDelay, SIMTIME_S), measureAmountEvent);
     }
+}
+
+void MmsClientOperator::socketEstablished(TcpSocket *socket) {
+    // determine number of requests in this session
+    numRequestsToSend = par("numRequestsPerSession");
+    if (numRequestsToSend < 1)
+        numRequestsToSend = 1;
 }
 
 void MmsClientOperator::sendRequest(MMSKind kind, ReqResKind reqKind, int data) {
@@ -157,24 +165,6 @@ void MmsClientOperator::handleTimer(cMessage *msg)
             delete msg;
             break;
 
-        case MSGKIND_SEND_READ:
-            sendRequest(MMSKind::GENREQ, ReqResKind::READ);
-            numRequestsToSend--;
-            delete msg;
-            // Schedule a Read send
-			dRead = simTime() + SimTime(par("sendReadInterval").intValue(), SIMTIME_S);
-			rescheduleOrDeleteTimer(dRead, MSGKIND_SEND_READ);
-            break;
-
-        case MSGKIND_SEND_COMMAND:
-            sendRequest(MMSKind::GENREQ, ReqResKind::COMMAND);
-            numRequestsToSend--;
-            delete msg;
-            // Schedule a Command send
-            dCommand = simTime() + SimTime(par("sendCommandInterval").intValue(), SIMTIME_S);
-            rescheduleOrDeleteTimer(dCommand, MSGKIND_SEND_COMMAND);
-            break;
-
         case MSGKIND_RES_TIMEOUT:
         	for(auto &i : readResTimeoutMap) {
         		if (i.second == msg) {
@@ -207,29 +197,7 @@ void MmsClientOperator::handleTimer(cMessage *msg)
     }
 }
 
-void MmsClientOperator::socketEstablished(TcpSocket *socket) {
-    TcpAppBase::socketEstablished(socket);
-
-    // determine number of requests in this session
-    numRequestsToSend = par("numRequestsPerSession");
-    if (numRequestsToSend < 1)
-        numRequestsToSend = 1;
-
-
-    // Send the register for measure MMS message
-    sendRequest();
-    numRequestsToSend--;
-
-    // Schedule a Read send
-    simtime_t dRead = simTime() + SimTime(par("sendReadInterval").intValue(), SIMTIME_S);
-    rescheduleOrDeleteTimer(dRead, MSGKIND_SEND_READ);
-    // // Schedule a Command send
-    simtime_t dCommand = simTime() + SimTime(par("sendCommandInterval").intValue(), SIMTIME_S);
-    rescheduleOrDeleteTimer(dCommand, MSGKIND_SEND_COMMAND);
-}
-
-void MmsClientOperator::rescheduleOrDeleteTimer(simtime_t d, short int msgKind)
-{
+void MmsClientOperator::rescheduleOrDeleteTimer(simtime_t d, short int msgKind) {
     //cancelEvent(timeoutMsg);
 	timeoutMsg = new cMessage("timer");
 
@@ -283,8 +251,9 @@ void MmsClientOperator::socketDataArrived(TcpSocket *socket, Packet *msg, bool u
 }
 
 void MmsClientOperator::sendMmsConnect(int opId) {
+	Enter_Method("Sending MMS Connect");
 	if(socket.isOpen()) {
-		sendRequest();
+		sendRequest(MMSKind::CONNECT, ReqResKind::READ, 0);
 		propagate(new MmsClientResult(opId, ResultOutcome::SUCCESS));
 	} else {
 		propagate(new MmsClientResult(opId, ResultOutcome::FAIL));
@@ -294,6 +263,7 @@ void MmsClientOperator::sendMmsConnect(int opId) {
 // TODO Make this operation succeed if the disconnection packet is sent back
 // (for now we consider the operation successfull if the disconncetion message is sent)
 void MmsClientOperator::sendMmsDisconnect(int opId) {
+	Enter_Method("Sending MMS Disconnect");
 	if(socket.isOpen()) {
 		sendRequest(MMSKind::DISCONNECT, ReqResKind::UNSET);
 		propagate(new MmsClientResult(opId, ResultOutcome::SUCCESS));
@@ -301,6 +271,7 @@ void MmsClientOperator::sendMmsDisconnect(int opId) {
 }
 
 void MmsClientOperator::sendMmsRequest(int opId, ReqResKind reqKind, int data) {
+	Enter_Method("Sending MMS Request");
 	if(socket.isOpen()) {
 		sendRequest(MMSKind::GENREQ, reqKind, data);
 		propagate(new MmsClientResult(opId, ResultOutcome::SUCCESS));

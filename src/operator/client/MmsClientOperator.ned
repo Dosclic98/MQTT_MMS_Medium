@@ -19,11 +19,9 @@ import inet.applications.tcpapp.TcpBasicClientApp;
 
 simple MmsClientOperator extends TcpBasicClientApp {
     parameters:
-        @class("inet::MmsClient");
+        @class("inet::MmsClientOperator");
         volatile int resTimeoutInterval @unit(s) = default(1s);		// timeout for generic responses
         bool isLogging = default(false);	// specify if the specific client must Log the packets on file
-        volatile int sendReadInterval @unit(s) = default(intuniform(8s, 10s));	// specify the interval between a read request and the next 
-        volatile int sendCommandInterval @unit(s) = default(intuniform(12s, 15s));	// specify the interval between a command request and the next
         
         @signal[packetSent](type=inet::Packet);
         @signal[packetReceived](type=inet::Packet);
