@@ -17,7 +17,6 @@
 #define RESULT_IRESULT_H_
 
 #include <omnetpp.h>
-#include "../controller/IController.h"
 
 namespace inet {
 
@@ -25,19 +24,20 @@ enum ResultOutcome {
 	FAIL, SUCCESS
 };
 
+class IController;
+
 class IResult: public omnetpp::cObject{
 protected:
 	int opId;
 	IController* controllerOwner;
 	ResultOutcome result;
 
+public:
 	virtual IController* getControllerOwner() = 0;
 	virtual void setControllerOwner(IController* controllerOwner) = 0;
 	virtual ResultOutcome getResult();
 	virtual void setResult(ResultOutcome result);
 
-
-public:
 	virtual ~IResult() = default;
 };
 
