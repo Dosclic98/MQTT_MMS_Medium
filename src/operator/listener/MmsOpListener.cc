@@ -28,6 +28,7 @@ MmsOpListener::~MmsOpListener()
 
 void MmsOpListener::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, omnetpp::cObject* value, omnetpp::cObject *obj) {
 	IOperation* op = check_and_cast<IOperation*>(value);
+	op->setOperatorOwner(parent);
 	this->parent->execute(op);
 }
 
