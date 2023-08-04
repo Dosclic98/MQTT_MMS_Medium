@@ -15,11 +15,25 @@
 
 package tx_medium_exp.simulations;
 
+import tx_medium_exp.composer.MmsWiredClient;
+import inet.node.inet.Router;
 import inet.node.inet.StandardHost;
+import inet.node.ethernet.Eth1G;
+import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 
 network IncrementalTest {
 	submodules:
-	    client: StandardHost{
-	    	numApps = 1;
+	    configurator: Ipv4NetworkConfigurator;
+	    client: MmsWiredClient{
+	    	clientOperator.numApps = 1;
 	    };
+	    server: StandardHost {
+	    	numApps = 1;
+	    }
+	    router: Router;
+	    
+	connections:
+	    router.ethg++ <--> Eth1G <--> client.gate;
+	    router.ethg++ <--> Eth1G <--> server.ethg++;
+	    
 }
