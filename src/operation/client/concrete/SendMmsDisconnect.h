@@ -13,20 +13,22 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#include "SendMmsConnect.h"
+#ifndef OPERATION_CLIENT_CONCRETE_SENDMMSDISCONNECT_H_
+#define OPERATION_CLIENT_CONCRETE_SENDMMSDISCONNECT_H_
 
-using namespace inet;
+#include "../MmsClientOperation.h"
 
-SendMmsConnect::SendMmsConnect(int id) {
-	this->id = id;
-}
 
-SendMmsConnect::~SendMmsConnect() {
+namespace inet {
 
-}
+class SendMmsDisconnect: public MmsClientOperation {
+public:
+	SendMmsDisconnect(int id);
+	virtual ~SendMmsDisconnect();
 
-void SendMmsConnect::execute() {
-	MmsClientOperator* oper = check_and_cast<MmsClientOperator*>(operatorOwner);
-	oper->sendMmsConnect(this->id);
-}
+	virtual void execute() override;
+};
 
+} // namespace inet
+
+#endif /* OPERATION_CLIENT_CONCRETE_SENDMMSDISCONNECT_H_ */

@@ -13,20 +13,22 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#include "SendMmsConnect.h"
+#include "SendMmsRequest.h"
 
 using namespace inet;
 
-SendMmsConnect::SendMmsConnect(int id) {
+SendMmsRequest::SendMmsRequest(int id, ReqResKind reqKind, int data) {
 	this->id = id;
+	this->reqKind = reqKind;
+	this->data = data;
 }
 
-SendMmsConnect::~SendMmsConnect() {
-
+SendMmsRequest::~SendMmsRequest()
+{
+	// TODO Auto-generated destructor stub
 }
 
-void SendMmsConnect::execute() {
+void SendMmsRequest::execute() {
 	MmsClientOperator* oper = check_and_cast<MmsClientOperator*>(operatorOwner);
-	oper->sendMmsConnect(this->id);
+	oper->sendMmsRequest(this->id, this->reqKind, this->data);
 }
-

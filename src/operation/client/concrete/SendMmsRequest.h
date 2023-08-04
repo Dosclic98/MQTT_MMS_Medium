@@ -13,20 +13,25 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#include "SendMmsConnect.h"
+#ifndef OPERATION_CLIENT_CONCRETE_SENDMMSREQUEST_H_
+#define OPERATION_CLIENT_CONCRETE_SENDMMSREQUEST_H_
 
-using namespace inet;
+#include "../MmsClientOperation.h"
 
-SendMmsConnect::SendMmsConnect(int id) {
-	this->id = id;
-}
+namespace inet {
 
-SendMmsConnect::~SendMmsConnect() {
+class SendMmsRequest : public MmsClientOperation{
+public:
+	SendMmsRequest(int id, ReqResKind reqKind, int data);
+	virtual ~SendMmsRequest();
 
-}
+	virtual void execute() override;
 
-void SendMmsConnect::execute() {
-	MmsClientOperator* oper = check_and_cast<MmsClientOperator*>(operatorOwner);
-	oper->sendMmsConnect(this->id);
-}
+private:
+	ReqResKind reqKind;
+	int data;
+};
 
+} // namespace inet
+
+#endif /* OPERATION_CLIENT_CONCRETE_SENDMMSREQUEST_H_ */
