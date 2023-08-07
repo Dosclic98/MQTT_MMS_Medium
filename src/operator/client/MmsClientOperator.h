@@ -72,6 +72,9 @@ private:
 	  virtual void handleTimer(cMessage* msg) override;
 	  virtual void socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent) override;
 	  virtual ~MmsClientOperator();
+
+	  virtual void propagate(IResult* res) override;
+	  virtual void propagate(MmsMessage* msg) override;
 };
 
 } // namespace inet

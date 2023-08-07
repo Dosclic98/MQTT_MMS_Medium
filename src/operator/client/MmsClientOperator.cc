@@ -279,6 +279,14 @@ void MmsClientOperator::sendMmsRequest(int opId, ReqResKind reqKind, int data) {
 	}
 }
 
+void MmsClientOperator::propagate(IResult* res) {
+	emit(this->resPubSig, res);
+}
+
+void MmsClientOperator::propagate(MmsMessage* msg) {
+	emit(this->msgPubSig, msg);
+}
+
 
 
 };

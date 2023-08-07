@@ -19,11 +19,3 @@ using namespace inet;
 void IOperator::execute(IOperation* op) {
 	op->execute();
 }
-
-void IOperator::propagate(IResult* res) {
-
-}
-
-void IOperator::propagate(MmsMessage* msg) {
-
-}
