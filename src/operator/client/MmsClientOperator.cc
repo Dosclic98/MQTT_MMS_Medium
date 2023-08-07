@@ -72,9 +72,8 @@ void MmsClientOperator::initialize(int stage)
         resPubSig = registerSignal("cliResSig");
         msgPubSig = registerSignal("cliMsgSig");
         cmdListener = new MmsOpListener(this);
-        // TODO NOT THE RIGHT SUBSCRIPTION MODULE (CHANGE IT)
-        getSimulation()->getSystemModule()->subscribe("cliCmdSig", cmdListener);
-
+        // Go up of two levels in the modules hierarchy (the first is the host module)
+        getParentModule()->getParentModule()->subscribe("cliCmdSig", cmdListener);
 
         measureCounter = 0;
         isListening = false;
