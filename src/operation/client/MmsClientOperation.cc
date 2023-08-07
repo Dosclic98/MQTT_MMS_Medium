@@ -14,6 +14,7 @@
 // 
 
 #include "MmsClientOperation.h"
+#include "../../operator/client/MmsClientOperator.h"
 
 using namespace inet;
 
