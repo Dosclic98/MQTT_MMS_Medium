@@ -17,6 +17,7 @@
 #define OPERATION_CLIENT_MMSCLIENTOPERATION_H_
 
 #include "../IOperation.h"
+#include "../../operator/client/MmsClientOperator.h"
 
 namespace inet {
 
