@@ -14,6 +14,7 @@
 // 
 
 #include "MmsClientResult.h"
+#include "../../controller/client/MmsClientController.h";
 
 using namespace inet;
 
@@ -31,6 +32,8 @@ IController* MmsClientResult::getControllerOwner() {
 }
 
 void MmsClientResult::setControllerOwner(IController* controllerOwner) {
-
+	MmsClientController* owner  = dynamic_cast<MmsClientController*>(controllerOwner);
+	if(owner) this->controllerOwner = owner;
+	else throw std::invalid_argument("controllewOwner must be of type MmsClientController");
 }
 
