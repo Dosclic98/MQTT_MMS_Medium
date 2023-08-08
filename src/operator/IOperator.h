@@ -33,7 +33,7 @@ protected:
 public:
 	virtual void execute(IOperation* op);
 	virtual void propagate(IResult* res) = 0;
-	virtual void propagate(MmsMessage* msg) = 0;
+	virtual void propagate(Packet* msg) = 0;
 
 	virtual ~IOperator() = default;
 };

@@ -283,7 +283,7 @@ void MmsClientOperator::propagate(IResult* res) {
 	emit(this->resPubSig, res);
 }
 
-void MmsClientOperator::propagate(MmsMessage* msg) {
+void MmsClientOperator::propagate(Packet* msg) {
 	emit(this->msgPubSig, msg);
 }
 
