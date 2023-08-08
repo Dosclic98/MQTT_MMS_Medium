@@ -51,6 +51,8 @@ protected:
 	ServerOp serverOp;
 	int numComprMsgs;
 
+	// Packet propagation signal
+
 
 	virtual void sendBack(cMessage *msg) override;
 
@@ -65,12 +67,12 @@ protected:
 
 	virtual ~MmsServerOperator();
 public:
-	virtual void respondMmsMessage(ReqResKind resKind, int data);
-	virtual void manageMmsConnection(MmsMessage* msg);
-	virtual void generateMmsMeasure(int connId, msgid_t originId, int evilConnId, B requestedBytes, B replyLength, int data);
+	virtual void respondMmsMessage(int opId, ReqResKind resKind, int data);
+	virtual void manageMmsConnection(int opId, MmsMessage* msg);
+	virtual void generateMmsMeasure(int opId, int connId, msgid_t originId, int evilConnId, B requestedBytes, B replyLength, int data);
 
 	virtual void propagate(IResult* res) override;
-	virtual void propagate(MmsMessage* msg) override;
+	virtual void propagate(Packet* msg) override;
 };
 
 } // namespace inet

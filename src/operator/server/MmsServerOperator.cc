@@ -14,6 +14,7 @@
 // 
 
 #include "MmsServerOperator.h"
+#include "../../result/server/MmsServerResult.h"
 #include "inet/common/socket/SocketTag_m.h"
 #include "inet/common/ModuleAccess.h"
 #include "inet/common/ProtocolTag_m.h"
@@ -165,14 +166,7 @@ void MmsServerOperator::handleMessage(cMessage *msg)
 
         // we'll close too, but only after there's surely no message
         // pending to be sent back in this connection
-        int connId = check_and_cast<Indication *>(msg)->getTag<SocketInd>()->getSocketId();
-        delete msg;
-        auto request = new Request("close", TCP_C_CLOSE);
-        request->addTag<SocketReq>()->setSocketId(connId);
-        clientConnIdList.remove_if([&](std::pair<int, int>& p) {
-        	return p.first == connId;
-        });
-        sendOrSchedule(request, SimTime(round(par("replyDelay").doubleValue()), SIMTIME_MS));
+        propagate(check_and_cast<Packet*>(msg));
     }
     else if (msg->getKind() == TCP_I_DATA || msg->getKind() == TCP_I_URGENT_DATA) {
     	if(isLogging) logPacket(check_and_cast<Packet*>(msg), serverOp);
@@ -193,18 +187,19 @@ void MmsServerOperator::handleMessage(cMessage *msg)
     }
 }
 
-void MmsServerOperator::respondMmsMessage(ReqResKind resKind, int data) {
+void MmsServerOperator::respondMmsMessage(int opId, int connId, msgid_t originId, int evilConnId, B requestedBytes, B replyLength,
+		MMSKind messageKind, ReqResKind reqResKind, int data) {
 
 }
 
-void MmsServerOperator::manageMmsConnection(MmsMessage* msg) {
+void MmsServerOperator::manageMmsConnection(int opId, MmsMessage* msg) {
 
 }
 
-void MmsServerOperator::generateMmsMeasure(int connId, msgid_t originId, int evilConnId, B requestedBytes, B replyLength, int data) {
+void MmsServerOperator::generateMmsMeasure(int opId, int connId, msgid_t originId, int evilConnId, B requestedBytes, B replyLength, int data) {
 	sendPacketDeparture(connId, originId, evilConnId, requestedBytes, replyLength,
 			MMSKind::MEASURE, ReqResKind::UNSET, data, MITMKind::UNMOD);
-
+	propagate(new MmsServerResult(opId, ResultOutcome::SUCCESS));
 }
 
 void MmsServerOperator::logPacket(Packet* packet, ServerOp serverOp) {
@@ -221,7 +216,7 @@ void MmsServerOperator::propagate(IResult* res) {
 	emit(this->resPubSig, res);
 }
 
-void MmsServerOperator::propagate(MmsMessage* msg) {
+void MmsServerOperator::propagate(Packet* msg) {
 	emit(this->msgPubSig, msg);
 }
 
