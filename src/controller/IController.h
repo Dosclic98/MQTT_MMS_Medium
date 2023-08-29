@@ -17,7 +17,7 @@
 #define __TX_MEDIUM_EXP_ICONTROLLER_H_
 
 #include <omnetpp.h>
-#include "../message/mms/MmsMessage_m.h"
+#include "inet/common/packet/Packet.h"
 #include "../operator/IOperator.h"
 #include "../result/IResult.h"
 
@@ -31,10 +31,11 @@ class IController {
 	simsignal_t cmdPubSig;
 	cListener* resListener;
 	cListener* msgListener;
+	int idCounter = 0;
 	// TODO Add the Graph and the FSM
 
   public:
-    virtual void next(MmsMessage* msg = nullptr) = 0;
+    virtual void next(Packet* msg = nullptr) = 0;
     virtual void propagate(IOperation* operation) = 0;
     virtual void evalRes(IResult* res) = 0;
 };
