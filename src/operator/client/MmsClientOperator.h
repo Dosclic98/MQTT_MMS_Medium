@@ -74,7 +74,7 @@ private:
 	  virtual ~MmsClientOperator();
 
 	  virtual void propagate(IResult* res) override;
-	  virtual void propagate(MmsMessage* msg) override;
+	  virtual void propagate(Packet* msg) override;
 };
 
 } // namespace inet
