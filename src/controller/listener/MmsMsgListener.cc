@@ -26,7 +26,7 @@ MmsMsgListener::~MmsMsgListener() {
 }
 
 void MmsMsgListener::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, omnetpp::cObject* value, omnetpp::cObject *obj) {
-	MmsMessage* msg = check_and_cast<MmsMessage*>(value);
+	Packet* msg = check_and_cast<Packet*>(value);
 	parent->next(msg);
 }
 
