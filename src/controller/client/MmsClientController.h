@@ -21,8 +21,6 @@
 namespace inet  {
 
 class MmsClientController : public cSimpleModule, public IController {
-private:
-	int idCounter = 0;
 public:
 	MmsClientController();
 	virtual ~MmsClientController();
@@ -30,7 +28,7 @@ public:
 	void initialize() override;
 	void handleMessage(cMessage* msg) override;
 
-	virtual void next(MmsMessage* msg = nullptr) override;
+	virtual void next(Packet* msg = nullptr) override;
 	virtual void propagate(IOperation* op) override;
 	virtual void evalRes(IResult* res) override;
 };

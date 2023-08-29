@@ -42,6 +42,9 @@ void MmsClientController::initialize() {
 
 	resListener = new MmsResListener(this);
 	msgListener = new MmsMsgListener(this);
+	// Subscribe listeners on the right module and signal
+	getParentModule()->getParentModule()->subscribe("cliResSig", resListener);
+	getParentModule()->getParentModule()->subscribe("cliMsgSig", msgListener);
 
     // Schedule the register for measure MMS message
 	simtime_t dMeas = simTime() + SimTime(2, SIMTIME_S);
@@ -96,7 +99,7 @@ void MmsClientController::propagate(IOperation* op) {
 }
 
 
-void MmsClientController::next(MmsMessage* msg) {
+void MmsClientController::next(Packet* msg) {
 
 }
 
