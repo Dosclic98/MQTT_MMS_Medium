@@ -14,7 +14,7 @@
 // 
 
 #include "MmsClientResult.h"
-#include "../../controller/client/MmsClientController.h";
+#include "../../controller/client/MmsClientController.h"
 
 using namespace inet;
 

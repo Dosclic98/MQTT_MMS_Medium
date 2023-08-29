@@ -14,7 +14,7 @@
 // 
 
 #include "MmsServerResult.h"
-#include "../../controller/server/MmsServerController.h";
+#include "../../controller/server/MmsServerController.h"
 
 using namespace inet;
 
