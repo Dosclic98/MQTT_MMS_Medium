@@ -20,6 +20,7 @@
 #include "../operation/IOperation.h"
 #include "../result/IResult.h"
 #include "../message/mms/MmsMessage_m.h"
+#include "inet/common/packet/Packet.h"
 
 namespace inet {
 
