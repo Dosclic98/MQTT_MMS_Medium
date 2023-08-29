@@ -16,7 +16,8 @@
 #ifndef __TX_MEDIUM_EXP_MMSSERVERCONTROLLER_H_
 #define __TX_MEDIUM_EXP_MMSSERVERCONTROLLER_H_
 
-#include "../IController.h";
+#include "../IController.h"
+#include "inet/common/packet/ChunkQueue.h"
 
 namespace inet {
 
@@ -24,14 +25,26 @@ namespace inet {
  * TODO - Generated class
  */
 class MmsServerController : public cSimpleModule, public IController {
-  protected:
+  public:
 	MmsServerController();
 	virtual ~MmsServerController();
+  protected:
+	ChunkQueue queue;
+	// Gestione della sottoscrizione del client per ricezione misure
+	std::list< std::pair<int,int> > clientConnIdList;
+
+	// Gestione invio misure
+	cMessage* sendDataEvent;
+
+	// Gestione servitore e coda
+	bool serverStatus;
+	cQueue serverQueue;
+	cMessage* departureEvent;
 
     virtual void initialize() override;
     virtual void handleMessage(cMessage *msg) override;
 
-    virtual void next(MmsMessage* msg = nullptr) override;
+    virtual void next(Packet* msg = nullptr) override;
     virtual void propagate(IOperation* op) override;
     virtual void evalRes(IResult* res) override;
 };
