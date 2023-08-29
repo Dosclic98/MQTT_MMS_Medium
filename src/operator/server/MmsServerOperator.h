@@ -33,16 +33,6 @@ enum ServerOp {
 
 class MmsServerOperator : public TcpGenericServerApp, public IOperator {
 protected:
-	std::list< std::pair<int,int> > clientConnIdList;
-
-	//Gestione servitore e coda
-	bool serverStatus;
-	cQueue serverQueue;
-	cMessage* departureEvent;
-
-	//Gestione invio misure
-	cMessage* sendDataEvent;
-
 	// Logging pacchetti inviati/ricevuti
 	bool isLogging;
 	MmsServerPacketLogger* logger;
@@ -51,15 +41,12 @@ protected:
 	ServerOp serverOp;
 	int numComprMsgs;
 
-	// Packet propagation signal
-
 
 	virtual void sendBack(cMessage *msg) override;
 
 	virtual void initialize(int stage) override;
 	virtual void handleMessage(cMessage *msg) override;
 	//--
-	virtual void handleDeparture();
 	virtual void sendPacketDeparture(int connId, msgid_t originId, int evilConnId, B requestedBytes, B replyLength,
 			MMSKind messageKind, ReqResKind reqResKind, int data, MITMKind atkStatus);
 
@@ -67,9 +54,7 @@ protected:
 
 	virtual ~MmsServerOperator();
 public:
-	virtual void respondMmsMessage(int opId, ReqResKind resKind, int data);
-	virtual void manageMmsConnection(int opId, MmsMessage* msg);
-	virtual void generateMmsMeasure(int opId, int connId, msgid_t originId, int evilConnId, B requestedBytes, B replyLength, int data);
+	virtual void handleDeparture(int opId, Packet* packet);
 
 	virtual void propagate(IResult* res) override;
 	virtual void propagate(Packet* msg) override;

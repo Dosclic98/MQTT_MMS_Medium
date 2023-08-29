@@ -33,11 +33,6 @@ void MmsServerOperator::initialize(int stage) {
 	TcpGenericServerApp::initialize(stage);
 
     if(stage == INITSTAGE_APPLICATION_LAYER) {
-        departureEvent = new cMessage("Server Departure");
-        sendDataEvent = new cMessage("Register Data To Send Event");
-        serverStatus = false;
-        scheduleAt(1, sendDataEvent);
-
         // Init server status vars
         serverOp = ServerOp::STABLE;
 
@@ -46,6 +41,13 @@ void MmsServerOperator::initialize(int stage) {
         if(isLogging) {
         	logger = new MmsServerPacketLogger(ev->getConfigEx()->getActiveRunNumber(), "server", getParentModule()->getIndex(), getIndex());
         }
+
+        // Initializing inherited signals
+        resPubSig = registerSignal("serResSig");
+        msgPubSig = registerSignal("serMsgSig");
+        cmdListener = new MmsOpListener(this);
+        // Go up of two levels in the modules hierarchy (the first is the host module)
+        getParentModule()->getParentModule()->subscribe("serCmdSig", cmdListener);
     }
 }
 
@@ -74,9 +76,7 @@ void MmsServerOperator::sendPacketDeparture(int connId, msgid_t originId, int ev
     sendOrSchedule(outPacket, SimTime(round(par("replyDelay").doubleValue()), SIMTIME_MS));
 }
 
-void MmsServerOperator::handleDeparture()
-{
-    Packet *packet = check_and_cast<Packet *>(serverQueue.pop());
+void MmsServerOperator::handleDeparture(int opId, Packet* packet) {
     int connId = packet->getTag<SocketInd>()->getSocketId();
     ChunkQueue &queue = socketQueue[connId];
     auto chunk = packet->peekDataAt(B(0), packet->getTotalLength());
@@ -88,25 +88,23 @@ void MmsServerOperator::handleDeparture()
         msgsRcvd++;
         bytesRcvd += B(appmsg->getChunkLength()).get();
         B requestedBytes = appmsg->getExpectedReplyLength();
-        if(appmsg->getMessageKind() == MMSKind::CONNECT) { // Register a listener
-            clientConnIdList.push_back({connId, appmsg->getEvilServerConnId()});
+        if(appmsg->getMessageKind() == MMSKind::MEASURE) { // Send data to listeners
+			if (requestedBytes > B(0)) {
+				sendPacketDeparture(packet->getTag<SocketReq>()->getSocketId(), appmsg->getOriginId(), appmsg->getEvilServerConnId(), B(100), B(0),
+						MMSKind::MEASURE, ReqResKind::UNSET, appmsg->getData(), appmsg->getAtkStatus());
+			}
+			propagate(new MmsServerResult(opId, ResultOutcome::SUCCESS));
         }
-        else if(appmsg->getMessageKind() == MMSKind::MEASURE) { // Send data to listeners
-            for (auto const& listener : clientConnIdList) {
-                if (requestedBytes > B(0)) {
-                    sendPacketDeparture(listener.first, appmsg->getOriginId(), listener.second, B(100), B(0),
-                    		MMSKind::MEASURE, ReqResKind::UNSET, appmsg->getData(), appmsg->getAtkStatus());
-                }
-            }
-        }
-        else if (appmsg->getMessageKind() == MMSKind::GENREQ) { // Response to Generic Request
+        else if (appmsg->getMessageKind() == MMSKind::GENRESP) { // Response to Generic Request
             if (requestedBytes > B(0)) {
                 sendPacketDeparture(connId, appmsg->getOriginId(), appmsg->getEvilServerConnId(), requestedBytes, B(0),
-                		MMSKind::GENRESP, appmsg->getReqResKind(), 0, MITMKind::UNMOD);
+                		appmsg->getMessageKind(), appmsg->getReqResKind(), 0, MITMKind::UNMOD);
             }
+            propagate(new MmsServerResult(opId, ResultOutcome::SUCCESS));
         }
         else {
             //Bad Request
+        	propagate(new MmsServerResult(opId, ResultOutcome::FAIL));
         }
         if (appmsg->getServerClose()) {
             doClose = true;
@@ -120,46 +118,12 @@ void MmsServerOperator::handleDeparture()
         TcpCommand *cmd = new TcpCommand();
         request->addTag<SocketReq>()->setSocketId(connId);
         request->setControlInfo(cmd);
-        clientConnIdList.remove_if([&](std::pair<int, int>& p) {
-            return p.first == connId;
-        });
         sendOrSchedule(request, SimTime(round(par("replyDelay").doubleValue()), SIMTIME_MS));
     }
-
-    if(serverQueue.getLength() > 0) {
-        scheduleAt(simTime() + SimTime(par("serviceTime").intValue(), SIMTIME_MS),
-                departureEvent);
-    } else serverStatus = false;
 }
 
-void MmsServerOperator::handleMessage(cMessage *msg)
-{
-    if (msg == departureEvent) handleDeparture();
-
-    else if(msg == sendDataEvent) {
-        auto pkt = new Packet("SendData");
-        pkt->addTag<SocketInd>()->setSocketId(-1);
-        const auto& payload = makeShared<MmsMessage>();
-        payload->setMessageKind(MMSKind::MEASURE);
-        payload->setChunkLength(B(100));
-        payload->setExpectedReplyLength(B(100));
-        payload->setServerClose(false);
-        payload->setData(0);
-        payload->setAtkStatus(MITMKind::UNMOD);
-        pkt->insertAtBack(payload);
-        if (!clientConnIdList.empty()) {
-            if(!serverStatus) {
-                serverStatus = true;
-                serverQueue.insert(pkt);
-                scheduleAt(simTime() + SimTime(par("serviceTime").intValue(), SIMTIME_MS),
-                        departureEvent);
-            }
-            else serverQueue.insert(pkt);
-        }
-        scheduleAt(simTime() + SimTime(par("emitInterval").intValue(), SIMTIME_MS), sendDataEvent);
-    }
-
-    else if (msg->isSelfMessage()) {
+void MmsServerOperator::handleMessage(cMessage *msg) {
+    if (msg->isSelfMessage()) {
         sendBack(msg);
     }
     else if (msg->getKind() == TCP_I_PEER_CLOSED) {
@@ -170,13 +134,7 @@ void MmsServerOperator::handleMessage(cMessage *msg)
     }
     else if (msg->getKind() == TCP_I_DATA || msg->getKind() == TCP_I_URGENT_DATA) {
     	if(isLogging) logPacket(check_and_cast<Packet*>(msg), serverOp);
-        if(!serverStatus) {
-            serverStatus = true;
-            serverQueue.insert(msg);
-            scheduleAt(simTime() + SimTime(par("serviceTime").intValue(), SIMTIME_MS),
-                    departureEvent);
-        }
-        else serverQueue.insert(msg);
+    	propagate(check_and_cast<Packet*>(msg));
     }
     else if (msg->getKind() == TCP_I_AVAILABLE)
         socket.processMessage(msg);
@@ -185,21 +143,6 @@ void MmsServerOperator::handleMessage(cMessage *msg)
         EV_WARN << "drop msg: " << msg->getName() << ", kind:" << msg->getKind() << "(" << cEnum::get("inet::TcpStatusInd")->getStringFor(msg->getKind()) << ")\n";
         delete msg;
     }
-}
-
-void MmsServerOperator::respondMmsMessage(int opId, int connId, msgid_t originId, int evilConnId, B requestedBytes, B replyLength,
-		MMSKind messageKind, ReqResKind reqResKind, int data) {
-
-}
-
-void MmsServerOperator::manageMmsConnection(int opId, MmsMessage* msg) {
-
-}
-
-void MmsServerOperator::generateMmsMeasure(int opId, int connId, msgid_t originId, int evilConnId, B requestedBytes, B replyLength, int data) {
-	sendPacketDeparture(connId, originId, evilConnId, requestedBytes, replyLength,
-			MMSKind::MEASURE, ReqResKind::UNSET, data, MITMKind::UNMOD);
-	propagate(new MmsServerResult(opId, ResultOutcome::SUCCESS));
 }
 
 void MmsServerOperator::logPacket(Packet* packet, ServerOp serverOp) {
@@ -224,7 +167,4 @@ MmsServerOperator::~MmsServerOperator() {
 	if(isLogging) {
 		delete logger;
 	}
-	cancelAndDelete(departureEvent);
-	cancelAndDelete(sendDataEvent);
-	serverQueue.clear();
 }
