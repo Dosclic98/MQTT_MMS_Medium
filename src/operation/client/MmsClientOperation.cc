@@ -19,11 +19,11 @@ using namespace inet;
 
 IOperator* MmsClientOperation::getOperatorOwner() {
 	if(auto* oper = dynamic_cast<MmsClientOperator*>(operatorOwner)) { return oper; }
-	else throw std::invalid_argument("operatorOwner must be a subtype or MmsClientOperator");
+	else throw std::invalid_argument("operatorOwner must be a subtype of MmsClientOperator");
 }
 
 void MmsClientOperation::setOperatorOwner(IOperator* operatorOwner) {
 	MmsClientOperator* oper = dynamic_cast<MmsClientOperator*>(operatorOwner);
 	if(oper) {this->operatorOwner = operatorOwner;}
-	else { throw std::invalid_argument("operatorOwner must be a subtype or MmsClientOperator"); }
+	else { throw std::invalid_argument("operatorOwner must be a subtype of MmsClientOperator"); }
 }
