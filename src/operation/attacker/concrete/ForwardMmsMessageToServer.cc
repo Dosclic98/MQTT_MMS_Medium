@@ -28,6 +28,6 @@ ForwardMmsMessageToServer::~ForwardMmsMessageToServer() {
 
 void ForwardMmsMessageToServer::execute() {
 	ClientEvilOperator* oper = check_and_cast<ClientEvilOperator*>(operatorOwner);
-	// TODO Add corresponding operation
+	oper->forwardToServer(id, msg);
 }
 

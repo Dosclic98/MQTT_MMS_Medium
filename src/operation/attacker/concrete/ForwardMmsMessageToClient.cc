@@ -28,5 +28,5 @@ ForwardMmsMessageToClient::~ForwardMmsMessageToClient() {
 
 void ForwardMmsMessageToClient::execute() {
 	ClientEvilOperator* oper = check_and_cast<ClientEvilOperator*>(operatorOwner);
-	// TODO Add corresponding operation
+	oper->forwardToClient(id, msg);
 }
