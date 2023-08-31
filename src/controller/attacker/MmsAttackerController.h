@@ -18,20 +18,74 @@
 
 #include <omnetpp.h>
 #include "../IController.h"
+#include "inet/common/packet/ChunkQueue.h"
+#include "../../utils/factories/mms/MmsMessageCopier.h"
+#include "../../utils/logger/evil/EvilLogger.h"
 
 namespace inet {
+
+#define MSGKIND_CONNECT    0
+#define MSGKIND_SEND       1
 
 /**
  * TODO - Generated class
  */
 class MmsAttackerController : public cSimpleModule, public IController {
   public:
+	MmsMessageCopier* messageCopier;
+	cQueue msgQueue;
+	bool previousResponseSent;
+	cMessage* sendMsgEvent;
+
+	// For logging purposes
+	bool isLogging;
+	EvilLogger* logger;
+
+	bool isSocketConnected;
+
+	cMessage* timeoutMsg;
+
+	// Signals management
+	simsignal_t genericFakeReqResSignal;
+	simsignal_t measureBlockSignal;
+	simsignal_t measureCompromisedSignal;
+	simsignal_t readResponseBlockSignal;
+	simsignal_t readResponseCompromisedSignal;
+	simsignal_t commandResponseBlockSignal;
+	simsignal_t commandResponseCompromisedSignal;
+	simsignal_t readRequestBlockSignal;
+	simsignal_t readRequestCompromisedSignal;
+	simsignal_t commandRequestBlockSignal;
+	simsignal_t commandRequestCompromisedSignal;
+
+	double readResponseBlockProb;
+	double readResponseCompromisedProb;
+	double commandResponseBlockProb;
+	double commandResponseCompromisedProb;
+
+	double readRequestBlockProb;
+	double readRequestCompromisedProb;
+	double commandRequestBlockProb;
+	double commandRequestCompromisedProb;
+
+	double measureBlockProb;
+	double measureCompromisedProb;
+
+	virtual ~MmsAttackerController();
+
     virtual void initialize() override;
     virtual void handleMessage(cMessage *msg) override;
 
     virtual void next(Packet* msg = nullptr) override;
     virtual void propagate(IOperation* op) override;
     virtual void evalRes(IResult* res) override;
+
+    void enqueueNSchedule(MmsMessage* msg);
+
+	int fakeGenReqThresh;
+	int numGenReq;
+  protected:
+    ChunkQueue queue;
 };
 
 } // namespace inet
