@@ -19,9 +19,9 @@
 #include <omnetpp.h>
 #include <queue>
 #include "inet/applications/tcpapp/TcpBasicClientApp.h"
-#include "../../utils/factories/mms/MmsMessageCopier.h"
 #include "../IOperator.h"
 #include "ServerEvilOperator.h"
+#include "../listener/MmsOpListener.h"
 
 namespace inet {
 
@@ -31,62 +31,18 @@ class FromSerOpListener;
  */
 class ClientEvilOperator : public TcpBasicClientApp, public IOperator {
 public:
-	MmsMessageCopier* messageCopier;
-	cQueue msgQueue;
-	bool previousResponseSent;
-	cMessage* sendMsgEvent;
-
 	// The IOperator methods
 	virtual void propagate(IResult* res) override;
-	virtual void propagate(Packet* msg) override;
+	virtual void propagate(Packet* msg = nullptr) override;
 
-	virtual void rescheduleAfterOrDeleteTimer(simtime_t d, short int msgKind) override;
 	virtual int getConnectionState();
 
-	// Signals management
-	simsignal_t genericFakeReqResSignal;
-	simsignal_t measureBlockSignal;
-	simsignal_t measureCompromisedSignal;
-	simsignal_t readResponseBlockSignal;
-	simsignal_t readResponseCompromisedSignal;
-	simsignal_t commandResponseBlockSignal;
-	simsignal_t commandResponseCompromisedSignal;
-	simsignal_t readRequestBlockSignal;
-	simsignal_t readRequestCompromisedSignal;
-	simsignal_t commandRequestBlockSignal;
-	simsignal_t commandRequestCompromisedSignal;
-
-	double readResponseBlockProb;
-	double readResponseCompromisedProb;
-	double commandResponseBlockProb;
-	double commandResponseCompromisedProb;
-
-	double readRequestBlockProb;
-	double readRequestCompromisedProb;
-	double commandRequestBlockProb;
-	double commandRequestCompromisedProb;
-
-	double measureBlockProb;
-	double measureCompromisedProb;
+	virtual void forwardToClient(int opId, Packet* pckt);
+	virtual void forwardToServer(int opId, Packet* pckt);
 
 	virtual ~ClientEvilOperator();
 
-	// For logging purposes
-	bool isLogging;
-	EvilLogger* logger;
-
-
-	// Evil FSM to keep track of the evilServer'state
-	cMessage* changeStateEvent;
-	EvilFSM* evilFSM;
-	bool startFull;
-
-	// Number of messages to wait between two consecutive state checks
-	int checkEveryK;
-
-
 protected:
-	ChunkQueue queue;
 	FromSerOpListener* serverCompListener;
 
 	// Internal channel signals
@@ -94,7 +50,6 @@ protected:
 
 protected:
 	virtual void initialize(int stage) override;
-	virtual void sendRequest() override;
 	virtual void handleTimer(cMessage* msg) override;
 	virtual void socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent) override;
 	virtual void socketEstablished(TcpSocket *socket) override;

@@ -25,5 +25,5 @@ simple ClientEvilOperator extends TcpBasicClientApp {
 	    @class("inet::ClientEvilOperator");
 		
 		@signal[pcktFromServerSignal](type=cObject*);
-		bool isLogging = default(false); // For logging purposes
+		@signal[atkMsgSig-*](type=cObject*);
 }
