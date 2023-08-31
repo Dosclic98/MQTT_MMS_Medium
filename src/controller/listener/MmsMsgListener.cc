@@ -26,7 +26,10 @@ MmsMsgListener::~MmsMsgListener() {
 }
 
 void MmsMsgListener::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, omnetpp::cObject* value, omnetpp::cObject *obj) {
-	Packet* msg = check_and_cast<Packet*>(value);
-	parent->next(msg);
+	if(value == nullptr) parent->next(nullptr);
+	else {
+		Packet* msg = check_and_cast<Packet*>(value);
+		parent->next(msg);
+	}
 }
 
