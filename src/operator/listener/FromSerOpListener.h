@@ -33,11 +33,8 @@ public:
 	virtual ~FromSerOpListener();
 
 	virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject* value, cObject *obj);
-	void enqueueNSchedule(MmsMessage* msg);
 
 	ClientEvilOperator* parent;
-	int fakeGenReqThresh;
-	int numGenReq;
 };
 
 }
