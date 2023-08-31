@@ -17,6 +17,7 @@ package tx_medium_exp.simulations;
 
 import tx_medium_exp.composer.MmsWiredClient;
 import tx_medium_exp.composer.MmsWiredServer;
+import tx_medium_exp.composer.MmsWiredAttacker;
 import inet.node.inet.Router;
 import inet.node.inet.StandardHost;
 import inet.node.ethernet.Eth1G;
@@ -31,10 +32,14 @@ network IncrementalTest {
 	    server: MmsWiredServer {
 	    	serverOperator.numApps = 1;
 	    }
+	    attacker: MmsWiredAttacker {
+	    	numCons = 1;
+	    }
 	    router: Router;
 	    
 	connections:
 	    router.ethg++ <--> Eth1G <--> client.gate;
 	    router.ethg++ <--> Eth1G <--> server.gate;
+	    router.ethg++ <--> Eth1G <--> attacker.gate;
 	    
 }
