@@ -107,11 +107,14 @@ void ClientEvilOperator::socketDataArrived(TcpSocket *socket, Packet *pckt, bool
 }
 
 void ClientEvilOperator::forwardToClient(int opId, Packet* pckt) {
+	Enter_Method("Forwarding MMS message to Client");
 	emit(pcktFromServerSignal, pckt);
 	propagate(new MmsAttackerResult(opId, ResultOutcome::SUCCESS));
 }
 
 void ClientEvilOperator::forwardToServer(int opId, Packet* pckt) {
+	Enter_Method("Forwarding MMS message to Server");
+	take(pckt);
 	sendPacket(pckt);
 	propagate(new MmsAttackerResult(opId, ResultOutcome::SUCCESS));
 }
@@ -121,7 +124,7 @@ void ClientEvilOperator::propagate(IResult* res) {
 }
 
 void ClientEvilOperator::propagate(Packet* msg) {
-	emit(msgPubSig, msg);
+	emit(this->msgPubSig, msg);
 }
 
 
