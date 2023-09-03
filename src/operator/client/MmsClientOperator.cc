@@ -30,16 +30,14 @@ namespace inet {
 
 Define_Module(MmsClientOperator);
 
-MmsClientOperator::~MmsClientOperator()
-{
+MmsClientOperator::~MmsClientOperator() {
 	if(isLogging) {
 		delete logger;
 	}
     cancelAndDelete(measureAmountEvent);
 }
 
-void MmsClientOperator::initialize(int stage)
-{
+void MmsClientOperator::initialize(int stage) {
     TcpAppBase::initialize(stage);
     if (stage == INITSTAGE_LOCAL) {
         numRequestsToSend = 0;
@@ -51,7 +49,7 @@ void MmsClientOperator::initialize(int stage)
         resTimeout = par("resTimeoutInterval");
         isLogging = par("isLogging");
         if(isLogging) {
-        	logger = new MmsPacketLogger(ev->getConfigEx()->getActiveRunNumber(), "client", getParentModule()->getIndex(), getIndex());
+        	logger = new MmsPacketLogger(ev->getConfigEx()->getActiveRunNumber(), "client", 0, getIndex());
         }
         if (stopTime >= SIMTIME_ZERO && stopTime < startTime)
             throw cRuntimeError("Invalid startTime/stopTime parameters");
@@ -155,13 +153,10 @@ void MmsClientOperator::handleTimer(cMessage *msg)
         scheduleAt(simTime() + SimTime(measureAmountEventDelay, SIMTIME_S), measureAmountEvent);
         return;
     }
-    simtime_t dRead = 0;
-    simtime_t dCommand = 0;
     bool found = false;
     switch (msg->getKind()) {
         case MSGKIND_CONNECT:
             connect();
-            delete msg;
             break;
 
         case MSGKIND_RES_TIMEOUT:
@@ -196,19 +191,6 @@ void MmsClientOperator::handleTimer(cMessage *msg)
     }
 }
 
-void MmsClientOperator::rescheduleOrDeleteTimer(simtime_t d, short int msgKind) {
-    //cancelEvent(timeoutMsg);
-	timeoutMsg = new cMessage("timer");
-
-    if (stopTime < SIMTIME_ZERO || d < stopTime) {
-        timeoutMsg->setKind(msgKind);
-        scheduleAt(d, timeoutMsg);
-    }
-    else {
-        delete timeoutMsg;
-        timeoutMsg = nullptr;
-    }
-}
 
 void MmsClientOperator::socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent)
 {
