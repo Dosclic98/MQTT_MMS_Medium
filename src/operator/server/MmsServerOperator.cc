@@ -39,7 +39,7 @@ void MmsServerOperator::initialize(int stage) {
         cEnvir* ev = getSimulation()->getActiveEnvir();
         isLogging = par("isLogging").boolValue();
         if(isLogging) {
-        	logger = new MmsServerPacketLogger(ev->getConfigEx()->getActiveRunNumber(), "server", getParentModule()->getIndex(), getIndex());
+        	logger = new MmsServerPacketLogger(ev->getConfigEx()->getActiveRunNumber(), "server", 0/*getParentModule()->getIndex()*/, getIndex());
         }
 
         // Initializing inherited signals
@@ -77,6 +77,7 @@ void MmsServerOperator::sendPacketDeparture(int connId, msgid_t originId, int ev
 }
 
 void MmsServerOperator::handleDeparture(int opId, Packet* packet) {
+	Enter_Method("Sending MMS message");
     int connId = packet->getTag<SocketInd>()->getSocketId();
     ChunkQueue &queue = socketQueue[connId];
     auto chunk = packet->peekDataAt(B(0), packet->getTotalLength());
@@ -96,10 +97,8 @@ void MmsServerOperator::handleDeparture(int opId, Packet* packet) {
 			propagate(new MmsServerResult(opId, ResultOutcome::SUCCESS));
         }
         else if (appmsg->getMessageKind() == MMSKind::GENRESP) { // Response to Generic Request
-            if (requestedBytes > B(0)) {
-                sendPacketDeparture(connId, appmsg->getOriginId(), appmsg->getEvilServerConnId(), requestedBytes, B(0),
-                		appmsg->getMessageKind(), appmsg->getReqResKind(), 0, MITMKind::UNMOD);
-            }
+			sendPacketDeparture(packet->getTag<SocketReq>()->getSocketId(), appmsg->getOriginId(), appmsg->getEvilServerConnId(), appmsg->getChunkLength(), B(0),
+					appmsg->getMessageKind(), appmsg->getReqResKind(), 0, MITMKind::UNMOD);
             propagate(new MmsServerResult(opId, ResultOutcome::SUCCESS));
         }
         else {
@@ -111,6 +110,8 @@ void MmsServerOperator::handleDeparture(int opId, Packet* packet) {
             break;
         }
     }
+    // Take property before deletion
+    take(packet);
     delete packet;
 
     if (doClose) {
