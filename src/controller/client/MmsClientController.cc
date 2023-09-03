@@ -25,9 +25,9 @@
 #define SEND_MMS_COMMAND 7
 #define SEND_MMS_DISCONNECT 8
 
-Define_Module(inet::MmsClientController);
-
 using namespace inet;
+
+Define_Module(MmsClientController);
 
 MmsClientController::MmsClientController() {
 	// TODO Auto-generated constructor stub
@@ -55,7 +55,7 @@ void MmsClientController::initialize() {
     simtime_t dRead = simTime() + SimTime(par("sendReadInterval").intValue(), SIMTIME_S);
     cMessage* tmpRead = new cMessage("SENDREAD", SEND_MMS_READ);
     scheduleAt(dRead, tmpRead);
-    // // Schedule a Command send
+    // Schedule a Command send
     simtime_t dCommand = simTime() + SimTime(par("sendCommandInterval").intValue(), SIMTIME_S);
     cMessage* tmpCommand = new cMessage("SENDCOMMAND", SEND_MMS_COMMAND);
     scheduleAt(dCommand, tmpCommand);
@@ -73,11 +73,21 @@ void MmsClientController::handleMessage(cMessage* msg) {
 			case SEND_MMS_READ: {
 				SendMmsRequest* cliOp = new SendMmsRequest(idCounter, ReqResKind::READ, 0);
 				this->propagate(cliOp);
+
+			    // Schedule a Read send
+			    simtime_t dRead = simTime() + SimTime(par("sendReadInterval").intValue(), SIMTIME_S);
+			    cMessage* tmpRead = new cMessage("SENDREAD", SEND_MMS_READ);
+			    scheduleAt(dRead, tmpRead);
 				break;
 			}
 			case SEND_MMS_COMMAND: {
 				SendMmsRequest* cliOp = new SendMmsRequest(idCounter, ReqResKind::COMMAND, 0);
 				this->propagate(cliOp);
+
+			    // Schedule a Command send
+			    simtime_t dCommand = simTime() + SimTime(par("sendCommandInterval").intValue(), SIMTIME_S);
+			    cMessage* tmpCommand = new cMessage("SENDCOMMAND", SEND_MMS_COMMAND);
+			    scheduleAt(dCommand, tmpCommand);
 				break;
 			}
 			case SEND_MMS_DISCONNECT: {
