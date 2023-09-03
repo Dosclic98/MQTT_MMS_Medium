@@ -114,6 +114,7 @@ void MmsServerController::next(Packet* msg) {
         else if (appmsg->getMessageKind() == MMSKind::GENREQ) { // Response to Generic Request
             if (requestedBytes > B(0)) {
                 Packet *outPacket = new Packet("Generic Data", TCP_C_SEND);
+                outPacket->addTag<SocketInd>()->setSocketId(connId);
                 outPacket->addTag<SocketReq>()->setSocketId(connId);
                 const auto& payload = makeShared<MmsMessage>();
                 payload->setOriginId(appmsg->getOriginId());
