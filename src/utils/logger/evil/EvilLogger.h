@@ -19,7 +19,6 @@ public:
 	void log(const MmsMessage* msg, EvilStateName evilState, simtime_t timestamp);
 	void createFolderAtPath(std::string& path);
 
-	virtual ~EvilLogger();
 private:
 	int loggerIndex;
 };

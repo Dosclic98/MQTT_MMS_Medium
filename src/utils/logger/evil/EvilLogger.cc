@@ -46,8 +46,4 @@ void EvilLogger::createFolderAtPath(std::string& path) {
 	fs::create_directory(path); // create folder at path
 }
 
-EvilLogger::~EvilLogger() {
-	logFile.close();
-}
-
 };
