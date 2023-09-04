@@ -24,22 +24,24 @@ import inet.node.ethernet.Eth1G;
 import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 
 network IncrementalTest {
+    parameters:
+        volatile int numServers = default(1);
 	submodules:
 	    configurator: Ipv4NetworkConfigurator;
-	    client: MmsWiredClient{
-	    	clientOperator.numApps = 1;
+	    client: MmsWiredClient {
+	    	numServers = parent.numServers;
 	    };
-	    server: MmsWiredServer {
-	    	serverOperator.numApps = 1;
-	    }
+	    server[numServers]: MmsWiredServer;
 	    attacker: MmsWiredAttacker {
-	    	numCons = 1;
-	    }
+	    	numServers = parent.numServers;
+	    };
 	    router: Router;
 	    
 	connections:
+	    for i=0..numServers-1 {
+	    	router.ethg++ <--> Eth1G <--> server[i].gate;
+	    }
 	    router.ethg++ <--> Eth1G <--> client.gate;
-	    router.ethg++ <--> Eth1G <--> server.gate;
 	    router.ethg++ <--> Eth1G <--> attacker.gate;
 	    
 }
