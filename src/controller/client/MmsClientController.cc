@@ -38,13 +38,19 @@ MmsClientController::~MmsClientController() {
 }
 
 void MmsClientController::initialize() {
-	cmdPubSig = registerSignal("cliCmdSig");
+    char strResSubSig[30];
+    char strMsgSubSig[30];
+    char strCliCmdPubSig[30];
+    sprintf(strResSubSig, "cliResSig-%d", this->getIndex());
+    sprintf(strMsgSubSig, "cliMsgSig-%d", this->getIndex());
+    sprintf(strCliCmdPubSig, "cliCmdSig-%d", this->getIndex());
+	cmdPubSig = registerSignal(strCliCmdPubSig);
 
 	resListener = new MmsResListener(this);
 	msgListener = new MmsMsgListener(this);
 	// Subscribe listeners on the right module and signal
-	getParentModule()->getParentModule()->subscribe("cliResSig", resListener);
-	getParentModule()->getParentModule()->subscribe("cliMsgSig", msgListener);
+	getParentModule()->getParentModule()->subscribe(strResSubSig, resListener);
+	getParentModule()->getParentModule()->subscribe(strMsgSubSig, msgListener);
 
     // Schedule the register for measure MMS message
 	simtime_t dMeas = simTime() + SimTime(2, SIMTIME_S);

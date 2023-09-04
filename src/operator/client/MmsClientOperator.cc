@@ -66,12 +66,20 @@ void MmsClientOperator::initialize(int stage) {
         readResponseReceivedTimeSignal = registerSignal("readResponseReceivedTimeSignal");
         commandResponseReceivedTimeSignal = registerSignal("commandResponseReceivedTimeSignal");
 
+
         // Initializing inherited signals
-        resPubSig = registerSignal("cliResSig");
-        msgPubSig = registerSignal("cliMsgSig");
+        char strResPubSig[30];
+        char strMsgPubSig[30];
+        char strCliCmdSig[30];
+        sprintf(strResPubSig, "cliResSig-%d", this->getIndex());
+        sprintf(strMsgPubSig, "cliMsgSig-%d", this->getIndex());
+        sprintf(strCliCmdSig, "cliCmdSig-%d", this->getIndex());
+
+        resPubSig = registerSignal(strResPubSig);
+        msgPubSig = registerSignal(strMsgPubSig);
         cmdListener = new MmsOpListener(this);
         // Go up of two levels in the modules hierarchy (the first is the host module)
-        getParentModule()->getParentModule()->subscribe("cliCmdSig", cmdListener);
+        getParentModule()->getParentModule()->subscribe(strCliCmdSig, cmdListener);
 
         measureCounter = 0;
         isListening = false;
