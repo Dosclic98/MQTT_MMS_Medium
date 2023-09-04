@@ -20,12 +20,16 @@ import tx_medium_exp.controller.server.MmsServerController;
 import inet.node.inet.StandardHost;
 
 module MmsWiredServer {
-  	
+    parameters:
+        @display("i=misc/windturbine");
+        	
    	gates:
         inout gate;    
         
     submodules:
-        serverOperator: StandardHost;
+        serverOperator: StandardHost {
+        	numApps = 1;
+        };
     	serverController: MmsServerController;   
     
     connections:

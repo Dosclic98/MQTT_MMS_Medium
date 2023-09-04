@@ -20,13 +20,17 @@ import tx_medium_exp.controller.client.MmsClientController;
 import inet.node.inet.StandardHost;
 
 module MmsWiredClient {
-  	
+    parameters:
+        volatile int numServers = default(1);
+    
    	gates:
         inout gate;    
         
     submodules:
-        clientOperator: StandardHost;
-    	clientController: MmsClientController;   
+        clientOperator: StandardHost {
+        	numApps = parent.numServers;
+        };
+    	clientController[numServers]: MmsClientController;   
     
     connections:
         clientOperator.ethg++ <--> gate; 
