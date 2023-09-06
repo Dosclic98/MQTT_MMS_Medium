@@ -43,13 +43,19 @@ MmsServerController::~MmsServerController() {
 }
 
 void MmsServerController::initialize() {
-	cmdPubSig = registerSignal("serCmdSig");
+	char strCmdPubSig[30];
+	char strSerResSig[30];
+	char strSerMsgSig[30];
+	sprintf(strCmdPubSig, "serCmdSig-%d", getParentModule()->getIndex());
+	sprintf(strSerResSig, "serResSig-%d", getParentModule()->getIndex());
+	sprintf(strSerMsgSig, "serMsgSig-%d", getParentModule()->getIndex());
+	cmdPubSig = registerSignal(strCmdPubSig);
 
 	resListener = new MmsResListener(this);
 	msgListener = new MmsMsgListener(this);
 	// Subscribe listeners on the right module and signal
-	getParentModule()->getParentModule()->subscribe("serResSig", resListener);
-	getParentModule()->getParentModule()->subscribe("serMsgSig", msgListener);
+	getParentModule()->getParentModule()->subscribe(strSerResSig, resListener);
+	getParentModule()->getParentModule()->subscribe(strSerMsgSig, msgListener);
 
     departureEvent = new cMessage("Server Departure");
 	sendDataEvent = new cMessage("Register Data To Send Event");

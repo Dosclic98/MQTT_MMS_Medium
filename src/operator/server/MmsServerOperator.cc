@@ -39,15 +39,21 @@ void MmsServerOperator::initialize(int stage) {
         cEnvir* ev = getSimulation()->getActiveEnvir();
         isLogging = par("isLogging").boolValue();
         if(isLogging) {
-        	logger = new MmsServerPacketLogger(ev->getConfigEx()->getActiveRunNumber(), "server", 0/*getParentModule()->getIndex()*/, getIndex());
+        	logger = new MmsServerPacketLogger(ev->getConfigEx()->getActiveRunNumber(), "server", getParentModule()->getParentModule()->getIndex(), getIndex());
         }
 
         // Initializing inherited signals
-        resPubSig = registerSignal("serResSig");
-        msgPubSig = registerSignal("serMsgSig");
+        char strSerCmdSig[30];
+        char strSerResPubSig[30];
+        char strSerMsgPubSig[30];
+        sprintf(strSerCmdSig, "serCmdSig-%d",  getParentModule()->getParentModule()->getIndex());
+        sprintf(strSerResPubSig, "serResSig-%d",  getParentModule()->getParentModule()->getIndex());
+        sprintf(strSerMsgPubSig, "serMsgSig-%d",  getParentModule()->getParentModule()->getIndex());
+        resPubSig = registerSignal(strSerResPubSig);
+        msgPubSig = registerSignal(strSerMsgPubSig);
         cmdListener = new MmsOpListener(this);
         // Go up of two levels in the modules hierarchy (the first is the host module)
-        getParentModule()->getParentModule()->subscribe("serCmdSig", cmdListener);
+        getParentModule()->getParentModule()->subscribe(strSerCmdSig, cmdListener);
     }
 }
 
