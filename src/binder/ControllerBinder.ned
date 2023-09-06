@@ -13,31 +13,11 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef __TX_MEDIUM_EXP_ICONTROLLER_H_
-#define __TX_MEDIUM_EXP_ICONTROLLER_H_
+package tx_medium_exp.binder;
 
-#include <omnetpp.h>
-#include "inet/common/packet/Packet.h"
-#include "../operator/IOperator.h"
-#include "../result/IResult.h"
-#include "../binder/ControllerBinder.h"
-
-namespace inet {
-
-class IController {
-  protected:
-	simsignal_t cmdPubSig;
-	cListener* resListener;
-	cListener* msgListener;
-	int idCounter = 0;
-	// TODO Add the Graph and the FSM
-
-  public:
-    virtual void next(Packet* msg = nullptr) = 0;
-    virtual void propagate(IOperation* operation) = 0;
-    virtual void evalRes(IResult* res) = 0;
-};
-
-} // namespace inet
-
-#endif
+//
+// Controller Binder module
+//
+simple ControllerBinder {
+    @display("i=block/cogwheel");
+}
