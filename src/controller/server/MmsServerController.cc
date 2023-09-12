@@ -43,6 +43,10 @@ MmsServerController::~MmsServerController() {
 }
 
 void MmsServerController::initialize() {
+	ControllerBinder* binder = getBinder();
+	binder->registerController(this);
+	EV << "Server Controller Pathname: " << binder->getPathName(getId()) << "\n";
+
 	char strCmdPubSig[30];
 	char strSerResSig[30];
 	char strSerMsgSig[30];

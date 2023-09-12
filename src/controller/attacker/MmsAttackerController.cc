@@ -24,6 +24,9 @@ using namespace inet;
 Define_Module(MmsAttackerController);
 
 void MmsAttackerController::initialize() {
+	ControllerBinder* binder = getBinder();
+	binder->registerController(this);
+
 	char strCmdPubSig[30];
 	sprintf(strCmdPubSig, "atkCmdSig-%d", this->getIndex());
 	cmdPubSig = registerSignal(strCmdPubSig);

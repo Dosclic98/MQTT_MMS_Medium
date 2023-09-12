@@ -38,6 +38,9 @@ MmsClientController::~MmsClientController() {
 }
 
 void MmsClientController::initialize() {
+	ControllerBinder* binder = getBinder();
+	binder->registerController(this);
+
     char strResSubSig[30];
     char strMsgSubSig[30];
     char strCliCmdPubSig[30];
