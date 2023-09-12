@@ -21,12 +21,14 @@ import tx_medium_exp.composer.MmsWiredAttacker;
 import inet.node.inet.Router;
 import inet.node.inet.StandardHost;
 import inet.node.ethernet.Eth1G;
+import tx_medium_exp.binder.ControllerBinder;
 import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 
 network IncrementalTest {
     parameters:
         volatile int numServers = default(1);
 	submodules:
+	    controllerBinder: ControllerBinder;
 	    configurator: Ipv4NetworkConfigurator;
 	    client: MmsWiredClient {
 	    	numServers = parent.numServers;
