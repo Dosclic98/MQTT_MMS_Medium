@@ -21,6 +21,7 @@ import inet.node.inet.StandardHost;
 
 module MmsWiredClient {
     parameters:
+        @display("i=device/pc4_vl");
         volatile int numServers = default(1);
     
    	gates:
