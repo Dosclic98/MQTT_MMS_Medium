@@ -19,5 +19,6 @@ package tx_medium_exp.binder;
 // Controller Binder module
 //
 simple ControllerBinder {
+    @class("inet::ControllerBinder");
     @display("i=block/cogwheel");
 }

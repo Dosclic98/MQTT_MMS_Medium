@@ -49,22 +49,37 @@ IController* ControllerBinder::getRefByPathName(const char* pathName) {
 }
 
 const char* ControllerBinder::getPathName(int id) {
+	if(idToPathName.find(id) == idToPathName.end()) {
+		throw cRuntimeError("PathName with id %d not found\n", id);
+	}
 	return idToPathName[id];
 }
 
 void ControllerBinder::addRef(int id, IController* ref) {
+	if(idToRef.find(id) != idToRef.end()) {
+		throw cRuntimeError("Controller reference with id %d already present\n", id);
+	}
 	idToRef[id] = ref;
 }
 
 void ControllerBinder::removeRef(int id) {
+	if(idToRef.find(id) == idToRef.end()) {
+		throw cRuntimeError("Controller reference with id %d not present: impossible to remove\n", id);
+	}
 	idToRef.erase(id);
 }
 
 void ControllerBinder::addPathName(int id, const char* pathName) {
+	if(idToPathName.find(id) != idToPathName.end()) {
+		throw cRuntimeError("PathName with id %d already present: cannot add\n", id);
+	}
 	idToPathName[id] = pathName;
 }
 
 void ControllerBinder::removePathName(int id) {
+	if(idToPathName.find(id) == idToPathName.end()) {
+		throw cRuntimeError("PathName with id %d not present: impossible to remove\n", id);
+	}
 	delete [] idToPathName[id];
 	idToPathName.erase(id);
 }
