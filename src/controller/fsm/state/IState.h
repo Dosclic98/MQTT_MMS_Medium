@@ -19,6 +19,7 @@
 #include <omnetpp.h>
 #include "inet/common/packet/Packet.h"
 #include "../result/IResult.h"
+#include "../transition/ITransition.h"
 
 namespace inet {
 
@@ -26,7 +27,7 @@ class IFSM;
 
 class IState {
 protected:
-	std::vector<IState*> transitions;
+	std::vector<ITransition*> transitions;
 
 public:
 	virtual void setTransitions(std::vector<IState*> transitions) = 0;
