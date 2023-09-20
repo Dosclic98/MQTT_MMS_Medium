@@ -16,17 +16,16 @@
 #ifndef CONTROLLER_FSM_TRANSITION_ITRANSITION_H_
 #define CONTROLLER_FSM_TRANSITION_ITRANSITION_H_
 
-#include "inet/common/packet/PacketFilter.h"
-#include "operation/IOperation.h"
-#include "controller/IController.h"
-#include "controller/fsm/state/IState.h"
+#include "../../../operation/IOperation.h"
+#include "../../../controller/IController.h"
 
 namespace inet {
+
+class IState;
 
 class ITransition {
 
 protected:
-	PacketFilter packetFilter;
 	IOperation* operation;
 	IController* targetController;
 	IState* arrivalState;
@@ -34,6 +33,8 @@ protected:
 public:
 	virtual bool matchesTransition(Packet* packet) = 0;
 	virtual IState* execute(Packet* packet) = 0;
+	virtual bool matchesTransition(cEvent* event) = 0;
+	virtual IState* execute(cEvent* event) = 0;
 
 	virtual ~ITransition() = default;
 };
