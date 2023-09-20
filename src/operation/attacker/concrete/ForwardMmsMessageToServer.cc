@@ -31,3 +31,6 @@ void ForwardMmsMessageToServer::execute() {
 	oper->forwardToServer(id, msg);
 }
 
+ForwardMmsMessageToServer* ForwardMmsMessageToServer::build(Packet* packet) {
+
+}

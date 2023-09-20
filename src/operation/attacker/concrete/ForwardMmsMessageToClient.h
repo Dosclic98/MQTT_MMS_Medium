@@ -26,6 +26,8 @@ public:
 	virtual ~ForwardMmsMessageToClient();
 
 	virtual void execute() override;
+
+	static ForwardMmsMessageToClient* build(Packet* packet);
 };
 
 } // namespace inet
