@@ -18,7 +18,7 @@
 
 #include <omnetpp.h>
 #include "inet/common/packet/Packet.h"
-#include "../result/IResult.h"
+#include "../../../result/IResult.h"
 #include "../transition/ITransition.h"
 
 namespace inet {

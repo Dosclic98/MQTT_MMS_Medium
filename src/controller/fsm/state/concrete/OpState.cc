@@ -15,7 +15,7 @@
 
 #include "OpState.h"
 #include "../../IFSM.h"
-#include "../../../operation/IOperation.h"
+#include "../../../../operation/IOperation.h"
 #include "../../../IController.h"
 
 using namespace inet;
@@ -24,7 +24,7 @@ OpState::~OpState() {
 	// TODO Auto-generated destructor stub
 }
 
-OpState::OpState(std::vector<IState*> transitions, IOperation* operation, IController* targetController) {
+OpState::OpState(std::vector<ITransition*> transitions, IOperation* operation, IController* targetController) {
 	this->transitions = transitions;
 	this->operation = operation;
 	this->targetController = targetController;
