@@ -18,6 +18,10 @@
 
 using namespace inet;
 
+IOperation* ForwardDeparture::build(Packet* packet) {
+
+};
+
 ForwardDeparture::ForwardDeparture(int id, Packet* packet) {
 	this->id = id;
 	this->msg = packet;
