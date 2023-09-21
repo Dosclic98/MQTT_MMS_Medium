@@ -26,6 +26,8 @@ class IOperator;
 class IOperation: public omnetpp::cObject {
 
 protected:
+	static int idCounter = 0;
+
 	int id;
 	IOperator* operatorOwner;
 

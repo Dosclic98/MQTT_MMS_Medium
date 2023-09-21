@@ -17,8 +17,8 @@
 
 using namespace inet;
 
-SendMmsConnect::SendMmsConnect(int id) {
-	this->id = id;
+SendMmsConnect::SendMmsConnect() {
+	this->id = ++SendMmsConnect::idCounter;
 }
 
 SendMmsConnect::~SendMmsConnect() {

@@ -22,7 +22,7 @@ namespace inet {
 
 class SendMmsRequest : public MmsClientOperation{
 public:
-	SendMmsRequest(int id, ReqResKind reqKind, int data);
+	SendMmsRequest(ReqResKind reqKind, int data);
 	virtual ~SendMmsRequest();
 
 	virtual void execute() override;

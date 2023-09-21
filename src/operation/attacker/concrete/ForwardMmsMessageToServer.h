@@ -22,7 +22,7 @@ namespace inet {
 
 class ForwardMmsMessageToServer : public MmsAttackerOperation {
 public:
-	ForwardMmsMessageToServer(int id, Packet* msg);
+	ForwardMmsMessageToServer(Packet* msg);
 	virtual ~ForwardMmsMessageToServer();
 
 	virtual void execute() override;

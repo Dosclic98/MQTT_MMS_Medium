@@ -23,7 +23,7 @@ namespace inet {
 
 class SendMmsDisconnect: public MmsClientOperation {
 public:
-	SendMmsDisconnect(int id);
+	SendMmsDisconnect();
 	virtual ~SendMmsDisconnect();
 
 	virtual void execute() override;

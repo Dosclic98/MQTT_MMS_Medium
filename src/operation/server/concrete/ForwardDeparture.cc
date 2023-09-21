@@ -18,12 +18,8 @@
 
 using namespace inet;
 
-IOperation* ForwardDeparture::build(Packet* packet) {
-
-};
-
-ForwardDeparture::ForwardDeparture(int id, Packet* packet) {
-	this->id = id;
+ForwardDeparture::ForwardDeparture(Packet* packet) {
+	this->id = ++ForwardDeparture::idCounter;
 	this->msg = packet;
 }
 

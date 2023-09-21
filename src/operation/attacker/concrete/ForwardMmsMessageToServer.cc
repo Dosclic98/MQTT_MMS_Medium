@@ -17,8 +17,8 @@
 
 using namespace inet;
 
-ForwardMmsMessageToServer::ForwardMmsMessageToServer(int id, Packet* msg) {
-	this->id = id;
+ForwardMmsMessageToServer::ForwardMmsMessageToServer(Packet* msg) {
+	this->id = ++ForwardMmsMessageToServer::idCounter;
 	this->msg = msg;
 }
 

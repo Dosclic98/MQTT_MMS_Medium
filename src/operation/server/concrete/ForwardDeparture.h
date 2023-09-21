@@ -25,12 +25,10 @@ namespace inet {
 class ForwardDeparture : public MmsServerOperation {
 
 public:
-	ForwardDeparture(int id, Packet* packet);
+	ForwardDeparture(Packet* packet);
 	virtual ~ForwardDeparture();
 
 	virtual void execute() override;
-
-	static ForwardDeparture* build(Packet* packet);
 
 private:
 	Packet* msg;

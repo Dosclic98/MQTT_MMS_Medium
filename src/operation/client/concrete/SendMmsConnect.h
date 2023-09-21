@@ -22,7 +22,7 @@ namespace inet {
 
 class SendMmsConnect: public MmsClientOperation {
 public:
-	SendMmsConnect(int id);
+	SendMmsConnect();
 	virtual ~SendMmsConnect();
 
 	virtual void execute() override;

@@ -17,8 +17,8 @@
 
 using namespace inet;
 
-SendMmsDisconnect::SendMmsDisconnect(int id) {
-	this->id = id;
+SendMmsDisconnect::SendMmsDisconnect() {
+	this->id = ++SendMmsDisconnect::idCounter;
 }
 
 SendMmsDisconnect::~SendMmsDisconnect() {

@@ -17,8 +17,8 @@
 
 using namespace inet;
 
-SendMmsRequest::SendMmsRequest(int id, ReqResKind reqKind, int data) {
-	this->id = id;
+SendMmsRequest::SendMmsRequest(ReqResKind reqKind, int data) {
+	this->id = ++SendMmsRequest::idCounter;
 	this->reqKind = reqKind;
 	this->data = data;
 }
