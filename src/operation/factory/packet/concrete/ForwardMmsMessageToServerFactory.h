@@ -17,14 +17,15 @@
 #define OPERATION_FACTORY_PACKET_CONCRETE_FORWARDMMSMESSAGETOSERVERFACTORY_H_
 
 #include "../PacketOperationFactory.h"
+#include "../../../../controller/attacker/MmsAttackerController.h"
 
 namespace inet {
 
 class ForwardMmsMessageToServerFactory : public PacketOperationFactory {
 public:
-	virtual IOperation* build(Packet* packet) override;
+	virtual void build(Packet* packet) override;
 
-	ForwardMmsMessageToServerFactory();
+	ForwardMmsMessageToServerFactory(MmsAttackerController* controller);
 	virtual ~ForwardMmsMessageToServerFactory();
 };
 

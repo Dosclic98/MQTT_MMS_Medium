@@ -17,11 +17,13 @@
 
 using namespace inet;
 
-IOperation* ForwardMmsMessageToClientFactory::build(Packet* packet) {
+void ForwardMmsMessageToClientFactory::build(Packet* packet) {
 	// TODO
 }
 
-ForwardMmsMessageToClientFactory::ForwardMmsMessageToClientFactory() { }
+ForwardMmsMessageToClientFactory::ForwardMmsMessageToClientFactory(MmsAttackerController* controller) {
+	this->controller = controller;
+}
 
 ForwardMmsMessageToClientFactory::~ForwardMmsMessageToClientFactory() { }
 
