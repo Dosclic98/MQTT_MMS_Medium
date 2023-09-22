@@ -25,7 +25,7 @@ class IOperation;
 
 class EventOperationFactory : public IOperationFactory {
 public:
-	virtual IOperation* build(omnetpp::cEvent* event) = 0;
+	virtual void build(omnetpp::cEvent* event) = 0;
 
 	virtual ~EventOperationFactory() = default;
 };

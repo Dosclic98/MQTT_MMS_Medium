@@ -29,9 +29,9 @@ class PacketOperationFactory : public IOperationFactory{
 protected:
 	ChunkQueue queue;
 public:
-	virtual IOperation* build(Packet* packet) = 0;
+	virtual void build(Packet* packet) = 0;
 
-	virtual ~PacketOperationFactory() = 0;
+	virtual ~PacketOperationFactory() = default;
 };
 
 } // namespace inet
