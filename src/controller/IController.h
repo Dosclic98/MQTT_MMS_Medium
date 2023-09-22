@@ -21,6 +21,7 @@
 #include "../operator/IOperator.h"
 #include "../result/IResult.h"
 #include "../binder/ControllerBinder.h"
+#include <queue>
 
 namespace inet {
 
@@ -32,10 +33,12 @@ class IController {
 	simsignal_t cmdPubSig;
 	cListener* resListener;
 	cListener* msgListener;
-	int idCounter = 0;
 	// TODO Add the Graph and the FSM
 
   public:
+	std::queue<IOperation*> operationQueue;
+	bool controllerStatus = false;
+
     virtual void next(Packet* msg = nullptr) = 0;
     virtual void propagate(IOperation* operation) = 0;
     virtual void evalRes(IResult* res) = 0;
