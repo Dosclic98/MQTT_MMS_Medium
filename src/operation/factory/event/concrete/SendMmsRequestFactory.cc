@@ -14,16 +14,39 @@
 // 
 
 #include "SendMmsRequestFactory.h"
+#include "../../../../controller/client/MmsClientController.h"
 #include "../../../client/concrete/SendMmsRequest.h"
 
 using namespace inet;
 
-IOperation* SendMmsRequestFactory::build(omnetpp::cEvent* event) {
-	// TODO Generate the request based on the event
-	return new SendMmsRequest(ReqResKind::READ, 0);
+void SendMmsRequestFactory::build(omnetpp::cEvent* event) {
+	MmsClientController* controller = check_and_cast<MmsClientController*>(this->controller);
+	cMessage* msg = check_and_cast<cMessage*>(event);
+	switch(msg->getKind()) {
+		case SEND_MMS_READ: {
+			SendMmsRequest* cliOp = new SendMmsRequest(ReqResKind::READ, 0);
+			controller->propagate(cliOp);
+
+		    // Schedule a Read send
+		    simtime_t dRead = simTime() + SimTime(controller->par("sendReadInterval").intValue(), SIMTIME_S);
+		    cMessage* tmpRead = new cMessage("SENDREAD", SEND_MMS_READ);
+		    controller->scheduleAt(dRead, tmpRead);
+		}
+		case SEND_MMS_COMMAND: {
+			SendMmsRequest* cliOp = new SendMmsRequest(ReqResKind::COMMAND, 0);
+			controller->propagate(cliOp);
+
+		    // Schedule a Command send
+		    simtime_t dCommand = simTime() + SimTime(controller->par("sendCommandInterval").intValue(), SIMTIME_S);
+		    cMessage* tmpCommand = new cMessage("SENDCOMMAND", SEND_MMS_COMMAND);
+		    controller->scheduleAt(dCommand, tmpCommand);
+		}
+	}
 }
 
-SendMmsRequestFactory::SendMmsRequestFactory() { }
+SendMmsRequestFactory::SendMmsRequestFactory(MmsClientController* controller) {
+	this->controller = controller;
+}
 
 SendMmsRequestFactory::~SendMmsRequestFactory() { }
 

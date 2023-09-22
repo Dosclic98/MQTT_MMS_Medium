@@ -20,12 +20,14 @@
 
 namespace inet {
 
+class MmsClientController;
+
 class SendMmsDisconnectFactory : public EventOperationFactory {
 public:
-	virtual IOperation* build(omnetpp::cEvent* event) override;
+	virtual void build(omnetpp::cEvent* event) override;
 
 	virtual ~SendMmsDisconnectFactory();
-	SendMmsDisconnectFactory();
+	SendMmsDisconnectFactory(MmsClientController* controller);
 };
 
 } // namespace inet

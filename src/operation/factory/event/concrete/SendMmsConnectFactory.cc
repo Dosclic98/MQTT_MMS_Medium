@@ -14,15 +14,19 @@
 // 
 
 #include "SendMmsConnectFactory.h"
+#include "../../../../controller/client/MmsClientController.h"
 #include "../../../client/concrete/SendMmsConnect.h"
 
 using namespace inet;
 
-IOperation* SendMmsConnectFactory::build(omnetpp::cEvent* event) {
-	return new SendMmsConnect();
+void SendMmsConnectFactory::build(omnetpp::cEvent* event) {
+	SendMmsConnect* cliOp = new SendMmsConnect();
+	controller->propagate(cliOp);
 }
 
-SendMmsConnectFactory::SendMmsConnectFactory() { }
+SendMmsConnectFactory::SendMmsConnectFactory(MmsClientController* controller) {
+	this->controller = controller;
+}
 
 SendMmsConnectFactory::~SendMmsConnectFactory() { }
 

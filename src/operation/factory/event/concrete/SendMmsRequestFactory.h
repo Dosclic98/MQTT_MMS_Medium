@@ -20,11 +20,13 @@
 
 namespace inet {
 
+class MmsClientController;
+
 class SendMmsRequestFactory : public EventOperationFactory {
 public:
-	virtual IOperation* build(omnetpp::cEvent* event) override;
+	virtual void build(omnetpp::cEvent* event) override;
 
-	SendMmsRequestFactory();
+	SendMmsRequestFactory(MmsClientController* controller);
 	virtual ~SendMmsRequestFactory();
 };
 

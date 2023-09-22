@@ -14,16 +14,20 @@
 // 
 
 #include "SendMmsDisconnectFactory.h"
+#include "../../../../controller/client/MmsClientController.h"
 #include "../../../client/concrete/SendMmsDisconnect.h"
 
 
 using namespace inet;
 
-IOperation* SendMmsDisconnectFactory::build(omnetpp::cEvent* event) {
-	return new SendMmsDisconnect();
+void SendMmsDisconnectFactory::build(omnetpp::cEvent* event) {
+	SendMmsDisconnect* cliOp = new SendMmsDisconnect();
+	controller->propagate(cliOp);
 }
 
 SendMmsDisconnectFactory::~SendMmsDisconnectFactory() { }
 
-SendMmsDisconnectFactory::SendMmsDisconnectFactory() { }
+SendMmsDisconnectFactory::SendMmsDisconnectFactory(MmsClientController* controller) {
+	this->controller = controller;
+}
 
