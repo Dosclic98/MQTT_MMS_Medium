@@ -19,27 +19,28 @@
 #include "../IController.h"
 #include "inet/common/packet/ChunkQueue.h"
 
+
 namespace inet {
 
-/**
- * TODO - Generated class
- */
+class GenerateMeasuresFactory;
+class ForwardDepartureFactory;
+
 class MmsServerController : public cSimpleModule, public IController {
   public:
-	MmsServerController();
-	virtual ~MmsServerController();
-  protected:
-	ChunkQueue queue;
 	// Gestione della sottoscrizione del client per ricezione misure
 	std::list< std::pair<int,int> > clientConnIdList;
 
 	// Gestione invio misure
 	cMessage* sendDataEvent;
-
-	// Gestione servitore e coda
-	bool serverStatus;
-	cQueue serverQueue;
 	cMessage* departureEvent;
+
+	MmsServerController();
+	virtual ~MmsServerController();
+  protected:
+	ChunkQueue queue;
+
+	ForwardDepartureFactory* forwardDepartureFactory;
+	GenerateMeasuresFactory* generateMeasuresFactory;
 
     virtual void initialize() override;
     virtual void handleMessage(cMessage *msg) override;
