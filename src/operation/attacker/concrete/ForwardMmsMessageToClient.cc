@@ -23,14 +23,10 @@ ForwardMmsMessageToClient::ForwardMmsMessageToClient(Packet* msg) {
 }
 
 ForwardMmsMessageToClient::~ForwardMmsMessageToClient() {
-	// TODO Auto-generated destructor stub
+	delete this->msg;
 }
 
 void ForwardMmsMessageToClient::execute() {
 	ClientEvilOperator* oper = check_and_cast<ClientEvilOperator*>(operatorOwner);
 	oper->forwardToClient(id, msg);
-}
-
-ForwardMmsMessageToClient* ForwardMmsMessageToClient::build(Packet* packet) {
-
 }
