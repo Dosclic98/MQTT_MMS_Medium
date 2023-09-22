@@ -109,7 +109,7 @@ void MmsAttackerController::handleMessage(cMessage *msg) {
 				const auto& payload = messageCopier->copyMessage(msgPopped, true);
 				Packet *packet = new Packet("data");
 				packet->insertAtBack(payload);
-				ForwardMmsMessageToServer* msgToCli = new ForwardMmsMessageToServer(idCounter, packet);
+				ForwardMmsMessageToServer* msgToCli = new ForwardMmsMessageToServer(packet);
 				propagate(msgToCli);
 				previousResponseSent = true;
 				delete msgPopped;
@@ -288,9 +288,8 @@ void MmsAttackerController::next(Packet* pckt) {
 	    	packet->insertAtBack(msgCp);
 	    	packet->addTag<SocketInd>()->setSocketId(appmsg->getEvilServerConnId());
 
-	    	ForwardMmsMessageToClient* cliOp = new ForwardMmsMessageToClient(idCounter, packet);
+	    	ForwardMmsMessageToClient* cliOp = new ForwardMmsMessageToClient(packet);
 		    this->propagate(cliOp);
-		    idCounter++;
 	    } else {
 	    	enqueueNSchedule(msg);
 	    	// Just used to forward messages directed to the clients
