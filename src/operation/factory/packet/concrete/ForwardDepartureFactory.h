@@ -17,15 +17,15 @@
 #define OPERATION_FACTORY_PACKET_CONCRETE_FORWARDDEPARTUREFACTORY_H_
 
 #include "../PacketOperationFactory.h"
+#include "../../../../controller/server/MmsServerController.h"
 
 namespace inet {
 
 class ForwardDepartureFactory : public PacketOperationFactory {
-
 public:
-	virtual IOperation* build(Packet* packet) override;
+	virtual void build(Packet* packet) override;
 
-	ForwardDepartureFactory();
+	ForwardDepartureFactory(MmsServerController* controller);
 	virtual ~ForwardDepartureFactory();
 };
 
