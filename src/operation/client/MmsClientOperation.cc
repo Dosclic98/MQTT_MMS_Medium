@@ -17,6 +17,8 @@
 
 using namespace inet;
 
+int IOperation::idCounter = 0;
+
 IOperator* MmsClientOperation::getOperatorOwner() {
 	if(auto* oper = dynamic_cast<MmsClientOperator*>(operatorOwner)) { return oper; }
 	else throw std::invalid_argument("operatorOwner must be a subtype of MmsClientOperator");
