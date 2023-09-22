@@ -24,7 +24,7 @@ ForwardDeparture::ForwardDeparture(Packet* packet) {
 }
 
 ForwardDeparture::~ForwardDeparture() {
-	// TODO Auto-generated destructor stub
+	delete this->msg;
 }
 
 void ForwardDeparture::execute() {
