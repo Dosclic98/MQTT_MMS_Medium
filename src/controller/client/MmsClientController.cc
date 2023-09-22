@@ -20,11 +20,6 @@
 #include "../../operation/client/concrete/SendMmsDisconnect.h"
 #include "../../operation/client/concrete/SendMmsRequest.h"
 
-#define SEND_MMS_CONNECT 5
-#define SEND_MMS_READ 6
-#define SEND_MMS_COMMAND 7
-#define SEND_MMS_DISCONNECT 8
-
 using namespace inet;
 
 Define_Module(MmsClientController);
@@ -68,6 +63,10 @@ void MmsClientController::initialize() {
     simtime_t dCommand = simTime() + SimTime(par("sendCommandInterval").intValue(), SIMTIME_S);
     cMessage* tmpCommand = new cMessage("SENDCOMMAND", SEND_MMS_COMMAND);
     scheduleAt(dCommand, tmpCommand);
+
+    sendMmsConnectFactory = new SendMmsConnectFactory(this);
+    sendMmsDisconnectFactory = new SendMmsDisconnectFactory(this);
+    sendMmsRequestFactory = new SendMmsRequestFactory(this);
 }
 
 // TODO Just a temporary solution to test the client controller <--> operator communication
@@ -75,40 +74,25 @@ void MmsClientController::handleMessage(cMessage* msg) {
 	if(msg->isSelfMessage()) {
 		switch(msg->getKind()) {
 			case SEND_MMS_CONNECT: {
-				SendMmsConnect* cliOp = new SendMmsConnect(idCounter);
-				this->propagate(cliOp);
+				sendMmsConnectFactory->build(msg);
 				break;
 			}
 			case SEND_MMS_READ: {
-				SendMmsRequest* cliOp = new SendMmsRequest(idCounter, ReqResKind::READ, 0);
-				this->propagate(cliOp);
-
-			    // Schedule a Read send
-			    simtime_t dRead = simTime() + SimTime(par("sendReadInterval").intValue(), SIMTIME_S);
-			    cMessage* tmpRead = new cMessage("SENDREAD", SEND_MMS_READ);
-			    scheduleAt(dRead, tmpRead);
+				sendMmsRequestFactory->build(msg);
 				break;
 			}
 			case SEND_MMS_COMMAND: {
-				SendMmsRequest* cliOp = new SendMmsRequest(idCounter, ReqResKind::COMMAND, 0);
-				this->propagate(cliOp);
-
-			    // Schedule a Command send
-			    simtime_t dCommand = simTime() + SimTime(par("sendCommandInterval").intValue(), SIMTIME_S);
-			    cMessage* tmpCommand = new cMessage("SENDCOMMAND", SEND_MMS_COMMAND);
-			    scheduleAt(dCommand, tmpCommand);
+				sendMmsRequestFactory->build(msg);
 				break;
 			}
 			case SEND_MMS_DISCONNECT: {
-				SendMmsDisconnect* cliOp = new SendMmsDisconnect(idCounter);
-				this->propagate(cliOp);
+				sendMmsDisconnectFactory->build(msg);
 				break;
 			}
 			default: {
 				// Should not be here
 			}
 		}
-		idCounter++;
 		delete msg;
 	}
 }
@@ -119,7 +103,7 @@ void MmsClientController::propagate(IOperation* op) {
 
 
 void MmsClientController::next(Packet* msg) {
-
+	// At the moment the controller does not manage MMS responses back
 }
 
 void MmsClientController::evalRes(IResult* res) {
