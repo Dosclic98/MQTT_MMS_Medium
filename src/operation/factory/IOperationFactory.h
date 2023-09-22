@@ -16,9 +16,13 @@
 #ifndef OPERATION_FACTORY_IOPERATIONFACTORY_H_
 #define OPERATION_FACTORY_IOPERATIONFACTORY_H_
 
+#include "../../controller/IController.h"
+
 namespace inet {
 
 class IOperationFactory {
+protected:
+	IController* controller;
 public:
 	virtual ~IOperationFactory() = default;
 };
