@@ -21,7 +21,6 @@
 #include "../operator/IOperator.h"
 #include "../result/IResult.h"
 #include "../binder/ControllerBinder.h"
-#include <queue>
 
 namespace inet {
 
@@ -36,7 +35,7 @@ class IController {
 	// TODO Add the Graph and the FSM
 
   public:
-	std::queue<IOperation*> operationQueue;
+	cQueue operationQueue;
 	bool controllerStatus = false;
 
     virtual void next(Packet* msg = nullptr) = 0;

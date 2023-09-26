@@ -78,11 +78,10 @@ void MmsServerController::handleMessage(cMessage *msg) {
     	generateMeasuresFactory->build(sendDataEvent);
     }
     if(msg == departureEvent) {
-    	if(!operationQueue.empty()) {
-        	IOperation* opDep = operationQueue.front();
-        	operationQueue.pop();
+    	if(!operationQueue.isEmpty()) {
+        	IOperation* opDep = check_and_cast<IOperation*>(operationQueue.pop());
         	propagate(opDep);
-        	if(!operationQueue.empty()) {
+        	if(!operationQueue.isEmpty()) {
         		scheduleAt(simTime() + SimTime(par("serviceTime").intValue(), SIMTIME_MS), departureEvent);
         	} else controllerStatus = false;
     	}
