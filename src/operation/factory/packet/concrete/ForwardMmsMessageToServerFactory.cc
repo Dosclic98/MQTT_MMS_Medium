@@ -19,7 +19,56 @@
 using namespace inet;
 
 void ForwardMmsMessageToServerFactory::build(Packet* packet) {
-	// TODO
+	MmsAttackerController* controller = check_and_cast<MmsAttackerController*>(this->controller);
+    auto chunk = packet->peekDataAt(B(0), packet->getTotalLength());
+    queue.push(chunk);
+    while (queue.has<MmsMessage>(b(-1))) {
+    	const auto& appmsg = queue.pop<MmsMessage>(b(-1));
+    	MmsMessage* msg = controller->messageCopier->copyMessageNorm(appmsg.get(), true);
+
+    	double p = controller->uniform(0.0, 1.0);
+	    if(appmsg->getMessageKind() == MMSKind::GENREQ) {
+			if(appmsg->getReqResKind() == ReqResKind::READ) {
+				if (p < controller->readRequestBlockProb) { // Block
+					controller->emit(controller->readRequestBlockSignal, true);
+					msg->setAtkStatus(MITMKind::BLOCK);
+					if(controller->isLogging) controller->logger->log(msg, EvilStateName::FULL, simTime());
+					delete msg;
+					return;
+				} else if (p - controller->readRequestBlockProb < controller->readRequestCompromisedProb) { // Compromise
+					msg->setAtkStatus(MITMKind::COMPR);
+					msg->setData(9);
+					if(controller->isLogging) controller->logger->log(msg, EvilStateName::FULL, simTime());
+					controller->emit(controller->readRequestCompromisedSignal, true);
+				} else {
+					if(controller->isLogging) controller->logger->log(msg, EvilStateName::FULL, simTime());
+				}
+			} else if(appmsg->getReqResKind() == ReqResKind::COMMAND) {
+				if (p < controller->commandRequestBlockProb) { // Block
+					controller->emit(controller->commandRequestBlockSignal, true);
+					msg->setAtkStatus(MITMKind::BLOCK);
+					if(controller->isLogging) controller->logger->log(msg, EvilStateName::FULL, simTime());
+					delete msg;
+					return;
+				} else if (p - controller->commandRequestBlockProb < controller->commandRequestCompromisedProb) { // Compromise
+					controller->emit(controller->commandRequestCompromisedSignal, true);
+					msg->setAtkStatus(MITMKind::COMPR);
+					msg->setData(9);
+					if(controller->isLogging) controller->logger->log(msg, EvilStateName::FULL, simTime());
+				} else {
+					if(controller->isLogging) controller->logger->log(msg, EvilStateName::FULL, simTime());
+				}
+			}
+		}
+
+
+		const auto& payload = controller->messageCopier->copyMessage(msg, true);
+		delete msg;
+		Packet *pckt = new Packet("data");
+		pckt->insertAtBack(payload);
+		ForwardMmsMessageToServer* msgToSer = new ForwardMmsMessageToServer(pckt);
+		controller->enqueueNSchedule(msgToSer);
+    }
 }
 
 ForwardMmsMessageToServerFactory::ForwardMmsMessageToServerFactory(MmsAttackerController* controller) {

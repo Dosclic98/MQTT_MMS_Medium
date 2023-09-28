@@ -59,12 +59,7 @@ void ForwardDepartureFactory::build(Packet* msg) {
 				outPacket->insertAtBack(payload);
 
 				ForwardDeparture* opDep = new ForwardDeparture(outPacket);
-                if(!controller->controllerStatus) {
-                	controller->controllerStatus = true;
-                	controller->operationQueue.insert(opDep);
-                	controller->scheduleAt(simTime() + SimTime(controller->par("serviceTime").intValue(), SIMTIME_MS), controller->departureEvent);
-                }
-                else controller->operationQueue.insert(opDep);
+                controller->enqueueNSchedule(opDep);
 			} else {
 				// bad request
 			}
