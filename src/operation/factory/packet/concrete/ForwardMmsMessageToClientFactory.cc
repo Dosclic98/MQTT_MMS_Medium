@@ -39,6 +39,7 @@ void ForwardMmsMessageToClientFactory::build(Packet* packet) {
 	        	controller->emit(controller->measureBlockSignal, true);
 	            msg->setAtkStatus(MITMKind::BLOCK);
 	            if(controller->isLogging) controller->logger->log(msg, EvilStateName::FULL, simTime());
+	            delete msg;
 	            delete pckt;
 	            return;
 	        } else if (p - controller->measureBlockProb < controller->measureCompromisedProb) { //Compromise
@@ -58,6 +59,7 @@ void ForwardMmsMessageToClientFactory::build(Packet* packet) {
 		        	controller->emit(controller->readResponseBlockSignal, true);
 		            msg->setAtkStatus(MITMKind::BLOCK);
 		            if(controller->isLogging) controller->logger->log(msg, EvilStateName::FULL, simTime());
+		            delete msg;
 		            delete pckt;
 		            return;
 		        } else if (p - controller->readResponseBlockProb < controller->readResponseCompromisedProb) { // Compromise
@@ -76,6 +78,7 @@ void ForwardMmsMessageToClientFactory::build(Packet* packet) {
 		        	controller->emit(controller->commandResponseBlockSignal, true);
 		            msg->setAtkStatus(MITMKind::BLOCK);
 		            if(controller->isLogging) controller->logger->log(msg, EvilStateName::FULL, simTime());
+		            delete msg;
 		            delete pckt;
 		            return;
 		        } else if (p - controller->commandResponseBlockProb < controller->commandResponseCompromisedProb) { // Compromise
