@@ -41,6 +41,7 @@ class IController {
     virtual void next(Packet* msg = nullptr) = 0;
     virtual void propagate(IOperation* operation) = 0;
     virtual void evalRes(IResult* res) = 0;
+    virtual void enqueueNSchedule(IOperation* operation) = 0;
     virtual ControllerBinder* getBinder() {
         return check_and_cast<ControllerBinder*>(getSimulation()->getModuleByPath("controllerBinder"));
     }
