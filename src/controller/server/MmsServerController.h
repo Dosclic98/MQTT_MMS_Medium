@@ -34,6 +34,8 @@ class MmsServerController : public cSimpleModule, public IController {
 	cMessage* sendDataEvent;
 	cMessage* departureEvent;
 
+	virtual void enqueueNSchedule(IOperation* operation) override;
+
 	MmsServerController();
 	virtual ~MmsServerController();
   protected:

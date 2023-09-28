@@ -88,6 +88,15 @@ void MmsServerController::handleMessage(cMessage *msg) {
     }
 }
 
+void MmsServerController::enqueueNSchedule(IOperation* operation) {
+	if(!controllerStatus) {
+		controllerStatus = true;
+		operationQueue.insert(operation);
+		scheduleAt(simTime() + SimTime(par("serviceTime").intValue(), SIMTIME_MS), departureEvent);
+	}
+	else operationQueue.insert(operation);
+}
+
 void MmsServerController::propagate(IOperation* op) {
 	emit(this->cmdPubSig, op);
 }

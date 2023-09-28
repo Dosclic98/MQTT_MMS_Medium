@@ -110,3 +110,7 @@ void MmsClientController::evalRes(IResult* res) {
 
 }
 
+void MmsClientController::enqueueNSchedule(IOperation* operation) {
+
+}
+

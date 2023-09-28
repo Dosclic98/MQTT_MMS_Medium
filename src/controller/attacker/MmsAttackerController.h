@@ -24,17 +24,16 @@
 
 namespace inet {
 
+class ForwardMmsMessageToServerFactory;
+class ForwardMmsMessageToClientFactory;
+class ForwardFakeMmsMessageToServerFactory;
+
 #define MSGKIND_CONNECT    0
 #define MSGKIND_SEND       1
 
-/**
- * TODO - Generated class
- */
 class MmsAttackerController : public cSimpleModule, public IController {
   public:
 	MmsMessageCopier* messageCopier;
-	cQueue msgQueue;
-	bool previousResponseSent;
 	cMessage* sendMsgEvent;
 
 	// For logging purposes
@@ -80,12 +79,16 @@ class MmsAttackerController : public cSimpleModule, public IController {
     virtual void propagate(IOperation* op) override;
     virtual void evalRes(IResult* res) override;
 
-    void enqueueNSchedule(MmsMessage* msg);
+    void enqueueNSchedule(IOperation* operation) override;
 
 	int fakeGenReqThresh;
 	int numGenReq;
   protected:
-    ChunkQueue queue;
+	ChunkQueue queue;
+
+    ForwardMmsMessageToServerFactory* forwardMmsMessageToServerFactory;
+    ForwardMmsMessageToClientFactory* forwardMmsMessageToClientFactory;
+    ForwardFakeMmsMessageToServerFactory* forwardFakeMmsMessageToServerFactory;
 };
 
 } // namespace inet

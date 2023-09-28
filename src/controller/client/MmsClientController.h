@@ -45,6 +45,7 @@ public:
 	virtual void next(Packet* msg = nullptr) override;
 	virtual void propagate(IOperation* op) override;
 	virtual void evalRes(IResult* res) override;
+	virtual void enqueueNSchedule(IOperation* operation) override;
 };
 
 }

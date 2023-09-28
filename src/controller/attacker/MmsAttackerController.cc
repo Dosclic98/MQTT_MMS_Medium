@@ -19,6 +19,10 @@
 #include "../../operation/attacker/concrete/ForwardMmsMessageToClient.h"
 #include "../../operation/attacker/concrete/ForwardMmsMessageToServer.h"
 
+#include "../../operation/factory/packet/concrete/ForwardMmsMessageToServerFactory.h"
+#include "../../operation/factory/packet/concrete/ForwardMmsMessageToClientFactory.h"
+#include "../../operation/factory/packet/concrete/ForwardFakeMmsMessageToServerFactory.h"
+
 using namespace inet;
 
 Define_Module(MmsAttackerController);
@@ -49,10 +53,15 @@ void MmsAttackerController::initialize() {
     	logger = new EvilLogger(ev->getConfigEx()->getActiveRunNumber(), getIndex());
     }
 
+    // Initializing message factories
+    forwardMmsMessageToClientFactory = new ForwardMmsMessageToClientFactory(this);
+    forwardMmsMessageToServerFactory = new ForwardMmsMessageToServerFactory(this);
+    forwardFakeMmsMessageToServerFactory = new ForwardFakeMmsMessageToServerFactory(this);
+
 	fakeGenReqThresh = par("fakeGenReqThresh").intValue();
 	numGenReq = 0;
 
-    previousResponseSent = true;
+    controllerStatus = false;
     isSocketConnected = false;
 
     sendMsgEvent = new cMessage("Send message event");
@@ -104,15 +113,10 @@ void MmsAttackerController::initialize() {
 void MmsAttackerController::handleMessage(cMessage *msg) {
 	switch (msg->getKind()) {
 		case MSGKIND_SEND:
-			if(!msgQueue.isEmpty()) {
-				MmsMessage* msgPopped = check_and_cast<MmsMessage*>(msgQueue.pop());
-				const auto& payload = messageCopier->copyMessage(msgPopped, true);
-				Packet *packet = new Packet("data");
-				packet->insertAtBack(payload);
-				ForwardMmsMessageToServer* msgToCli = new ForwardMmsMessageToServer(packet);
-				propagate(msgToCli);
-				previousResponseSent = true;
-				delete msgPopped;
+			if(!operationQueue.isEmpty()) {
+				IOperation* op = check_and_cast<IOperation*>(operationQueue.pop());
+				propagate(op);
+				controllerStatus = false;
 			}
 			break;
 
@@ -127,16 +131,16 @@ void MmsAttackerController::next(Packet* pckt) {
 	if(pckt == nullptr) {
 		isSocketConnected = true;
 	    // Forward the packets waiting to be forwarded to the server
-	    if(!msgQueue.isEmpty() && previousResponseSent) {
+	    if(!operationQueue.isEmpty() && !controllerStatus) {
 	    	simtime_t d = simTime() + SimTime(round(par("thinkTime").doubleValue()), SIMTIME_MS);
 	    	timeoutMsg->setKind(MSGKIND_SEND);
 	    	scheduleAt(d, timeoutMsg);
-			previousResponseSent = false;
+			controllerStatus = true;
 	    }
 		return;
 	}
 
-	// We must see if the message is directed to the clisnt or to the server
+	// We must see if the message is directed to the client or to the server
     auto chunk = pckt->peekDataAt(B(0), pckt->getTotalLength());
     queue.push(chunk);
     while (queue.has<MmsMessage>(b(-1))) {
@@ -155,161 +159,35 @@ void MmsAttackerController::next(Packet* pckt) {
 			if(numGenReq >= fakeGenReqThresh) {
 				numGenReq = 0;
 
-				// Add to the forward to the server queue
-				MmsMessage* msg = new MmsMessage();
-				// Useless, could also not be set
-				msg->setOriginId(pckt->getId());
-				msg->setMessageKind(MMSKind::GENREQ);
-				// Set to read for now
-				msg->setReqResKind(ReqResKind::READ);
-				msg->setConnId(appmsg->getConnId());
-				msg->setExpectedReplyLength(appmsg->getExpectedReplyLength());
-				msg->setChunkLength(appmsg->getChunkLength());
-				// Set to -1 so the ClientEvilComp Will not forward it to the server
-				msg->setEvilServerConnId(-1);
-				msg->setServerClose(false);
-				msg->addTag<CreationTimeTag>()->setCreationTime(simTime());
-				msg->setData(0);
-				msg->setAtkStatus(MITMKind::FAKEGEN);
-				if(isLogging) logger->log(msg, EvilStateName::FULL, simTime());
-
-				enqueueNSchedule(msg);
+				forwardFakeMmsMessageToServerFactory->build(pckt);
 			}
 		}
 
-		MmsMessage* msg = messageCopier->copyMessageNorm(appmsg.get(), true);
-		Packet *packet = new Packet("data");
 		bubble("Sent to internal client!");
-		EV_INFO << "Conn ID:" << msg->getEvilServerConnId() << "\n";
+		EV_INFO << "Conn ID:" << appmsg->getEvilServerConnId() << "\n";
 
 		MMSKind messageKind = appmsg->getMessageKind();
-		ReqResKind reqResKind = appmsg->getReqResKind();
-
-	    double p = this->uniform(0.0, 1.0);
-	    if (messageKind == MMSKind::MEASURE) {
-	        if (p < measureBlockProb) { //Block
-	        	bubble("Measure blocked");
-	            emit(measureBlockSignal, true);
-	            msg->setAtkStatus(MITMKind::BLOCK);
-	            if(isLogging) logger->log(msg, EvilStateName::FULL, simTime());
-	            delete packet;
-	            delete pckt;
-	            return;
-	        } else if (p - measureBlockProb < measureCompromisedProb) { //Compromise
-	        	bubble("Measure compromised");
-	            emit(measureCompromisedSignal, true);
-	            msg->setAtkStatus(MITMKind::COMPR);
-	            msg->setData(9);
-	            if(isLogging) logger->log(msg, EvilStateName::FULL, simTime());
-	        } else {
-	        	bubble("Measure arrived from server");
-	        	if(isLogging) logger->log(msg, EvilStateName::FULL, simTime());
-	        }
-	    } else if (messageKind == MMSKind::GENRESP) {
-	    	if(reqResKind == ReqResKind::READ) {
-		        if (p < readResponseBlockProb) { // Block
-		        	bubble("Read response blocked");
-		            emit(readResponseBlockSignal, true);
-		            msg->setAtkStatus(MITMKind::BLOCK);
-		            if(isLogging) logger->log(msg, EvilStateName::FULL, simTime());
-		            delete packet;
-		            delete pckt;
-		            return;
-		        } else if (p - readResponseBlockProb < readResponseCompromisedProb) { // Compromise
-		        	bubble("Read response compromised");
-		            emit(readResponseCompromisedSignal, true);
-		            msg->setAtkStatus(MITMKind::COMPR);
-		            msg->setData(9);
-		            if(isLogging) logger->log(msg, EvilStateName::FULL, simTime());
-		        } else {
-		        	bubble("Read response arrived from server");
-		        	if(isLogging) logger->log(msg, EvilStateName::FULL, simTime());
-		        }
-	    	} else if(reqResKind == ReqResKind::COMMAND) {
-		        if (p < commandResponseBlockProb) { // Block
-		        	bubble("Command response blocked");
-		            emit(commandResponseBlockSignal, true);
-		            msg->setAtkStatus(MITMKind::BLOCK);
-		            if(isLogging) logger->log(msg, EvilStateName::FULL, simTime());
-		            delete packet;
-		            delete pckt;
-		            return;
-		        } else if (p - commandResponseBlockProb < commandResponseCompromisedProb) { // Compromise
-		        	bubble("Command response compromised");
-		            emit(commandResponseCompromisedSignal, true);
-		            msg->setAtkStatus(MITMKind::COMPR);
-		            msg->setData(9);
-		            if(isLogging) logger->log(msg, EvilStateName::FULL, simTime());
-		        } else {
-		        	bubble("Command response arrived from server");
-		        	if(isLogging) logger->log(msg, EvilStateName::FULL, simTime());
-		        }
-	    	}
-	    }else if(appmsg->getMessageKind() == MMSKind::GENREQ) {
-			if(appmsg->getReqResKind() == ReqResKind::READ) {
-				if (p < readRequestBlockProb) { // Block
-					emit(readRequestBlockSignal, true);
-					msg->setAtkStatus(MITMKind::BLOCK);
-					if(isLogging) logger->log(msg, EvilStateName::FULL, simTime());
-					delete pckt;
-					delete msg;
-					return;
-				} else if (p - readRequestBlockProb < readRequestCompromisedProb) { // Compromise
-					msg->setAtkStatus(MITMKind::COMPR);
-					msg->setData(9);
-					if(isLogging) logger->log(msg, EvilStateName::FULL, simTime());
-					emit(readRequestCompromisedSignal, true);
-				} else {
-					if(isLogging) logger->log(msg, EvilStateName::FULL, simTime());
-				}
-			} else if(appmsg->getReqResKind() == ReqResKind::COMMAND) {
-				if (p < commandRequestBlockProb) { // Block
-					emit(commandRequestBlockSignal, true);
-					msg->setAtkStatus(MITMKind::BLOCK);
-					if(isLogging) logger->log(msg, EvilStateName::FULL, simTime());
-					delete pckt;
-					delete msg;
-					return;
-				} else if (p - commandRequestBlockProb < commandRequestCompromisedProb) { // Compromise
-					emit(commandRequestCompromisedSignal, true);
-					msg->setAtkStatus(MITMKind::COMPR);
-					msg->setData(9);
-					if(isLogging) logger->log(msg, EvilStateName::FULL, simTime());
-				} else {
-					if(isLogging) logger->log(msg, EvilStateName::FULL, simTime());
-				}
-			}
-		}
-
-
 
 	    if(messageKind == MMSKind::GENRESP || messageKind == MMSKind::MEASURE) {
-	    	const auto& msgCp = messageCopier->copyMessage(msg, msg->getEvilServerConnId(), true);
-	    	packet->insertAtBack(msgCp);
-	    	packet->addTag<SocketInd>()->setSocketId(appmsg->getEvilServerConnId());
-
-	    	ForwardMmsMessageToClient* cliOp = new ForwardMmsMessageToClient(packet);
-		    this->propagate(cliOp);
+	    	forwardMmsMessageToClientFactory->build(pckt);
 	    } else {
-	    	enqueueNSchedule(msg);
-	    	// Just used to forward messages directed to the clients
-	    	delete packet;
+	    	forwardMmsMessageToServerFactory->build(pckt);
 	    }
 
 	    delete pckt;
     }
 }
 
-void MmsAttackerController::enqueueNSchedule(MmsMessage* msg) {
-	if(previousResponseSent && isSocketConnected) {
-		msgQueue.insert(msg);
+void MmsAttackerController::enqueueNSchedule(IOperation* operation) {
+	if(!controllerStatus && isSocketConnected) {
+		operationQueue.insert(operation);
 		simtime_t d = simTime() + SimTime(round(par("thinkTime").doubleValue()), SIMTIME_MS);
 		// The client is already connected to the server, so when the data arrives we schedule to send it (MSG_KIND_SEND)
 		timeoutMsg->setKind(MSGKIND_SEND);
 		scheduleAt(d, timeoutMsg);
-		previousResponseSent = false;
+		controllerStatus = true;
 	} else {
-		msgQueue.insert(msg);
+		operationQueue.insert(operation);
 	}
 }
 
@@ -325,5 +203,5 @@ MmsAttackerController::~MmsAttackerController() {
 	if(isLogging) delete logger;
 	cancelAndDelete(sendMsgEvent);
 	cancelAndDelete(timeoutMsg);
-	msgQueue.clear();
+	operationQueue.clear();
 }
