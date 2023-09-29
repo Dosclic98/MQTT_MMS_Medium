@@ -160,11 +160,11 @@ void ServerEvilOperator::handleForward() {
 		emit(pcktFromClientSignal[appmsg->getServerIndex()], packet);
 		bubble("Sent to internal client!");
 		EV_INFO << "Conn ID:" << msg->getEvilServerConnId() << "\n";
-
-		if(forwardQueue->getLength() > 0) {
-			scheduleAt(simTime() + SimTime(par("forwardDelay").intValue(), SIMTIME_US), forwardEvent);
-		} else forwardStatus = false;
 	}
+	if(!forwardQueue->isEmpty()) {
+		EV << "Forward Queue: " << forwardQueue->getLength() << "\n";
+		scheduleAt(simTime() + SimTime(par("forwardDelay").intValue(), SIMTIME_US), forwardEvent);
+	} else forwardStatus = false;
 	delete pckt;
 }
 
