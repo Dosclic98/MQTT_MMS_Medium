@@ -31,7 +31,7 @@ private:
 
 public:
 	virtual IState* next(IFSM* machine, Packet* msg) override;
-	virtual IState* next(IFSM* machine, IResult* msg) override;
+	virtual IState* next(IFSM* machine, cEvent* event) override;
 
 	OpState(std::vector<ITransition*> transitions, IOperation* operation, IController* targetController);
 	virtual ~OpState();

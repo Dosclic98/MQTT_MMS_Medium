@@ -34,7 +34,7 @@ IState* OpState::next(IFSM* machine, Packet* msg) {
 
 }
 
-IState* OpState::next(IFSM* machine, IResult* msg) {
+IState* OpState::next(IFSM* machine, cEvent* event) {
 
 }
 
