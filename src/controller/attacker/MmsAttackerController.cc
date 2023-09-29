@@ -116,7 +116,11 @@ void MmsAttackerController::handleMessage(cMessage *msg) {
 			if(!operationQueue.isEmpty()) {
 				IOperation* op = check_and_cast<IOperation*>(operationQueue.pop());
 				propagate(op);
-				controllerStatus = false;
+				if(!operationQueue.isEmpty()) {
+					simtime_t d = simTime() + SimTime(round(par("thinkTime").doubleValue()), SIMTIME_MS);
+					timeoutMsg->setKind(MSGKIND_SEND);
+					scheduleAt(d, timeoutMsg);
+				} else { controllerStatus = false; }
 			}
 			break;
 
