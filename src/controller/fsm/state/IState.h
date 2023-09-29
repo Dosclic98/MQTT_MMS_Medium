@@ -32,7 +32,7 @@ protected:
 public:
 	virtual void setTransitions(std::vector<IState*> transitions) = 0;
 	virtual IState* next(IFSM* machine, Packet* msg) = 0;
-	virtual IState* next(IFSM* machine, IResult* msg) = 0;
+	virtual IState* next(IFSM* machine, cEvent* event) = 0;
 
 	virtual ~IState() = default;
 };
