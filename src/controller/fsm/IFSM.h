@@ -20,7 +20,7 @@ namespace inet {
 
 class IFSM {
 public:
-	virtual ~IFSM();
+	virtual ~IFSM() = default;
 };
 
 } // namespace inet
