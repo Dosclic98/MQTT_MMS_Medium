@@ -16,25 +16,29 @@
 #ifndef CONTROLLER_FSM_TRANSITION_ITRANSITION_H_
 #define CONTROLLER_FSM_TRANSITION_ITRANSITION_H_
 
-#include "../../../operation/IOperation.h"
+#include "../../../operation/factory/IOperationFactory.h"
 #include "../../../controller/IController.h"
 
 namespace inet {
+
+enum EventMatchType {
+	Kind = 0,
+	Ref = 1
+};
 
 class IState;
 
 class ITransition {
 
 protected:
-	IOperation* operation;
-	IController* targetController;
+	IOperationFactory* operationFactory;
 	IState* arrivalState;
 
 public:
 	virtual bool matchesTransition(Packet* packet) = 0;
 	virtual IState* execute(Packet* packet) = 0;
-	virtual bool matchesTransition(cEvent* event) = 0;
-	virtual IState* execute(cEvent* event) = 0;
+	virtual bool matchesTransition(cEvent* event, EventMatchType matchType) = 0;
+	virtual IState* execute(cEvent* event, EventMatchType matchType) = 0;
 
 	virtual ~ITransition() = default;
 };

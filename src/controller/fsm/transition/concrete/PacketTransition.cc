@@ -14,6 +14,7 @@
 // 
 
 #include "PacketTransition.h"
+#include "../../../../operation/factory/packet/PacketOperationFactory.h"
 
 using namespace inet;
 
@@ -23,22 +24,31 @@ bool PacketTransition::matchesTransition(Packet* packet) {
 
 IState* PacketTransition::execute(Packet* packet) {
 	// Call the builder method
-
+	if(matchesTransition(packet)) {
+		PacketOperationFactory* packetOperationFactory = static_cast<PacketOperationFactory*>(this->operationFactory);
+		packetOperationFactory->build(packet);
+		return arrivalState;
+	} else {
+		throw std::logic_error("Trying to execute a transition not associated to the referenced packet");
+	}
 }
 
-bool PacketTransition::matchesTransition(cEvent* event) {
+bool PacketTransition::matchesTransition(cEvent* event, EventMatchType matchType) {
 	// It is not an EventTransition
 	return false;
 }
 
-IState* PacketTransition::execute(cEvent* event) {
+IState* PacketTransition::execute(cEvent* event, EventMatchType matchType) {
 	// It is not an EventTransition
 	return nullptr;
 }
 
-PacketTransition::PacketTransition(IOperation* operation, IController* targetController, IState* arrivalState, const char* expression) {
-	this->operation = operation;
-	this->targetController = targetController;
+PacketTransition::PacketTransition(IOperationFactory* operationFactory, IState* arrivalState, const char* expression) {
+	PacketOperationFactory* tmpPcktOpFactory = dynamic_cast<PacketOperationFactory*>(operationFactory);
+	if(tmpPcktOpFactory == nullptr) {
+		throw std::invalid_argument("PacketTransition requires an PacketOperationFactory as operationFactory parameter in the constructor\n");
+	}
+	this->operationFactory = operationFactory;
 	this->arrivalState = arrivalState;
 
 	this->packetFilter.setExpression(expression);

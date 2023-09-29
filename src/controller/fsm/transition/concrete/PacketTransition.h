@@ -29,10 +29,10 @@ protected:
 public:
 	virtual bool matchesTransition(Packet* packet) override;
 	virtual IState* execute(Packet* packet) override;
-	virtual bool matchesTransition(cEvent* event) override;
-	virtual IState* execute(cEvent* event) override;
+	virtual bool matchesTransition(cEvent* event, EventMatchType matchType) override;
+	virtual IState* execute(cEvent* event, EventMatchType matchType) override;
 
-	PacketTransition(IOperation* operation, IController* targetController, IState* arrivalState, const char* expression);
+	PacketTransition(IOperationFactory* operationFactory, IState* arrivalState, const char* expression);
 	virtual ~PacketTransition();
 };
 

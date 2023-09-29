@@ -14,6 +14,7 @@
 // 
 
 #include "EventTransition.h"
+#include "../../../../operation/factory/event/EventOperationFactory.h"
 
 using namespace inet;
 
@@ -27,22 +28,34 @@ IState* EventTransition::execute(Packet* packet) {
 	return nullptr;
 }
 
-bool EventTransition::matchesTransition(cEvent* event) {
+bool EventTransition::matchesTransition(cEvent* event, EventMatchType matchType) {
+	switch(matchType) {
+		case EventMatchType::Kind: {
+			return check_and_cast<cMessage*>(this->event)->getKind() == check_and_cast<cMessage*>(event)->getKind();
+			break;
+		}
+		case EventMatchType::Ref: {
+			return this->event == event;
+			break;
+		}
+	}
 	return this->event == event;
 }
 
-IState* EventTransition::execute(cEvent* event) {
-	if(matchesTransition(event)) {
-		this->targetController->propagate(operation);
+IState* EventTransition::execute(cEvent* event, EventMatchType matchType) {
+	if(matchesTransition(event, matchType)) {
+		EventOperationFactory* evOpFactory = static_cast<EventOperationFactory*>(operationFactory);
+		evOpFactory->build(event);
 		return arrivalState;
 	} else {
 		throw std::logic_error("Trying to execute a transition not associated to the referenced event");
 	}
 }
 
-EventTransition::EventTransition(IOperation* operation, IController* targetController, IState* arrivalState, cEvent* event) {
-	this->operation = operation;
-	this->targetController = targetController;
+EventTransition::EventTransition(IOperationFactory* operationFactory, IState* arrivalState, cEvent* event) {
+	EventOperationFactory* tmpEvOpFactory = dynamic_cast<EventOperationFactory*>(operationFactory);
+	if(tmpEvOpFactory == nullptr) throw std::invalid_argument("EventTransition requires an EventOperationFactory as operationFactory parameter in the constructor\n");
+	this->operationFactory = operationFactory;
 	this->arrivalState = arrivalState;
 	this->event = event;
 }
