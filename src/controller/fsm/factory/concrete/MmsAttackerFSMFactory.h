@@ -16,11 +16,17 @@
 #ifndef CONTROLLER_FSM_FACTORY_CONCRETE_MMSATTACKERFSMFACTORY_H_
 #define CONTROLLER_FSM_FACTORY_CONCRETE_MMSATTACKERFSMFACTORY_H_
 
-class MmsAttackerFSMFactory : public inet::IFSMFactory
-{
+#include "../IFSMFactory.h"
+
+namespace inet {
+
+class MmsAttackerFSMFactory : public IFSMFactory {
 public:
+	virtual IFSM* build() override;
 	MmsAttackerFSMFactory();
 	virtual ~MmsAttackerFSMFactory();
 };
+
+} // namespace inet
 
 #endif /* CONTROLLER_FSM_FACTORY_CONCRETE_MMSATTACKERFSMFACTORY_H_ */

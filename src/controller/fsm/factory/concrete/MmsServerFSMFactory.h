@@ -16,11 +16,18 @@
 #ifndef CONTROLLER_FSM_FACTORY_CONCRETE_MMSSERVERFSMFACTORY_H_
 #define CONTROLLER_FSM_FACTORY_CONCRETE_MMSSERVERFSMFACTORY_H_
 
-class MmsServerFSMFactory : public inet::IFSMFactory
+#include "../IFSMFactory.h"
+
+namespace inet {
+
+class MmsServerFSMFactory : public IFSMFactory
 {
 public:
+	virtual IFSM* build() override;
 	MmsServerFSMFactory();
 	virtual ~MmsServerFSMFactory();
 };
+
+} // namespace inet
 
 #endif /* CONTROLLER_FSM_FACTORY_CONCRETE_MMSSERVERFSMFACTORY_H_ */

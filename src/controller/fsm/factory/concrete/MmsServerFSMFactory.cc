@@ -14,15 +14,20 @@
 // 
 
 #include "MmsServerFSMFactory.h"
+#include "../../IFSM.h"
+#include "../../../../controller/IController.h"
 
-MmsServerFSMFactory::MmsServerFSMFactory()
-{
-	// TODO Auto-generated constructor stub
+using namespace inet;
+
+IFSM* MmsServerFSMFactory::build() {
 
 }
 
-MmsServerFSMFactory::~MmsServerFSMFactory()
-{
+MmsServerFSMFactory::MmsServerFSMFactory() {
+	// TODO Auto-generated constructor stub
+}
+
+MmsServerFSMFactory::~MmsServerFSMFactory() {
 	// TODO Auto-generated destructor stub
 }
 

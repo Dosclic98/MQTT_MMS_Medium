@@ -16,17 +16,17 @@
 #ifndef CONTROLLER_FSM_FACTORY_IFSMFACTORY_H_
 #define CONTROLLER_FSM_FACTORY_IFSMFACTORY_H_
 
-#include "../IFSM.h"
-#include "../../controller/IController.h"
-
 namespace inet {
 
+class IController;
+class IFSM;
+
 class IFSMFactory {
-private:
+protected:
 	IController* controller;
 
 public:
-	virtual IFSM* build();
+	virtual IFSM* build() = 0;
 	virtual ~IFSMFactory() = default;
 };
 
