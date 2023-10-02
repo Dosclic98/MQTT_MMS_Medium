@@ -20,20 +20,19 @@
 
 class IOperation;
 class IController;
-class IFSM;
 
 namespace inet {
 
-class OpState : public IState {
-private:
-	IOperation* operation;
-	IController* targetController;
+class IFSM;
 
+class OpState : public IState {
 public:
 	virtual IState* next(IFSM* machine, Packet* msg) override;
 	virtual IState* next(IFSM* machine, cEvent* event) override;
+	virtual void setTransitions(std::vector<ITransition*> transitions) override;
 
-	OpState(std::vector<ITransition*> transitions, IOperation* operation, IController* targetController);
+	OpState() = default;
+	OpState(std::vector<ITransition*> transitions);
 	virtual ~OpState();
 };
 
