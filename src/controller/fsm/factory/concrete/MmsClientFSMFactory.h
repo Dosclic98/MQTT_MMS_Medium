@@ -25,7 +25,6 @@ class MmsClientController;
 class MmsClientFSMFactory : public IFSMFactory {
 public:
 	virtual IFSM* build() override;
-
 	virtual ~MmsClientFSMFactory();
 	MmsClientFSMFactory(MmsClientController* controller);
 };
