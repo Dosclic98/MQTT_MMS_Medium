@@ -37,8 +37,8 @@ protected:
 public:
 	virtual bool matchesTransition(Packet* packet) = 0;
 	virtual IState* execute(Packet* packet) = 0;
-	virtual bool matchesTransition(cEvent* event, EventMatchType matchType) = 0;
-	virtual IState* execute(cEvent* event, EventMatchType matchType) = 0;
+	virtual bool matchesTransition(cEvent* event) = 0;
+	virtual IState* execute(cEvent* event) = 0;
 
 	virtual ~ITransition() = default;
 };

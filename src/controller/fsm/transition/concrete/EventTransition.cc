@@ -28,8 +28,8 @@ IState* EventTransition::execute(Packet* packet) {
 	return nullptr;
 }
 
-bool EventTransition::matchesTransition(cEvent* event, EventMatchType matchType) {
-	switch(matchType) {
+bool EventTransition::matchesTransition(cEvent* event) {
+	switch(this->matchType) {
 		case EventMatchType::Kind: {
 			return check_and_cast<cMessage*>(this->event)->getKind() == check_and_cast<cMessage*>(event)->getKind();
 			break;
@@ -42,8 +42,8 @@ bool EventTransition::matchesTransition(cEvent* event, EventMatchType matchType)
 	return this->event == event;
 }
 
-IState* EventTransition::execute(cEvent* event, EventMatchType matchType) {
-	if(matchesTransition(event, matchType)) {
+IState* EventTransition::execute(cEvent* event) {
+	if(matchesTransition(event)) {
 		EventOperationFactory* evOpFactory = static_cast<EventOperationFactory*>(operationFactory);
 		evOpFactory->build(event);
 		return arrivalState;
@@ -52,12 +52,13 @@ IState* EventTransition::execute(cEvent* event, EventMatchType matchType) {
 	}
 }
 
-EventTransition::EventTransition(IOperationFactory* operationFactory, IState* arrivalState, cEvent* event) {
+EventTransition::EventTransition(IOperationFactory* operationFactory, IState* arrivalState, cEvent* event, EventMatchType matchType) {
 	EventOperationFactory* tmpEvOpFactory = dynamic_cast<EventOperationFactory*>(operationFactory);
 	if(tmpEvOpFactory == nullptr) throw std::invalid_argument("EventTransition requires an EventOperationFactory as operationFactory parameter in the constructor\n");
 	this->operationFactory = operationFactory;
 	this->arrivalState = arrivalState;
 	this->event = event;
+	this->matchType = matchType;
 }
 
 EventTransition::~EventTransition() {

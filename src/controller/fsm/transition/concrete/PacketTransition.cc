@@ -33,12 +33,12 @@ IState* PacketTransition::execute(Packet* packet) {
 	}
 }
 
-bool PacketTransition::matchesTransition(cEvent* event, EventMatchType matchType) {
+bool PacketTransition::matchesTransition(cEvent* event) {
 	// It is not an EventTransition
 	return false;
 }
 
-IState* PacketTransition::execute(cEvent* event, EventMatchType matchType) {
+IState* PacketTransition::execute(cEvent* event) {
 	// It is not an EventTransition
 	return nullptr;
 }

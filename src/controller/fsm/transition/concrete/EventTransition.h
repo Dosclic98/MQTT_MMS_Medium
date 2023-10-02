@@ -24,14 +24,15 @@ namespace inet {
 class EventTransition : public ITransition {
 protected:
 	cEvent* event;
+	EventMatchType matchType;
 
 public:
 	virtual bool matchesTransition(Packet* packet) override;
 	virtual IState* execute(Packet* packet) override;
-	virtual bool matchesTransition(cEvent* event, EventMatchType matchType) override;
-	virtual IState* execute(cEvent* event, EventMatchType matchType) override;
+	virtual bool matchesTransition(cEvent* event) override;
+	virtual IState* execute(cEvent* event) override;
 
-	EventTransition(IOperationFactory* operationFactory, IState* arrivalState, cEvent* event);
+	EventTransition(IOperationFactory* operationFactory, IState* arrivalState, cEvent* event, EventMatchType matchType);
 	virtual ~EventTransition();
 };
 
