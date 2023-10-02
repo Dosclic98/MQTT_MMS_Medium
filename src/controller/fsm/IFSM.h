@@ -16,10 +16,24 @@
 #ifndef CONTROLLER_FSM_IFSM_H_
 #define CONTROLLER_FSM_IFSM_H_
 
+#include "inet/common/packet/Packet.h"
+
 namespace inet {
 
+class IState;
+class IController;
+
 class IFSM {
+protected:
+	IState* currentState;
+	IController* owner;
+
 public:
+	virtual IState* getCurrentState() = 0;
+	virtual void setCurrentState(IState* currentState) = 0;
+	virtual IState* next(Packet* msg) = 0;
+	virtual IState* next(cEvent* event) = 0;
+
 	virtual ~IFSM() = default;
 };
 

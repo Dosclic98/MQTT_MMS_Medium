@@ -18,6 +18,8 @@
 
 #include <omnetpp.h>
 #include "inet/common/packet/Packet.h"
+#include "fsm/IFSM.h"
+#include "fsm/factory/concrete/MmsClientFSMFactory.h"
 #include "../operator/IOperator.h"
 #include "../result/IResult.h"
 #include "../binder/ControllerBinder.h"
@@ -32,7 +34,9 @@ class IController {
 	simsignal_t cmdPubSig;
 	cListener* resListener;
 	cListener* msgListener;
-	// TODO Add the Graph and the FSM
+	// TODO Add the Graph
+	IFSMFactory* fsmFactory;
+	IFSM* controlFSM;
 
   public:
 	cQueue operationQueue;

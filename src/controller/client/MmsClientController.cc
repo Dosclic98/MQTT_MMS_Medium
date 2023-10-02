@@ -19,6 +19,8 @@
 #include "../../operation/client/concrete/SendMmsConnect.h"
 #include "../../operation/client/concrete/SendMmsDisconnect.h"
 #include "../../operation/client/concrete/SendMmsRequest.h"
+#include "../fsm/operation/OpFSM.h"
+#include "../fsm/factory/concrete/MmsClientFSMFactory.h"
 
 using namespace inet;
 
@@ -67,32 +69,15 @@ void MmsClientController::initialize() {
     sendMmsConnectFactory = new SendMmsConnectFactory(this);
     sendMmsDisconnectFactory = new SendMmsDisconnectFactory(this);
     sendMmsRequestFactory = new SendMmsRequestFactory(this);
+
+    this->fsmFactory = new MmsClientFSMFactory(this);
+    this->controlFSM = this->fsmFactory->build();
 }
 
 // TODO Just a temporary solution to test the client controller <--> operator communication
 void MmsClientController::handleMessage(cMessage* msg) {
 	if(msg->isSelfMessage()) {
-		switch(msg->getKind()) {
-			case SEND_MMS_CONNECT: {
-				sendMmsConnectFactory->build(msg);
-				break;
-			}
-			case SEND_MMS_READ: {
-				sendMmsRequestFactory->build(msg);
-				break;
-			}
-			case SEND_MMS_COMMAND: {
-				sendMmsRequestFactory->build(msg);
-				break;
-			}
-			case SEND_MMS_DISCONNECT: {
-				sendMmsDisconnectFactory->build(msg);
-				break;
-			}
-			default: {
-				// Should not be here
-			}
-		}
+		this->controlFSM->next(msg);
 		delete msg;
 	}
 }
