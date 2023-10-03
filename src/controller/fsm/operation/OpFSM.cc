@@ -14,6 +14,7 @@
 // 
 
 #include "OpFSM.h"
+#include <queue>
 
 using namespace inet;
 
@@ -38,9 +39,36 @@ IState* OpFSM::next(cEvent* event) {
 OpFSM::OpFSM(IController* owner, IState* currentState) {
 	this->owner = owner;
 	this->currentState = currentState;
+	this->initialState = currentState;
 }
 
 OpFSM::~OpFSM() {
+	std::set<IState*> visited;
+	std::queue<IState*> visiting;
+	IState* tmp;
+
+	visiting.push(initialState);
+	while(!visiting.empty()) {
+		tmp = visiting.front();
+		visiting.pop();
+		if(visited.find(tmp) == visited.end()) {
+			visited.insert(tmp);
+			// If tmp has not yet been visited
+			std::vector<ITransition*> transitions = tmp->getTransitions();
+			for(ITransition* trans : transitions) {
+				IState* next = trans->getArrivalState();
+				EV << next->getName() << "\n";
+				if(visited.find(next) == visited.end()) {
+					visiting.push(next);
+				}
+				delete trans;
+			}
+		}
+	}
+	for(IState* visitedState : visited) {
+		EV << visitedState->getName() << "\n";
+		delete visitedState;
+	}
 
 }
 

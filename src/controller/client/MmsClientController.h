@@ -35,13 +35,23 @@ private:
 	SendMmsDisconnectFactory* sendMmsDisconnectFactory;
 	SendMmsRequestFactory* sendMmsRequestFactory;
 
+	cMessage* meas;
+	cMessage* read;
+	cMessage* command;
+	cMessage* disconnect;
+
+
 public:
 	MmsClientController();
 	virtual ~MmsClientController();
 
 	void initialize() override;
 	void handleMessage(cMessage* msg) override;
+	void finish() override;
 
+	virtual void scheduleNextMmsConnect();
+	virtual void scheduleNextMmsRead();
+	virtual void scheduleNextMmsCommand();
 	virtual void next(Packet* msg = nullptr) override;
 	virtual void propagate(IOperation* op) override;
 	virtual void evalRes(IResult* res) override;

@@ -27,20 +27,16 @@ void SendMmsRequestFactory::build(omnetpp::cEvent* event) {
 			SendMmsRequest* cliOp = new SendMmsRequest(ReqResKind::READ, 0);
 			controller->propagate(cliOp);
 
-		    // Schedule a Read send
-		    simtime_t dRead = simTime() + SimTime(controller->par("sendReadInterval").intValue(), SIMTIME_S);
-		    cMessage* tmpRead = new cMessage("SENDREAD", SEND_MMS_READ);
-		    controller->scheduleAt(dRead, tmpRead);
+			// Schedule next Read send
+		    controller->scheduleNextMmsRead();
 		    break;
 		}
 		case SEND_MMS_COMMAND: {
 			SendMmsRequest* cliOp = new SendMmsRequest(ReqResKind::COMMAND, 0);
 			controller->propagate(cliOp);
 
-		    // Schedule a Command send
-		    simtime_t dCommand = simTime() + SimTime(controller->par("sendCommandInterval").intValue(), SIMTIME_S);
-		    cMessage* tmpCommand = new cMessage("SENDCOMMAND", SEND_MMS_COMMAND);
-		    controller->scheduleAt(dCommand, tmpCommand);
+		    // Schedule next Command send
+			controller->scheduleNextMmsCommand();
 		    break;
 		}
 	}

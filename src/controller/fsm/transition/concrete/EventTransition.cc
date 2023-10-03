@@ -62,6 +62,8 @@ EventTransition::EventTransition(IOperationFactory* operationFactory, IState* ar
 }
 
 EventTransition::~EventTransition() {
-
+	if(this->matchType == EventMatchType::Kind) {
+		delete this->event;
+	}
 }
 

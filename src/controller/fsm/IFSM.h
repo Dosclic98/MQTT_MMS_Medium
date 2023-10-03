@@ -26,6 +26,9 @@ class IController;
 class IFSM {
 protected:
 	IState* currentState;
+	// Initial state from which we suppose
+	// all the other states are reachable
+	IState* initialState;
 	IController* owner;
 
 public:

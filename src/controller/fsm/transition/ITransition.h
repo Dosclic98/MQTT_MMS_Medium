@@ -39,6 +39,9 @@ public:
 	virtual IState* execute(Packet* packet) = 0;
 	virtual bool matchesTransition(cEvent* event) = 0;
 	virtual IState* execute(cEvent* event) = 0;
+	virtual IState* getArrivalState() {
+		return arrivalState;
+	};
 
 	virtual ~ITransition() = default;
 };

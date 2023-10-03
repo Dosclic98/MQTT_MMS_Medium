@@ -31,7 +31,16 @@ MmsClientController::MmsClientController() {
 }
 
 MmsClientController::~MmsClientController() {
-	// TODO Auto-generated destructor stub
+
+}
+
+void MmsClientController::finish() {
+	delete this->fsmFactory;
+	delete this->controlFSM;
+	cancelAndDelete(this->meas);
+	cancelAndDelete(this->read);
+	cancelAndDelete(this->command);
+	cancelAndDelete(this->disconnect);
 }
 
 void MmsClientController::initialize() {
@@ -52,19 +61,14 @@ void MmsClientController::initialize() {
 	getParentModule()->getParentModule()->subscribe(strResSubSig, resListener);
 	getParentModule()->getParentModule()->subscribe(strMsgSubSig, msgListener);
 
-    // Schedule the register for measure MMS message
-	simtime_t dMeas = simTime() + SimTime(2, SIMTIME_S);
-	cMessage* tmpMeas = new cMessage("SENDMEAS", SEND_MMS_CONNECT);
-	scheduleAt(dMeas, tmpMeas);
+	meas = new cMessage("SENDMEAS", SEND_MMS_CONNECT);
+	read = new cMessage("SENDREAD", SEND_MMS_READ);
+	command = new cMessage("SENDCOMMAND", SEND_MMS_COMMAND);
+	disconnect = new cMessage("SENDDISCONNECT", SEND_MMS_DISCONNECT);
 
-    // Schedule a Read send
-    simtime_t dRead = simTime() + SimTime(par("sendReadInterval").intValue(), SIMTIME_S);
-    cMessage* tmpRead = new cMessage("SENDREAD", SEND_MMS_READ);
-    scheduleAt(dRead, tmpRead);
-    // Schedule a Command send
-    simtime_t dCommand = simTime() + SimTime(par("sendCommandInterval").intValue(), SIMTIME_S);
-    cMessage* tmpCommand = new cMessage("SENDCOMMAND", SEND_MMS_COMMAND);
-    scheduleAt(dCommand, tmpCommand);
+	scheduleNextMmsConnect();
+	scheduleNextMmsRead();
+	scheduleNextMmsCommand();
 
     sendMmsConnectFactory = new SendMmsConnectFactory(this);
     sendMmsDisconnectFactory = new SendMmsDisconnectFactory(this);
@@ -74,11 +78,28 @@ void MmsClientController::initialize() {
     this->controlFSM = this->fsmFactory->build();
 }
 
+void MmsClientController::scheduleNextMmsConnect() {
+    // Schedule the register for measure MMS message
+	simtime_t dMeas = simTime() + SimTime(2, SIMTIME_S);
+	scheduleAt(dMeas, this->meas);
+}
+
+void MmsClientController::scheduleNextMmsRead() {
+    // Schedule a Read send
+    simtime_t dRead = simTime() + SimTime(par("sendReadInterval").intValue(), SIMTIME_S);
+    scheduleAt(dRead, this->read);
+}
+
+void MmsClientController::scheduleNextMmsCommand() {
+    // Schedule a Command send
+    simtime_t dCommand = simTime() + SimTime(par("sendCommandInterval").intValue(), SIMTIME_S);
+    scheduleAt(dCommand, this->command);
+}
+
 // TODO Just a temporary solution to test the client controller <--> operator communication
 void MmsClientController::handleMessage(cMessage* msg) {
 	if(msg->isSelfMessage()) {
 		this->controlFSM->next(msg);
-		delete msg;
 	}
 }
 

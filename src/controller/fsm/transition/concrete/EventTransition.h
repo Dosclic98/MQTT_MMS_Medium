@@ -33,7 +33,7 @@ public:
 	virtual IState* execute(cEvent* event) override;
 
 	EventTransition(IOperationFactory* operationFactory, IState* arrivalState, cEvent* event, EventMatchType matchType);
-	virtual ~EventTransition();
+	virtual ~EventTransition() override;
 };
 
 };

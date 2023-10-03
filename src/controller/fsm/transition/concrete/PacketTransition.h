@@ -33,7 +33,7 @@ public:
 	virtual IState* execute(cEvent* event) override;
 
 	PacketTransition(IOperationFactory* operationFactory, IState* arrivalState, const char* expression);
-	virtual ~PacketTransition();
+	virtual ~PacketTransition() override;
 };
 
 } // namespace inet

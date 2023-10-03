@@ -29,7 +29,7 @@ public:
 	virtual IState* next(cEvent* event) override;
 
 	OpFSM(IController* owner, IState* currentState);
-	virtual ~OpFSM();
+	virtual ~OpFSM() override;
 };
 
 } // namespace inet

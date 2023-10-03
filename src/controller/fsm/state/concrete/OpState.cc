@@ -40,6 +40,10 @@ const char* OpState::getName() {
 	return this->name;
 }
 
+std::vector<ITransition*> OpState::getTransitions() {
+	return this->transitions;
+}
+
 void OpState::setTransitions(std::vector<ITransition*> transitions) {
 	this->transitions = transitions;
 }
