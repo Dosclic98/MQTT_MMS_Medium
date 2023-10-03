@@ -24,9 +24,9 @@ using namespace inet;
 
 IFSM* MmsClientFSMFactory::build() {
 	MmsClientController* cliController = static_cast<MmsClientController*>(this->controller);
-	OpState* connectedState = new OpState();
-	OpState* operatingState = new OpState();
-	OpState* terminatedState = new OpState();
+	OpState* connectedState = new OpState("CONNECTED");
+	OpState* operatingState = new OpState("OPERATING");
+	OpState* terminatedState = new OpState("TERMINATED");
 
 	// Create connected transitions
 	std::vector<ITransition*> connectedTransitions;

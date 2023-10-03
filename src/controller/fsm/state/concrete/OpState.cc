@@ -26,8 +26,18 @@ OpState::~OpState() {
 	// TODO Auto-generated destructor stub
 }
 
-OpState::OpState(std::vector<ITransition*> transitions) {
+OpState::OpState(std::vector<ITransition*> transitions, const char* name) {
 	this->transitions = transitions;
+	this->name = name;
+}
+
+OpState::OpState(const char* name) {
+	this->name = name;
+}
+
+
+const char* OpState::getName() {
+	return this->name;
 }
 
 void OpState::setTransitions(std::vector<ITransition*> transitions) {
