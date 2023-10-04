@@ -35,6 +35,8 @@ bool EventTransition::matchesTransition(cEvent* event) {
 			break;
 		}
 		case EventMatchType::Ref: {
+			EV << this->event << "\n";
+			EV << event << "\n";
 			return this->event == event;
 			break;
 		}

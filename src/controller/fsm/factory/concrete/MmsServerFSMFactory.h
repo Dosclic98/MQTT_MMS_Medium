@@ -20,11 +20,12 @@
 
 namespace inet {
 
-class MmsServerFSMFactory : public IFSMFactory
-{
+class MmsServerController;
+
+class MmsServerFSMFactory : public IFSMFactory {
 public:
 	virtual IFSM* build() override;
-	MmsServerFSMFactory();
+	MmsServerFSMFactory(MmsServerController* controller);
 	virtual ~MmsServerFSMFactory();
 };
 

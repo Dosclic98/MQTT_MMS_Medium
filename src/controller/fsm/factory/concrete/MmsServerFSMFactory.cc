@@ -14,17 +14,47 @@
 // 
 
 #include "MmsServerFSMFactory.h"
-#include "../../IFSM.h"
 #include "../../../../controller/IController.h"
+#include "../../../../controller/server/MmsServerController.h"
+#include "../../state/concrete/OpState.h"
+#include "../../operation/OpFSM.h"
+#include "../../transition/concrete/EventTransition.h"
+#include "../../transition/concrete/PacketTransition.h"
+#include "../../../../operation/factory/packet/concrete/ForwardDepartureFactory.h"
+#include "../../../../operation/factory/event/concrete/GenerateMeasuresFactory.h"
 
 using namespace inet;
 
 IFSM* MmsServerFSMFactory::build() {
+	MmsServerController* serController = static_cast<MmsServerController*>(this->controller);
+	OpState* operativeState = new OpState("OPERATIVE");
 
+	std::vector<ITransition*> operativeTransitions;
+	operativeTransitions.push_back(new PacketTransition(
+		new ForwardDepartureFactory(serController),
+		operativeState,
+		"content.messageKind == 0" // If messageKind == MMSKind::CONNECT
+	));
+	/* TODO Understand why adding this gives a segfault
+	operativeTransitions.push_back(new PacketTransition(
+		new ForwardDepartureFactory(serController),
+		operativeState,
+		"content.messageKind == 2" // If messageKind == MMSKind::GENREQ
+	));
+	*/
+	operativeTransitions.push_back(new EventTransition(
+		new GenerateMeasuresFactory(serController),
+		operativeState,
+		serController->getSendMeasuresEvent(),
+		EventMatchType::Ref
+	));
+
+	operativeState->setTransitions(operativeTransitions);
+	return new OpFSM(serController, operativeState);
 }
 
-MmsServerFSMFactory::MmsServerFSMFactory() {
-	// TODO Auto-generated constructor stub
+MmsServerFSMFactory::MmsServerFSMFactory(MmsServerController* controller) {
+	this->controller = controller;
 }
 
 MmsServerFSMFactory::~MmsServerFSMFactory() {

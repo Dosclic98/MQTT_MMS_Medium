@@ -29,7 +29,8 @@
 
 #include "../../operation/factory/event/concrete/GenerateMeasuresFactory.h"
 #include "../../operation/factory/packet/concrete/ForwardDepartureFactory.h"
-
+#include "../fsm/operation/OpFSM.h"
+#include "../fsm/factory/concrete/MmsServerFSMFactory.h"
 
 using namespace inet;
 
@@ -70,12 +71,16 @@ void MmsServerController::initialize() {
     departureEvent = new cMessage("Server Departure");
 	sendDataEvent = new cMessage("Register Data To Send Event");
 	controllerStatus = false;
+
+    this->fsmFactory = new MmsServerFSMFactory(this);
+    this->controlFSM = this->fsmFactory->build();
+
 	scheduleAt(1, sendDataEvent);
 }
 
 void MmsServerController::handleMessage(cMessage *msg) {
     if(msg == sendDataEvent) {
-    	generateMeasuresFactory->build(sendDataEvent);
+    	this->controlFSM->next(msg);
     }
     if(msg == departureEvent) {
     	if(!operationQueue.isEmpty()) {
@@ -86,6 +91,10 @@ void MmsServerController::handleMessage(cMessage *msg) {
         	} else controllerStatus = false;
     	}
     }
+}
+
+cMessage* MmsServerController::getSendMeasuresEvent() {
+	return sendDataEvent;
 }
 
 void MmsServerController::enqueueNSchedule(IOperation* operation) {
@@ -120,7 +129,7 @@ void MmsServerController::propagate(IOperation* op) {
 }
 
 void MmsServerController::next(Packet* msg) {
-	forwardDepartureFactory->build(msg);
+	this->controlFSM->next(msg);
 }
 
 void MmsServerController::evalRes(IResult* res) {

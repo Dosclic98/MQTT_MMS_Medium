@@ -18,7 +18,6 @@
 #include "../../state/concrete/OpState.h"
 #include "../../operation/OpFSM.h"
 #include "../../transition/concrete/EventTransition.h"
-#include "../../../../operation/factory/event/concrete/SendMmsConnectFactory.h"
 
 using namespace inet;
 
