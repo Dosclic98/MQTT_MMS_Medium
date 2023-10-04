@@ -26,7 +26,7 @@ using namespace inet;
 
 void GenerateMeasuresFactory::build(omnetpp::cEvent* event) {
 	MmsServerController* controller = check_and_cast<MmsServerController*>(this->controller);
-	for (auto const& listener : controller->clientConnIdList) {
+	for (auto const& listener : controller->getMmsSubscriberList()) {
 		auto pkt = new Packet("SendData");
 		// For compatibility not being a real inbound packet
 		pkt->addTag<SocketInd>()->setSocketId(-1);
@@ -43,14 +43,9 @@ void GenerateMeasuresFactory::build(omnetpp::cEvent* event) {
 		pkt->insertAtBack(payload);
 
 		ForwardDeparture* opDep = new ForwardDeparture(pkt);
-        if(!controller->controllerStatus) {
-        	controller->controllerStatus = true;
-        	controller->operationQueue.insert(opDep);
-        	controller->scheduleAt(simTime() + SimTime(controller->par("serviceTime").intValue(), SIMTIME_MS), controller->departureEvent);
-        }
-        else controller->operationQueue.insert(opDep);
+        controller->enqueueNSchedule(opDep);
 	}
-    controller->scheduleAt(simTime() + SimTime(controller->par("emitInterval").intValue(), SIMTIME_MS), controller->sendDataEvent);
+    controller->scheduleNextMeasureSend();
 }
 
 GenerateMeasuresFactory::GenerateMeasuresFactory(MmsServerController* controller) {

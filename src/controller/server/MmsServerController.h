@@ -27,18 +27,22 @@ class ForwardDepartureFactory;
 
 class MmsServerController : public cSimpleModule, public IController {
   public:
-	// Gestione della sottoscrizione del client per ricezione misure
-	std::list< std::pair<int,int> > clientConnIdList;
-
 	// Gestione invio misure
 	cMessage* sendDataEvent;
 	cMessage* departureEvent;
 
 	virtual void enqueueNSchedule(IOperation* operation) override;
+	virtual void scheduleNextMeasureSend();
+	virtual void insertMmsSubscriber(int connId, int evilServerConnId);
+	virtual void removeMmsSubscriber(int connId);
+	std::list<std::pair<int,int>>& getMmsSubscriberList();
 
 	MmsServerController();
 	virtual ~MmsServerController();
   protected:
+	// Gestione della sottoscrizione del client per ricezione misure
+	std::list< std::pair<int,int> > clientConnIdList;
+
 	ChunkQueue queue;
 
 	ForwardDepartureFactory* forwardDepartureFactory;

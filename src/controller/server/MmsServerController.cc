@@ -97,6 +97,24 @@ void MmsServerController::enqueueNSchedule(IOperation* operation) {
 	else operationQueue.insert(operation);
 }
 
+void MmsServerController::insertMmsSubscriber(int connId, int evilServerConnId) {
+	clientConnIdList.push_back({connId, evilServerConnId});
+}
+
+void MmsServerController::removeMmsSubscriber(int connId) {
+    clientConnIdList.remove_if([&](std::pair<int, int>& p) {
+        return p.first == connId;
+    });
+}
+
+std::list<std::pair<int,int>>& MmsServerController::getMmsSubscriberList() {
+	return clientConnIdList;
+}
+
+void MmsServerController::scheduleNextMeasureSend() {
+	scheduleAt(simTime() + SimTime(par("emitInterval").intValue(), SIMTIME_MS), sendDataEvent);
+}
+
 void MmsServerController::propagate(IOperation* op) {
 	emit(this->cmdPubSig, op);
 }

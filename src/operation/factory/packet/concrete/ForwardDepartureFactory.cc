@@ -39,7 +39,7 @@ void ForwardDepartureFactory::build(Packet* msg) {
         }
 
         if(appmsg->getMessageKind() == MMSKind::CONNECT) { // Register a listener
-        	controller->clientConnIdList.push_back({connId, appmsg->getEvilServerConnId()});
+        	controller->insertMmsSubscriber(connId, appmsg->getEvilServerConnId());
 		}
 		else if (appmsg->getMessageKind() == MMSKind::GENREQ) { // Response to Generic Request
 			if (requestedBytes > B(0)) {
@@ -68,9 +68,7 @@ void ForwardDepartureFactory::build(Packet* msg) {
     delete msg;
 
     if (doClose) {
-        controller->clientConnIdList.remove_if([&](std::pair<int, int>& p) {
-            return p.first == connId;
-        });
+    	controller->removeMmsSubscriber(connId);
     }
 }
 
