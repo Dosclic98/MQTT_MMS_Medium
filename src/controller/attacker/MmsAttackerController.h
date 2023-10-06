@@ -24,10 +24,6 @@
 
 namespace inet {
 
-class ForwardMmsMessageToServerFactory;
-class ForwardMmsMessageToClientFactory;
-class ForwardFakeMmsMessageToServerFactory;
-
 #define MSGKIND_CONNECT    0
 #define MSGKIND_SEND       1
 
@@ -35,10 +31,6 @@ class MmsAttackerController : public cSimpleModule, public IController {
   public:
 	MmsMessageCopier* messageCopier;
 	cMessage* sendMsgEvent;
-
-	// For logging purposes
-	bool isLogging;
-	EvilLogger* logger;
 
 	bool isSocketConnected;
 
@@ -80,15 +72,22 @@ class MmsAttackerController : public cSimpleModule, public IController {
     virtual void evalRes(IResult* res) override;
 
     void enqueueNSchedule(IOperation* operation) override;
+    bool isAtkLogging();
+    void log(const MmsMessage* msg, const char* evilStateName, simtime_t timestamp);
 
-	int fakeGenReqThresh;
-	int numGenReq;
+    int getNumGenReq();
+    int getFakeGenReqThresh();
+    void setNumGenReq(int numGenReq);
+
   protected:
 	ChunkQueue queue;
 
-    ForwardMmsMessageToServerFactory* forwardMmsMessageToServerFactory;
-    ForwardMmsMessageToClientFactory* forwardMmsMessageToClientFactory;
-    ForwardFakeMmsMessageToServerFactory* forwardFakeMmsMessageToServerFactory;
+	// For logging purposes
+	bool isLogging;
+	EvilLogger* logger;
+
+	int fakeGenReqThresh;
+	int numGenReq;
 };
 
 } // namespace inet

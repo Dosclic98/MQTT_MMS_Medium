@@ -21,7 +21,7 @@
 
 #include "../../operation/factory/packet/concrete/ForwardMmsMessageToServerFactory.h"
 #include "../../operation/factory/packet/concrete/ForwardMmsMessageToClientFactory.h"
-#include "../../operation/factory/packet/concrete/ForwardFakeMmsMessageToServerFactory.h"
+#include "../fsm/factory/concrete/MmsAttackerFSMFactory.h"
 
 using namespace inet;
 
@@ -52,11 +52,6 @@ void MmsAttackerController::initialize() {
     if(isLogging) {
     	logger = new EvilLogger(ev->getConfigEx()->getActiveRunNumber(), getIndex());
     }
-
-    // Initializing message factories
-    forwardMmsMessageToClientFactory = new ForwardMmsMessageToClientFactory(this);
-    forwardMmsMessageToServerFactory = new ForwardMmsMessageToServerFactory(this);
-    forwardFakeMmsMessageToServerFactory = new ForwardFakeMmsMessageToServerFactory(this);
 
 	fakeGenReqThresh = par("fakeGenReqThresh").intValue();
 	numGenReq = 0;
@@ -108,6 +103,8 @@ void MmsAttackerController::initialize() {
 		throw std::invalid_argument("Invalid command response block/compromise probability");
 	}
 
+	this->fsmFactory = new MmsAttackerFSMFactory(this);
+	this->controlFSM = this->fsmFactory->build();
 }
 
 void MmsAttackerController::handleMessage(cMessage *msg) {
@@ -121,7 +118,7 @@ void MmsAttackerController::handleMessage(cMessage *msg) {
 					timeoutMsg->setKind(MSGKIND_SEND);
 					scheduleAt(d, timeoutMsg);
 				} else { controllerStatus = false; }
-			}
+			} else { controllerStatus = false; }
 			break;
 
 		default:
@@ -144,6 +141,8 @@ void MmsAttackerController::next(Packet* pckt) {
 		return;
 	}
 
+	this->controlFSM->next(pckt);
+/*
 	// We must see if the message is directed to the client or to the server
     auto chunk = pckt->peekDataAt(B(0), pckt->getTotalLength());
     queue.push(chunk);
@@ -178,8 +177,9 @@ void MmsAttackerController::next(Packet* pckt) {
 	    	forwardMmsMessageToServerFactory->build(pckt);
 	    }
 
-	    delete pckt;
     }
+    */
+    delete pckt;
 }
 
 void MmsAttackerController::enqueueNSchedule(IOperation* operation) {
@@ -193,6 +193,26 @@ void MmsAttackerController::enqueueNSchedule(IOperation* operation) {
 	} else {
 		operationQueue.insert(operation);
 	}
+}
+
+bool MmsAttackerController::isAtkLogging() {
+	return this->isLogging;
+}
+
+void MmsAttackerController::log(const MmsMessage* msg, const char* evilStateName, simtime_t timestamp) {
+	logger->log(msg, evilStateName, timestamp);
+}
+
+int MmsAttackerController::getNumGenReq() {
+	return numGenReq;
+}
+
+int MmsAttackerController::getFakeGenReqThresh() {
+	return fakeGenReqThresh;
+}
+
+void MmsAttackerController::setNumGenReq(int numGenReq) {
+	this->numGenReq = numGenReq;
 }
 
 void MmsAttackerController::propagate(IOperation* op) {

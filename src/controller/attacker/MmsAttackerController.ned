@@ -39,7 +39,7 @@ simple MmsAttackerController {
 	    
 	    bool isLogging = default(false); // For logging purposes
 	    
-	    volatile double thinkTime @unit(s) = default(10ms); // time gap between requests
+	    volatile double thinkTime @unit(ms) = default(10ms); // time gap between requests
 	    
         @signal[genericFakeReqResSignal](type=bool);
         @statistic[genericFakeReqRes](source=genericFakeReqResSignal; record=count);
