@@ -17,6 +17,7 @@
 #include "inet/common/socket/SocketTag_m.h"
 
 #include "../../../attacker/concrete/ForwardMmsMessageToClient.h"
+#include "../../../../controller/fsm/state/IState.h"
 
 using namespace inet;
 
@@ -26,6 +27,14 @@ void ForwardMmsMessageToClientFactory::build(Packet* packet) {
     queue.push(chunk);
     while (queue.has<MmsMessage>(b(-1))) {
     	const auto& appmsg = queue.pop<MmsMessage>(b(-1));
+
+    	if(appmsg->getMessageKind() == MMSKind::GENRESP && appmsg->getEvilServerConnId() == -1) {
+            // Emit signal for generic fake Req Res
+    		controller->emit(controller->genericFakeReqResSignal, true);
+    		if(controller->isAtkLogging()) controller->log(appmsg.get(), controller->getControlFSM()->getCurrentState()->getName(), simTime());
+            return;
+    	}
+
 		MmsMessage* msg = controller->messageCopier->copyMessageNorm(appmsg.get(), true);
 		Packet *pckt = new Packet("data");
 
@@ -38,7 +47,7 @@ void ForwardMmsMessageToClientFactory::build(Packet* packet) {
 	        	controller->bubble("Measure blocked");
 	        	controller->emit(controller->measureBlockSignal, true);
 	            msg->setAtkStatus(MITMKind::BLOCK);
-	            if(controller->isLogging) controller->logger->log(msg, EvilStateName::FULL, simTime());
+	            if(controller->isAtkLogging()) controller->log(appmsg.get(), controller->getControlFSM()->getCurrentState()->getName(), simTime());
 	            delete msg;
 	            delete pckt;
 	            return;
@@ -47,10 +56,10 @@ void ForwardMmsMessageToClientFactory::build(Packet* packet) {
 	        	controller->emit(controller->measureCompromisedSignal, true);
 	            msg->setAtkStatus(MITMKind::COMPR);
 	            msg->setData(9);
-	            if(controller->isLogging) controller->logger->log(msg, EvilStateName::FULL, simTime());
+	            if(controller->isAtkLogging()) controller->log(appmsg.get(), controller->getControlFSM()->getCurrentState()->getName(), simTime());
 	        } else {
 	        	controller->bubble("Measure arrived from server");
-	        	if(controller->isLogging) controller->logger->log(msg, EvilStateName::FULL, simTime());
+	        	if(controller->isAtkLogging()) controller->log(appmsg.get(), controller->getControlFSM()->getCurrentState()->getName(), simTime());
 	        }
 	    } else if (messageKind == MMSKind::GENRESP) {
 	    	if(reqResKind == ReqResKind::READ) {
@@ -58,7 +67,7 @@ void ForwardMmsMessageToClientFactory::build(Packet* packet) {
 		        	controller->bubble("Read response blocked");
 		        	controller->emit(controller->readResponseBlockSignal, true);
 		            msg->setAtkStatus(MITMKind::BLOCK);
-		            if(controller->isLogging) controller->logger->log(msg, EvilStateName::FULL, simTime());
+		            if(controller->isAtkLogging()) controller->log(appmsg.get(), controller->getControlFSM()->getCurrentState()->getName(), simTime());
 		            delete msg;
 		            delete pckt;
 		            return;
@@ -67,17 +76,17 @@ void ForwardMmsMessageToClientFactory::build(Packet* packet) {
 		        	controller->emit(controller->readResponseCompromisedSignal, true);
 		            msg->setAtkStatus(MITMKind::COMPR);
 		            msg->setData(9);
-		            if(controller->isLogging) controller->logger->log(msg, EvilStateName::FULL, simTime());
+		            if(controller->isAtkLogging()) controller->log(appmsg.get(), controller->getControlFSM()->getCurrentState()->getName(), simTime());
 		        } else {
 		        	controller->bubble("Read response arrived from server");
-		        	if(controller->isLogging) controller->logger->log(msg, EvilStateName::FULL, simTime());
+		        	if(controller->isAtkLogging()) controller->log(appmsg.get(), controller->getControlFSM()->getCurrentState()->getName(), simTime());
 		        }
 	    	} else if(reqResKind == ReqResKind::COMMAND) {
 		        if (p < controller->commandResponseBlockProb) { // Block
 		        	controller->bubble("Command response blocked");
 		        	controller->emit(controller->commandResponseBlockSignal, true);
 		            msg->setAtkStatus(MITMKind::BLOCK);
-		            if(controller->isLogging) controller->logger->log(msg, EvilStateName::FULL, simTime());
+		            if(controller->isAtkLogging()) controller->log(appmsg.get(), controller->getControlFSM()->getCurrentState()->getName(), simTime());
 		            delete msg;
 		            delete pckt;
 		            return;
@@ -86,10 +95,10 @@ void ForwardMmsMessageToClientFactory::build(Packet* packet) {
 		        	controller->emit(controller->commandResponseCompromisedSignal, true);
 		            msg->setAtkStatus(MITMKind::COMPR);
 		            msg->setData(9);
-		            if(controller->isLogging) controller->logger->log(msg, EvilStateName::FULL, simTime());
+		            if(controller->isAtkLogging()) controller->log(appmsg.get(), controller->getControlFSM()->getCurrentState()->getName(), simTime());
 		        } else {
 		        	controller->bubble("Command response arrived from server");
-		        	if(controller->isLogging) controller->logger->log(msg, EvilStateName::FULL, simTime());
+		        	if(controller->isAtkLogging()) controller->log(appmsg.get(), controller->getControlFSM()->getCurrentState()->getName(), simTime());
 		        }
 	    	}
 	    }
