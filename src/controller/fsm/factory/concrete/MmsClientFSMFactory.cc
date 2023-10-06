@@ -28,8 +28,8 @@ IFSM* MmsClientFSMFactory::build() {
 	OpState* terminatedState = new OpState("TERMINATED");
 
 	// Create connected transitions
-	std::vector<ITransition*> connectedTransitions;
-	connectedTransitions.push_back(new EventTransition(
+	std::vector<std::shared_ptr<ITransition>> connectedTransitions;
+	connectedTransitions.push_back(std::make_shared<EventTransition>(
 			new SendMmsConnectFactory(cliController),
 			operatingState,
 			new cMessage("SENDMEAS", SEND_MMS_CONNECT),
@@ -38,20 +38,20 @@ IFSM* MmsClientFSMFactory::build() {
 	connectedState->setTransitions(connectedTransitions);
 
 	// Create the operating transitions
-	std::vector<ITransition*> operatingTransitions;
-	operatingTransitions.push_back(new EventTransition(
+	std::vector<std::shared_ptr<ITransition>> operatingTransitions;
+	operatingTransitions.push_back(std::make_shared<EventTransition>(
 			new SendMmsRequestFactory(cliController),
 			operatingState,
 			new cMessage("SENDREAD", SEND_MMS_READ),
 			EventMatchType::Kind
 	));
-	operatingTransitions.push_back(new EventTransition(
+	operatingTransitions.push_back(std::make_shared<EventTransition>(
 			new SendMmsRequestFactory(cliController),
 			operatingState,
 			new cMessage("SENDCOMMAND", SEND_MMS_COMMAND),
 			EventMatchType::Kind
 	));
-	operatingTransitions.push_back(new EventTransition(
+	operatingTransitions.push_back(std::make_shared<EventTransition>(
 			new SendMmsDisconnectFactory(cliController),
 			terminatedState,
 			new cMessage("SENDDISCONNECT", SEND_MMS_DISCONNECT),

@@ -29,20 +29,19 @@ IFSM* MmsServerFSMFactory::build() {
 	MmsServerController* serController = static_cast<MmsServerController*>(this->controller);
 	OpState* operativeState = new OpState("OPERATIVE");
 
-	std::vector<ITransition*> operativeTransitions;
-	operativeTransitions.push_back(new PacketTransition(
+	std::vector<std::shared_ptr<ITransition>> operativeTransitions;
+	operativeTransitions.push_back(std::make_shared<PacketTransition>(
 		new ForwardDepartureFactory(serController),
 		operativeState,
 		"content.messageKind == 0" // If messageKind == MMSKind::CONNECT
 	));
-	/* TODO Understand why adding this gives a segfault
-	operativeTransitions.push_back(new PacketTransition(
-		new ForwardDepartureFactory(serController),
-		operativeState,
-		"content.messageKind == 2" // If messageKind == MMSKind::GENREQ
-	));
-	*/
-	operativeTransitions.push_back(new EventTransition(
+	operativeTransitions.push_back(std::make_shared<PacketTransition>(
+			new ForwardDepartureFactory(serController),
+			operativeState,
+			"content.messageKind == 2" // If messageKind == MMSKind::GENREQ
+		));
+
+	operativeTransitions.push_back(std::make_shared<EventTransition>(
 		new GenerateMeasuresFactory(serController),
 		operativeState,
 		serController->getSendMeasuresEvent(),

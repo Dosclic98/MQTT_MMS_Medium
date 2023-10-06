@@ -54,14 +54,13 @@ OpFSM::~OpFSM() {
 		if(visited.find(tmp) == visited.end()) {
 			visited.insert(tmp);
 			// If tmp has not yet been visited
-			std::vector<ITransition*> transitions = tmp->getTransitions();
-			for(ITransition* trans : transitions) {
+			std::vector<std::shared_ptr<ITransition>> transitions = tmp->getTransitions();
+			for(auto& trans : transitions) {
 				IState* next = trans->getArrivalState();
 				EV << next->getName() << "\n";
 				if(visited.find(next) == visited.end()) {
 					visiting.push(next);
 				}
-				delete trans;
 			}
 		}
 	}
