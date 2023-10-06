@@ -49,6 +49,7 @@ class IController {
     virtual ControllerBinder* getBinder() {
         return check_and_cast<ControllerBinder*>(getSimulation()->getModuleByPath("controllerBinder"));
     }
+    virtual IFSM* getControlFSM() { return controlFSM; }
 };
 
 } // namespace inet
