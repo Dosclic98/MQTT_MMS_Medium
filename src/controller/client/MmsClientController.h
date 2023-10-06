@@ -18,10 +18,6 @@
 
 #include "../IController.h"
 
-#include "../../operation/factory/event/concrete/SendMmsConnectFactory.h"
-#include "../../operation/factory/event/concrete/SendMmsDisconnectFactory.h"
-#include "../../operation/factory/event/concrete/SendMmsRequestFactory.h"
-
 #define SEND_MMS_CONNECT 5
 #define SEND_MMS_READ 6
 #define SEND_MMS_COMMAND 7
@@ -31,10 +27,6 @@ namespace inet  {
 
 class MmsClientController : public cSimpleModule, public IController {
 private:
-	SendMmsConnectFactory* sendMmsConnectFactory;
-	SendMmsDisconnectFactory* sendMmsDisconnectFactory;
-	SendMmsRequestFactory* sendMmsRequestFactory;
-
 	cMessage* meas;
 	cMessage* read;
 	cMessage* command;

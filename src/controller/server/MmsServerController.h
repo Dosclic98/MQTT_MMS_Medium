@@ -22,9 +22,6 @@
 
 namespace inet {
 
-class GenerateMeasuresFactory;
-class ForwardDepartureFactory;
-
 class MmsServerController : public cSimpleModule, public IController {
   public:
 	virtual void enqueueNSchedule(IOperation* operation) override;
@@ -45,9 +42,6 @@ class MmsServerController : public cSimpleModule, public IController {
 	std::list< std::pair<int,int> > clientConnIdList;
 
 	ChunkQueue queue;
-
-	ForwardDepartureFactory* forwardDepartureFactory;
-	GenerateMeasuresFactory* generateMeasuresFactory;
 
     virtual void initialize() override;
     virtual void handleMessage(cMessage *msg) override;

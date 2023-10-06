@@ -16,7 +16,6 @@
 #include "MmsServerController.h"
 #include "../listener/MmsMsgListener.h"
 #include "../listener/MmsResListener.h"
-#include "../../operation/server/concrete/ForwardDeparture.h"
 #include "inet/common/socket/SocketTag_m.h"
 #include "inet/common/ModuleAccess.h"
 #include "inet/common/ProtocolTag_m.h"
@@ -27,8 +26,6 @@
 #include "inet/networklayer/common/L3AddressResolver.h"
 #include "inet/transportlayer/contract/tcp/TcpCommand_m.h"
 
-#include "../../operation/factory/event/concrete/GenerateMeasuresFactory.h"
-#include "../../operation/factory/packet/concrete/ForwardDepartureFactory.h"
 #include "../fsm/operation/OpFSM.h"
 #include "../fsm/factory/concrete/MmsServerFSMFactory.h"
 
@@ -50,9 +47,6 @@ void MmsServerController::initialize() {
 	ControllerBinder* binder = getBinder();
 	binder->registerController(this);
 	EV << "Server Controller Pathname: " << binder->getPathName(getId()) << "\n";
-
-	forwardDepartureFactory = new ForwardDepartureFactory(this);
-	generateMeasuresFactory = new GenerateMeasuresFactory(this);
 
 	char strCmdPubSig[30];
 	char strSerResSig[30];

@@ -16,9 +16,6 @@
 #include "MmsClientController.h"
 #include "../listener/MmsMsgListener.h"
 #include "../listener/MmsResListener.h"
-#include "../../operation/client/concrete/SendMmsConnect.h"
-#include "../../operation/client/concrete/SendMmsDisconnect.h"
-#include "../../operation/client/concrete/SendMmsRequest.h"
 #include "../fsm/operation/OpFSM.h"
 #include "../fsm/factory/concrete/MmsClientFSMFactory.h"
 
@@ -69,10 +66,6 @@ void MmsClientController::initialize() {
 	scheduleNextMmsConnect();
 	scheduleNextMmsRead();
 	scheduleNextMmsCommand();
-
-    sendMmsConnectFactory = new SendMmsConnectFactory(this);
-    sendMmsDisconnectFactory = new SendMmsDisconnectFactory(this);
-    sendMmsRequestFactory = new SendMmsRequestFactory(this);
 
     this->fsmFactory = new MmsClientFSMFactory(this);
     this->controlFSM = this->fsmFactory->build();
