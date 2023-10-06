@@ -14,17 +14,41 @@
 // 
 
 #include "MmsAttackerFSMFactory.h"
-#include "../../IFSM.h"
 #include "../../../../controller/IController.h"
+#include "../../../../controller/attacker/MmsAttackerController.h"
+#include "../../state/concrete/OpState.h"
+#include "../../operation/OpFSM.h"
+#include "../../transition/concrete/EventTransition.h"
+#include "../../transition/concrete/PacketTransition.h"
+#include "../../../../operation/factory/packet/concrete/ForwardMmsMessageToServerFactory.h"
+#include "../../../../operation/factory/packet/concrete/ForwardMmsMessageToClientFactory.h"
 
 using namespace inet;
 
 IFSM* MmsAttackerFSMFactory::build() {
+	MmsAttackerController* atkController = static_cast<MmsAttackerController*>(this->controller);
+	OpState* opState = new OpState("OPERATIVE");
 
+	std::vector<std::shared_ptr<ITransition>> operativeTransitions;
+	operativeTransitions.push_back(std::make_shared<PacketTransition>(
+		new ForwardMmsMessageToClientFactory(atkController),
+		opState,
+		"content.messageKind == 1 || content.messageKind == 3" // messageKind == MMSKind::MEASURE || messageKind == MMSKind::GENRESP
+	));
+	operativeTransitions.push_back(std::make_shared<PacketTransition>(
+		new ForwardMmsMessageToServerFactory(atkController),
+		opState,
+		"content.messageKind == 0 || content.messageKind == 2" // messageKind == MMSKind::CONNECT || messageKind == MMSKind::GENREQ
+	));
+
+	opState->setTransitions(operativeTransitions);
+	OpFSM* fsm = new OpFSM(controller, opState);
+
+	return fsm;
 }
 
-MmsAttackerFSMFactory::MmsAttackerFSMFactory() {
-	// TODO Auto-generated constructor stub
+MmsAttackerFSMFactory::MmsAttackerFSMFactory(MmsAttackerController* controller) {
+	this->controller = controller;
 }
 
 MmsAttackerFSMFactory::~MmsAttackerFSMFactory() {
