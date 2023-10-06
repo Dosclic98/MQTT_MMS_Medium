@@ -26,7 +26,7 @@ OpState::~OpState() {
 	// TODO Auto-generated destructor stub
 }
 
-OpState::OpState(std::vector<ITransition*> transitions, const char* name) {
+OpState::OpState(std::vector<std::shared_ptr<ITransition>> transitions, const char* name) {
 	this->transitions = transitions;
 	this->name = name;
 }
@@ -40,24 +40,22 @@ const char* OpState::getName() {
 	return this->name;
 }
 
-std::vector<ITransition*> OpState::getTransitions() {
+std::vector<std::shared_ptr<ITransition>>& OpState::getTransitions() {
 	return this->transitions;
 }
 
-void OpState::setTransitions(std::vector<ITransition*> transitions) {
+void OpState::setTransitions(std::vector<std::shared_ptr<ITransition>>& transitions) {
 	this->transitions = transitions;
 }
 
 IState* OpState::next(IFSM* machine, Packet* msg) {
 	IState* nextState = this;
-	for(ITransition* transition : this->transitions) {
-		PacketTransition* pcktTrans = dynamic_cast<PacketTransition*>(transition);
-		if(pcktTrans != nullptr) {
-			// This is an event transition
-			if(pcktTrans->matchesTransition(msg)) {
-				// Transition found
-				nextState = pcktTrans->execute(msg);
-			}
+	for(auto transition : this->transitions) {
+		if(transition->matchesTransition(msg)) {
+			nextState = transition->execute(msg);
+			// This break is necessary because
+			// the packet has possibly been deleted
+			break;
 		}
 	}
 	return nextState;
@@ -65,15 +63,13 @@ IState* OpState::next(IFSM* machine, Packet* msg) {
 
 IState* OpState::next(IFSM* machine, cEvent* event) {
 	IState* nextState = this;
-	for(ITransition* transition : this->transitions) {
-		EventTransition* evTrans = dynamic_cast<EventTransition*>(transition);
-		if(evTrans != nullptr) {
-			// This is an event transition
-			if(evTrans->matchesTransition(event)) {
-				// Transition found
-				nextState = evTrans->execute(event);
+	for(auto transition : this->transitions) {
+			if(transition->matchesTransition(event)) {
+				nextState = transition->execute(event);
+				// This break is necessary because
+				// the packet has possibly been deleted
+				break;
 			}
-		}
 	}
 	return nextState;
 }

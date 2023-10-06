@@ -28,11 +28,11 @@ class IFSM;
 class IState {
 protected:
 	const char* name;
-	std::vector<ITransition*> transitions;
+	std::vector<std::shared_ptr<ITransition>> transitions;
 
 public:
-	virtual void setTransitions(std::vector<ITransition*> transitions) = 0;
-	virtual std::vector<ITransition*> getTransitions() = 0;
+	virtual void setTransitions(std::vector<std::shared_ptr<ITransition>>& transitions) = 0;
+	virtual std::vector<std::shared_ptr<ITransition>>& getTransitions() = 0;
 	virtual IState* next(IFSM* machine, Packet* msg) = 0;
 	virtual IState* next(IFSM* machine, cEvent* event) = 0;
 	virtual const char* getName() = 0;
