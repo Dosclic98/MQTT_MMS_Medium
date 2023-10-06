@@ -17,6 +17,7 @@ class EvilLogger : public MmsPacketLogger {
 public:
 	EvilLogger(int runNumber, int loggerIndex);
 	void log(const MmsMessage* msg, EvilStateName evilState, simtime_t timestamp);
+	void log(const MmsMessage* msg, const char* evilStateName, simtime_t timestamp);
 	void createFolderAtPath(std::string& path);
 
 private:
