@@ -44,6 +44,7 @@ public:
 	virtual void scheduleNextMmsConnect();
 	virtual void scheduleNextMmsRead();
 	virtual void scheduleNextMmsCommand();
+	virtual void scheduleNextMmsDisconnect();
 	virtual void next(Packet* msg = nullptr) override;
 	virtual void propagate(IOperation* op) override;
 	virtual void evalRes(IResult* res) override;

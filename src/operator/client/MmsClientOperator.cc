@@ -103,7 +103,7 @@ void MmsClientOperator::sendRequest(MMSKind kind, ReqResKind reqKind, int data) 
         replyLength = 1;
 
     bool setServerClosed = false;
-    if(kind == MMSKind::DISCONNECT) {
+    if(reqKind == ReqResKind::DISCONNECT) {
     	setServerClosed = true;
     }
 
@@ -254,7 +254,7 @@ void MmsClientOperator::sendMmsConnect(int opId) {
 void MmsClientOperator::sendMmsDisconnect(int opId) {
 	Enter_Method("Sending MMS Disconnect");
 	if(socket.isOpen()) {
-		sendRequest(MMSKind::DISCONNECT, ReqResKind::UNSET);
+		sendRequest(MMSKind::GENREQ, ReqResKind::DISCONNECT);
 		propagate(new MmsClientResult(opId, ResultOutcome::SUCCESS));
 	}
 }

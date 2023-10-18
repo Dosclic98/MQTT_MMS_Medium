@@ -89,6 +89,12 @@ void MmsClientController::scheduleNextMmsCommand() {
     scheduleAt(dCommand, this->command);
 }
 
+void MmsClientController::scheduleNextMmsDisconnect() {
+	// Schedule MMS (and also TCP) disconnect
+	simtime_t dDisconnect = simTime() + SimTime(30, SIMTIME_S);
+	scheduleAt(dDisconnect, this->disconnect);
+}
+
 // TODO Just a temporary solution to test the client controller <--> operator communication
 void MmsClientController::handleMessage(cMessage* msg) {
 	if(msg->isSelfMessage()) {

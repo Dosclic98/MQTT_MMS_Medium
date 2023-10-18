@@ -57,7 +57,7 @@ IFSM* MmsClientFSMFactory::build() {
 	));
 	operatingTransitions.push_back(std::make_shared<EventTransition>(
 			new SendMmsDisconnectFactory(cliController),
-			terminatedState,
+			connectedState,
 			new cMessage("SENDDISCONNECT", SEND_MMS_DISCONNECT),
 			EventMatchType::Kind
 	));
