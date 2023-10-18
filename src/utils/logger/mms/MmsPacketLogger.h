@@ -29,7 +29,7 @@ public:
 	virtual ~MmsPacketLogger();
 
 	std::string mmsKindToStr[5] = {"CONNECT", "MEASURE", "GENREQ", "GENRESP"};
-	std::string reqResKindToStr[3] = {"READ", "COMMAND"};
+	std::string reqResKindToStr[3] = {"READ", "COMMAND", "DISCONNECT"};
 	std::string mitmKindToStr[4] = {"UNMOD", "COMPR", "BLOCK", "FAKEGEN"};
 	std::string path = "logs/";
 
