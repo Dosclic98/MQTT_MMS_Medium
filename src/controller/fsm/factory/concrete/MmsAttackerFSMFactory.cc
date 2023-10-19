@@ -22,12 +22,23 @@
 #include "../../transition/concrete/PacketTransition.h"
 #include "../../../../operation/factory/packet/concrete/ForwardMmsMessageToServerFactory.h"
 #include "../../../../operation/factory/packet/concrete/ForwardMmsMessageToClientFactory.h"
+#include "../../../../operation/factory/event/concrete/SendTcpConnectAtkFactory.h"
 
 using namespace inet;
 
 IFSM* MmsAttackerFSMFactory::build() {
 	MmsAttackerController* atkController = static_cast<MmsAttackerController*>(this->controller);
+	OpState* unconnectedState = new OpState("UNCONNECTED");
 	OpState* opState = new OpState("OPERATIVE");
+
+	std::vector<std::shared_ptr<ITransition>> unconnectedTransitions;
+	unconnectedTransitions.push_back(std::make_shared<EventTransition>(
+		new SendTcpConnectAtkFactory(atkController),
+		opState,
+		new cMessage("TCPCONNECT", MSGKIND_CONNECT),
+		EventMatchType::Kind
+	));
+	unconnectedState->setTransitions(unconnectedTransitions);
 
 	std::vector<std::shared_ptr<ITransition>> operativeTransitions;
 	operativeTransitions.push_back(std::make_shared<PacketTransition>(
@@ -42,7 +53,7 @@ IFSM* MmsAttackerFSMFactory::build() {
 	));
 
 	opState->setTransitions(operativeTransitions);
-	OpFSM* fsm = new OpFSM(controller, opState);
+	OpFSM* fsm = new OpFSM(controller, unconnectedState);
 
 	return fsm;
 }

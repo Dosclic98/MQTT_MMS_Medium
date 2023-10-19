@@ -31,6 +31,8 @@ void MmsAttackerController::initialize() {
 	ControllerBinder* binder = getBinder();
 	binder->registerController(this);
 
+	connect = new cMessage("TCPCONNECT", MSGKIND_CONNECT);
+
 	char strCmdPubSig[30];
 	sprintf(strCmdPubSig, "atkCmdSig-%d", this->getIndex());
 	cmdPubSig = registerSignal(strCmdPubSig);
@@ -105,10 +107,21 @@ void MmsAttackerController::initialize() {
 
 	this->fsmFactory = new MmsAttackerFSMFactory(this);
 	this->controlFSM = this->fsmFactory->build();
+
+	this->scheduleNextTcpConnect();
+}
+
+void MmsAttackerController::scheduleNextTcpConnect() {
+	cancelEvent(this->connect);
+    // Schedule TCP connection (1 second after initialization)
+	simtime_t dConnect = simTime() + SimTime(1, SIMTIME_S);
+	scheduleAt(dConnect, this->connect);
 }
 
 void MmsAttackerController::handleMessage(cMessage *msg) {
 	switch (msg->getKind()) {
+		case MSGKIND_CONNECT:
+			this->controlFSM->next(msg);
 		case MSGKIND_SEND:
 			if(!operationQueue.isEmpty()) {
 				IOperation* op = check_and_cast<IOperation*>(operationQueue.pop());
@@ -142,43 +155,7 @@ void MmsAttackerController::next(Packet* pckt) {
 	}
 
 	this->controlFSM->next(pckt);
-/*
-	// We must see if the message is directed to the client or to the server
-    auto chunk = pckt->peekDataAt(B(0), pckt->getTotalLength());
-    queue.push(chunk);
-    while (queue.has<MmsMessage>(b(-1))) {
-    	const auto& appmsg = queue.pop<MmsMessage>(b(-1));
-    	if(appmsg->getMessageKind() == MMSKind::GENRESP && appmsg->getEvilServerConnId() == -1) {
-            // Emit signal for generic fake Req Res
-    		emit(genericFakeReqResSignal, true);
-    		if(isLogging) logger->log(appmsg.get(), EvilStateName::FULL, simTime());
-            delete pckt;
-            return;
-    	}
-		if(appmsg->getMessageKind() == MMSKind::GENREQ) {
-			numGenReq++;
-			// If at least a certain number of generic requests has been sent
-			// generate a fake request for the server
-			if(numGenReq >= fakeGenReqThresh) {
-				numGenReq = 0;
 
-				forwardFakeMmsMessageToServerFactory->build(pckt);
-			}
-		}
-
-		bubble("Sent to internal client!");
-		EV_INFO << "Conn ID:" << appmsg->getEvilServerConnId() << "\n";
-
-		MMSKind messageKind = appmsg->getMessageKind();
-
-	    if(messageKind == MMSKind::GENRESP || messageKind == MMSKind::MEASURE) {
-	    	forwardMmsMessageToClientFactory->build(pckt);
-	    } else {
-	    	forwardMmsMessageToServerFactory->build(pckt);
-	    }
-
-    }
-    */
     delete pckt;
 }
 
@@ -227,5 +204,8 @@ MmsAttackerController::~MmsAttackerController() {
 	if(isLogging) delete logger;
 	cancelAndDelete(sendMsgEvent);
 	cancelAndDelete(timeoutMsg);
+	cancelAndDelete(this->connect);
 	operationQueue.clear();
+	delete this->fsmFactory;
+	delete this->controlFSM;
 }

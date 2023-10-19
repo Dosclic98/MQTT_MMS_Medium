@@ -70,6 +70,7 @@ class MmsAttackerController : public cSimpleModule, public IController {
     virtual void next(Packet* msg = nullptr) override;
     virtual void propagate(IOperation* op) override;
     virtual void evalRes(IResult* res) override;
+    virtual void scheduleNextTcpConnect();
 
     void enqueueNSchedule(IOperation* operation) override;
     bool isAtkLogging();
@@ -88,6 +89,9 @@ class MmsAttackerController : public cSimpleModule, public IController {
 
 	int fakeGenReqThresh;
 	int numGenReq;
+
+  private:
+	cMessage* connect;
 };
 
 } // namespace inet
