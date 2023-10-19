@@ -58,9 +58,6 @@ void MmsServerOperator::initialize(int stage) {
 }
 
 void MmsServerOperator::sendBack(cMessage *msg) {
-	Packet* pckt = dynamic_cast<Packet*>(msg);
-	if(isLogging) logPacket(pckt, serverOp);
-
 	TcpGenericServerApp::sendBack(msg);
 }
 
@@ -79,6 +76,7 @@ void MmsServerOperator::sendPacketDeparture(int connId, msgid_t originId, int ev
     payload->setData(data);
     payload->setAtkStatus(atkStatus);
     outPacket->insertAtBack(payload);
+    if(isLogging) logPacket(outPacket, serverOp);
     sendOrSchedule(outPacket, SimTime(round(par("replyDelay").doubleValue()), SIMTIME_MS));
 }
 
@@ -137,7 +135,11 @@ void MmsServerOperator::handleMessage(cMessage *msg) {
 
         // we'll close too, but only after there's surely no message
         // pending to be sent back in this connection
-        propagate(check_and_cast<Packet*>(msg));
+        int connId = check_and_cast<Indication *>(msg)->getTag<SocketInd>()->getSocketId();
+        delete msg;
+        auto request = new Request("close", TCP_C_CLOSE);
+        request->addTag<SocketReq>()->setSocketId(connId);
+        sendOrSchedule(request, SimTime(par("replyDelay").doubleValue(), SIMTIME_MS));
     }
     else if (msg->getKind() == TCP_I_DATA || msg->getKind() == TCP_I_URGENT_DATA) {
     	if(isLogging) logPacket(check_and_cast<Packet*>(msg), serverOp);
