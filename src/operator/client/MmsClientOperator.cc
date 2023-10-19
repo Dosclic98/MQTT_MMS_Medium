@@ -19,6 +19,7 @@
 #include "inet/common/lifecycle/ModuleOperations.h"
 #include "inet/common/packet/Packet.h"
 #include "inet/common/TimeTag_m.h"
+#include "inet/networklayer/common/L3AddressResolver.h"
 #include "../../result/client/MmsClientResult.h"
 
 #define MSGKIND_CONNECT    				0
@@ -44,15 +45,14 @@ void MmsClientOperator::initialize(int stage) {
         WATCH(numRequestsToSend);
         WATCH(measureCounter);
         cEnvir* ev = getSimulation()->getActiveEnvir();
-        startTime = par("startTime");
-        stopTime = par("stopTime");
+        // So it doesn't connect automatically
+        startTime = SIMTIME_ZERO;
+        stopTime = SIMTIME_ZERO;
         resTimeout = par("resTimeoutInterval");
         isLogging = par("isLogging");
         if(isLogging) {
         	logger = new MmsPacketLogger(ev->getConfigEx()->getActiveRunNumber(), "client", 0, getIndex());
         }
-        if (stopTime >= SIMTIME_ZERO && stopTime < startTime)
-            throw cRuntimeError("Invalid startTime/stopTime parameters");
         timeoutMsg = new cMessage("timer");
 
         measureAmountEvent = new cMessage("Topic Amount Event");
@@ -86,6 +86,13 @@ void MmsClientOperator::initialize(int stage) {
         scheduleAt(simTime() + SimTime(measureAmountEventDelay, SIMTIME_S), measureAmountEvent);
     }
 }
+
+void MmsClientOperator::handleStartOperation(LifecycleOperation *operation) {/* Do nothing */}
+
+void MmsClientOperator::socketClosed(TcpSocket *socket) {
+    TcpAppBase::socketClosed(socket);
+}
+
 
 void MmsClientOperator::socketEstablished(TcpSocket *socket) {
     // determine number of requests in this session
@@ -129,21 +136,23 @@ void MmsClientOperator::sendRequest(MMSKind kind, ReqResKind reqKind, int data) 
         payload->setReqResKind(reqKind);
 
         // Add the timeout event for the respective response
-		cMessage* resTimeoutMsg = new cMessage("Response timeout");
-		resTimeoutMsg->setKind(MSGKIND_RES_TIMEOUT);
+        if(reqKind != ReqResKind::DISCONNECT) {
+    		cMessage* resTimeoutMsg = new cMessage("Response timeout");
+    		resTimeoutMsg->setKind(MSGKIND_RES_TIMEOUT);
 
-        if(reqKind == ReqResKind::READ) {
-        	readResTimeoutMap.insert({payload->getOriginId(), resTimeoutMsg});
-        	emit(readSentSignal, true);
-        } else if(reqKind == ReqResKind::COMMAND) {
-        	commandResTimeoutMap.insert({payload->getOriginId(), resTimeoutMsg});
-        	emit(commandSentSignal, true);
+            if(reqKind == ReqResKind::READ) {
+            	readResTimeoutMap.insert({payload->getOriginId(), resTimeoutMsg});
+            	emit(readSentSignal, true);
+            } else if(reqKind == ReqResKind::COMMAND) {
+            	commandResTimeoutMap.insert({payload->getOriginId(), resTimeoutMsg});
+            	emit(commandSentSignal, true);
+            }
+
+            scheduleAt(simTime() + SimTime(resTimeout, SIMTIME_S), resTimeoutMsg);
+
+            // Memorize when the message has been sent
+            genReqSentTimeMap.insert({payload->getOriginId(), simTime()});
         }
-
-        scheduleAt(simTime() + SimTime(resTimeout, SIMTIME_S), resTimeoutMsg);
-
-        // Memorize when the message has been sent
-        genReqSentTimeMap.insert({payload->getOriginId(), simTime()});
     }
 
     packet->insertAtBack(payload);
@@ -163,10 +172,6 @@ void MmsClientOperator::handleTimer(cMessage *msg)
     }
     bool found = false;
     switch (msg->getKind()) {
-        case MSGKIND_CONNECT:
-            connect();
-            break;
-
         case MSGKIND_RES_TIMEOUT:
         	for(auto &i : readResTimeoutMap) {
         		if (i.second == msg) {
@@ -232,11 +237,62 @@ void MmsClientOperator::socketDataArrived(TcpSocket *socket, Packet *msg, bool u
             		commandResTimeoutMap.erase(appmsg->getOriginId());
             		cancelAndDelete(tmpTimeout);
             	}
+        	} else if(appmsg->getReqResKind() == ReqResKind::DISCONNECT) {
+        		socket->close();
         	}
         	genReqSentTimeMap.erase(appmsg->getOriginId());
         }
     }
     TcpAppBase::socketDataArrived(socket, msg, urgent);
+}
+
+// Connect the TCP socket on the non-default connectAddress specified as parameter
+void MmsClientOperator::connectWithAddress(std::string* connectAddress) {
+	EV << "Connect address: " << connectAddress << "\n";
+	// we need a new connId if this is not the first connection
+	socket.renewSocket();
+
+	const char *localAddress = par("localAddress");
+	int localPort = par("localPort");
+	socket.bind(*localAddress ? L3AddressResolver().resolve(localAddress) : L3Address(), localPort);
+
+	int timeToLive = par("timeToLive");
+	if (timeToLive != -1)
+		socket.setTimeToLive(timeToLive);
+
+	int dscp = par("dscp");
+	if (dscp != -1)
+		socket.setDscp(dscp);
+
+	int tos = par("tos");
+	if (tos != -1)
+		socket.setTos(tos);
+
+	// connect
+	int connectPort = par("connectPort");
+
+	L3Address destination;
+	L3AddressResolver().tryResolve(connectAddress->c_str(), destination);
+	if (destination.isUnspecified()) {
+		EV_ERROR << "Connecting to " << connectAddress << " port=" << connectPort << ": cannot resolve destination address\n";
+	}
+	else {
+		EV_INFO << "Connecting to " << connectAddress << "(" << destination << ") port=" << connectPort << endl;
+
+		socket.connect(destination, connectPort);
+
+		numSessions++;
+		emit(connectSignal, 1L);
+	}
+}
+
+void MmsClientOperator::sendTcpConnect(int opId, std::string* connectAddress) {
+	Enter_Method("Initializing TCP connection");
+	if(connectAddress == nullptr) connect();
+	else {
+		connectWithAddress(connectAddress);
+	}
+	propagate(new MmsClientResult(opId, ResultOutcome::SUCCESS));
 }
 
 void MmsClientOperator::sendMmsConnect(int opId) {

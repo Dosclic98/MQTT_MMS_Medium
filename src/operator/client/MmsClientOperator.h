@@ -29,6 +29,7 @@ namespace inet {
 class MmsClientOperator : public TcpBasicClientApp, public IOperator
 {
 public:
+	  virtual void sendTcpConnect(int opId, std::string* connectAddress);
 	  virtual void sendMmsConnect(int opId);
 	  virtual void sendMmsDisconnect(int opId);
 	  virtual void sendMmsRequest(int opId, ReqResKind reqKind, int data);
@@ -66,10 +67,13 @@ private:
 
 
 	  virtual void initialize(int stage) override;
+	  virtual void handleStartOperation(LifecycleOperation *operation) override;
+	  virtual void socketClosed(TcpSocket *socket) override;
 	  virtual void sendRequest(MMSKind kind = MMSKind::CONNECT, ReqResKind reqKind = ReqResKind::READ, int data = 0);
 	  virtual void socketEstablished(TcpSocket *socket) override;
 	  virtual void handleTimer(cMessage* msg) override;
 	  virtual void socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent) override;
+	  virtual void connectWithAddress(std::string* connectAddress);
 	  virtual ~MmsClientOperator();
 
 	  virtual void propagate(IResult* res) override;
