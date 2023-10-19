@@ -74,30 +74,35 @@ void MmsClientController::initialize() {
 }
 
 void MmsClientController::scheduleNextTcpConnect() {
+	cancelEvent(this->connect);
     // Schedule TCP connection (1 second after initialization)
-	simtime_t dConnect = simTime() + SimTime(2, SIMTIME_S);
+	simtime_t dConnect = simTime() + SimTime(1, SIMTIME_S);
 	scheduleAt(dConnect, this->connect);
 }
 
 void MmsClientController::scheduleNextMmsConnect() {
+	cancelEvent(this->meas);
     // Schedule the register for measure MMS message (1 second after TCP connection)
 	simtime_t dMeas = simTime() + SimTime(1, SIMTIME_S);
 	scheduleAt(dMeas, this->meas);
 }
 
 void MmsClientController::scheduleNextMmsRead() {
+	cancelEvent(this->read);
     // Schedule a Read send
     simtime_t dRead = simTime() + SimTime(par("sendReadInterval").intValue(), SIMTIME_S);
     scheduleAt(dRead, this->read);
 }
 
 void MmsClientController::scheduleNextMmsCommand() {
+	cancelEvent(this->command);
     // Schedule a Command send
     simtime_t dCommand = simTime() + SimTime(par("sendCommandInterval").intValue(), SIMTIME_S);
     scheduleAt(dCommand, this->command);
 }
 
 void MmsClientController::scheduleNextMmsDisconnect() {
+	cancelEvent(this->disconnect);
 	// Schedule MMS (and also TCP) disconnect
 	simtime_t dDisconnect = simTime() + SimTime(30, SIMTIME_S);
 	scheduleAt(dDisconnect, this->disconnect);
