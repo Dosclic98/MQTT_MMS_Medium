@@ -22,6 +22,7 @@
 #define SEND_MMS_READ 6
 #define SEND_MMS_COMMAND 7
 #define SEND_MMS_DISCONNECT 8
+#define SEND_TCP_CONNECT 9
 
 namespace inet  {
 
@@ -31,6 +32,7 @@ private:
 	cMessage* read;
 	cMessage* command;
 	cMessage* disconnect;
+	cMessage* connect;
 
 
 public:
@@ -41,6 +43,7 @@ public:
 	void handleMessage(cMessage* msg) override;
 	void finish() override;
 
+	virtual void scheduleNextTcpConnect();
 	virtual void scheduleNextMmsConnect();
 	virtual void scheduleNextMmsRead();
 	virtual void scheduleNextMmsCommand();

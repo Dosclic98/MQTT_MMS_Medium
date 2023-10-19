@@ -34,6 +34,7 @@ MmsClientController::~MmsClientController() {
 void MmsClientController::finish() {
 	delete this->fsmFactory;
 	delete this->controlFSM;
+	cancelAndDelete(this->connect);
 	cancelAndDelete(this->meas);
 	cancelAndDelete(this->read);
 	cancelAndDelete(this->command);
@@ -58,22 +59,29 @@ void MmsClientController::initialize() {
 	getParentModule()->getParentModule()->subscribe(strResSubSig, resListener);
 	getParentModule()->getParentModule()->subscribe(strMsgSubSig, msgListener);
 
+	connect = new cMessage("TCPCONNECT", SEND_TCP_CONNECT);
 	meas = new cMessage("SENDMEAS", SEND_MMS_CONNECT);
 	read = new cMessage("SENDREAD", SEND_MMS_READ);
 	command = new cMessage("SENDCOMMAND", SEND_MMS_COMMAND);
 	disconnect = new cMessage("SENDDISCONNECT", SEND_MMS_DISCONNECT);
 
-	scheduleNextMmsConnect();
+	scheduleNextTcpConnect();
 	scheduleNextMmsRead();
 	scheduleNextMmsCommand();
 
-    this->fsmFactory = new MmsClientFSMFactory(this);
+    this->fsmFactory = new MmsClientFSMFactory(this, this->getIndex());
     this->controlFSM = this->fsmFactory->build();
 }
 
+void MmsClientController::scheduleNextTcpConnect() {
+    // Schedule TCP connection (1 second after initialization)
+	simtime_t dConnect = simTime() + SimTime(2, SIMTIME_S);
+	scheduleAt(dConnect, this->connect);
+}
+
 void MmsClientController::scheduleNextMmsConnect() {
-    // Schedule the register for measure MMS message
-	simtime_t dMeas = simTime() + SimTime(2, SIMTIME_S);
+    // Schedule the register for measure MMS message (1 second after TCP connection)
+	simtime_t dMeas = simTime() + SimTime(1, SIMTIME_S);
 	scheduleAt(dMeas, this->meas);
 }
 

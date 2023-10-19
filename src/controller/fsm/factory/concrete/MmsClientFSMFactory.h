@@ -23,10 +23,12 @@ namespace inet {
 class MmsClientController;
 
 class MmsClientFSMFactory : public IFSMFactory {
+private:
+	int index;
 public:
 	virtual IFSM* build() override;
 	virtual ~MmsClientFSMFactory();
-	MmsClientFSMFactory(MmsClientController* controller);
+	MmsClientFSMFactory(MmsClientController* controller, int index);
 };
 
 } // namespace inet

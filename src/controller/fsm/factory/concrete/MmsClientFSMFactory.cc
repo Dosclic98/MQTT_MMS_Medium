@@ -18,6 +18,7 @@
 #include "../../state/concrete/OpState.h"
 #include "../../operation/OpFSM.h"
 #include "../../transition/concrete/EventTransition.h"
+#include "../../../../operation/factory/event/concrete/SendTcpConnectFactory.h"
 #include "../../../../operation/factory/event/concrete/SendMmsConnectFactory.h"
 #include "../../../../operation/factory/event/concrete/SendMmsDisconnectFactory.h"
 #include "../../../../operation/factory/event/concrete/SendMmsRequestFactory.h"
@@ -27,9 +28,20 @@ using namespace inet;
 
 IFSM* MmsClientFSMFactory::build() {
 	MmsClientController* cliController = static_cast<MmsClientController*>(this->controller);
+	OpState* unconnectedState = new OpState("UNCONNECTED");
 	OpState* connectedState = new OpState("CONNECTED");
 	OpState* operatingState = new OpState("OPERATING");
 	OpState* terminatedState = new OpState("TERMINATED");
+
+	// Create unconnected transitions
+	std::vector<std::shared_ptr<ITransition>> unconnectedTransitions;
+	unconnectedTransitions.push_back(std::make_shared<EventTransition>(
+			new SendTcpConnectFactory(cliController),
+			connectedState,
+			new cMessage("TCPCONNECT", SEND_TCP_CONNECT),
+			EventMatchType::Kind
+	));
+	unconnectedState->setTransitions(unconnectedTransitions);
 
 	// Create connected transitions
 	std::vector<std::shared_ptr<ITransition>> connectedTransitions;
@@ -57,20 +69,31 @@ IFSM* MmsClientFSMFactory::build() {
 	));
 	operatingTransitions.push_back(std::make_shared<EventTransition>(
 			new SendMmsDisconnectFactory(cliController),
-			connectedState,
+			terminatedState,
 			new cMessage("SENDDISCONNECT", SEND_MMS_DISCONNECT),
 			EventMatchType::Kind
 	));
 	operatingState->setTransitions(operatingTransitions);
 
-	return new OpFSM(this->controller, connectedState);
+	std::vector<std::shared_ptr<ITransition>> terminatedTransitions;
+	std::string* strConnAddr = new std::string("IncrementalTest.server[" + std::to_string(this->index) + "].serverOperator");
+	terminatedTransitions.push_back(std::make_shared<EventTransition>(
+			new SendTcpConnectFactory(cliController, strConnAddr),
+			connectedState,
+			new cMessage("TCPCONNECT", SEND_TCP_CONNECT),
+			EventMatchType::Kind
+	));
+	terminatedState->setTransitions(terminatedTransitions);
+
+	return new OpFSM(this->controller, unconnectedState);
 }
 
 MmsClientFSMFactory::~MmsClientFSMFactory() {
 	// TODO Auto-generated destructor stub
 }
 
-MmsClientFSMFactory::MmsClientFSMFactory(MmsClientController* controller) {
+MmsClientFSMFactory::MmsClientFSMFactory(MmsClientController* controller, int index) {
 	this->controller = controller;
+	this->index = index;
 }
 
