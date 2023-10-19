@@ -44,10 +44,9 @@ void ClientEvilOperator::initialize(int stage)
         numRequestsToSend = 1000;
         WATCH(earlySend);
         WATCH(numRequestsToSend);
-        startTime = par("startTime");
-        stopTime = par("stopTime");
-        if (stopTime >= SIMTIME_ZERO && stopTime < startTime)
-            throw cRuntimeError("Invalid startTime/stopTime parameters");
+        // So it doesn't connect automatically
+        startTime = SIMTIME_ZERO;
+        stopTime = SIMTIME_ZERO;
         timeoutMsg = new cMessage("timer");
 
         pcktFromServerSignal = registerSignal("pcktFromServerSignal");
@@ -74,16 +73,16 @@ void ClientEvilOperator::initialize(int stage)
     }
 }
 
+void ClientEvilOperator::handleStartOperation(LifecycleOperation *operation) {/* Do nothing */}
+
+void ClientEvilOperator::sendTcpConnect(int opId) {
+	Enter_Method("Initializing TCP connection");
+	connect();
+	propagate(new MmsAttackerResult(opId, ResultOutcome::SUCCESS));
+}
 
 void ClientEvilOperator::handleTimer(cMessage *msg) {
-	switch (msg->getKind()) {
-		case MSGKIND_CONNECT:
-			connect();
-			break;
-
-		default:
-			throw cRuntimeError("Invalid timer msg: kind=%d", msg->getKind());
-	}
+	throw cRuntimeError("Invalid timer msg: kind=%d", msg->getKind());
 }
 
 void ClientEvilOperator::socketEstablished(TcpSocket *socket) {

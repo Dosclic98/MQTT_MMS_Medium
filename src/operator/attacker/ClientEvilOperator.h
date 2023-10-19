@@ -39,6 +39,7 @@ public:
 
 	virtual void forwardToClient(int opId, Packet* pckt);
 	virtual void forwardToServer(int opId, Packet* pckt);
+	virtual void sendTcpConnect(int opId);
 
 	virtual ~ClientEvilOperator();
 
@@ -50,6 +51,7 @@ protected:
 
 protected:
 	virtual void initialize(int stage) override;
+	virtual void handleStartOperation(LifecycleOperation *operation) override;
 	virtual void handleTimer(cMessage* msg) override;
 	virtual void socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent) override;
 	virtual void socketEstablished(TcpSocket *socket) override;
