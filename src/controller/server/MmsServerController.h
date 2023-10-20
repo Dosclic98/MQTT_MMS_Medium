@@ -25,7 +25,8 @@ namespace inet {
 class MmsServerController : public cSimpleModule, public IController {
   public:
 	virtual void enqueueNSchedule(IOperation* operation) override;
-	virtual void scheduleNextMeasureSend();
+	virtual void scheduleEvent(cMessage* event, simtime_t delay) override;
+	virtual void descheduleEvent(cMessage* event) override;
 	virtual void insertMmsSubscriber(int connId, int evilServerConnId);
 	virtual void removeMmsSubscriber(int connId);
 	virtual std::list<std::pair<int,int>>& getMmsSubscriberList();

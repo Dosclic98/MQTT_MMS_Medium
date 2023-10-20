@@ -34,11 +34,6 @@ MmsClientController::~MmsClientController() {
 void MmsClientController::finish() {
 	delete this->fsmFactory;
 	delete this->controlFSM;
-	cancelAndDelete(this->connect);
-	cancelAndDelete(this->meas);
-	cancelAndDelete(this->read);
-	cancelAndDelete(this->command);
-	cancelAndDelete(this->disconnect);
 }
 
 void MmsClientController::initialize() {
@@ -59,53 +54,19 @@ void MmsClientController::initialize() {
 	getParentModule()->getParentModule()->subscribe(strResSubSig, resListener);
 	getParentModule()->getParentModule()->subscribe(strMsgSubSig, msgListener);
 
-	connect = new cMessage("TCPCONNECT", SEND_TCP_CONNECT);
-	meas = new cMessage("SENDMEAS", SEND_MMS_CONNECT);
-	read = new cMessage("SENDREAD", SEND_MMS_READ);
-	command = new cMessage("SENDCOMMAND", SEND_MMS_COMMAND);
-	disconnect = new cMessage("SENDDISCONNECT", SEND_MMS_DISCONNECT);
-
-	scheduleNextTcpConnect();
-	scheduleNextMmsRead();
-	scheduleNextMmsCommand();
-
     this->fsmFactory = new MmsClientFSMFactory(this, this->getIndex());
     this->controlFSM = this->fsmFactory->build();
 }
 
-void MmsClientController::scheduleNextTcpConnect() {
-	cancelEvent(this->connect);
-    // Schedule TCP connection (1 second after initialization)
-	simtime_t dConnect = simTime() + SimTime(1, SIMTIME_S);
-	scheduleAt(dConnect, this->connect);
+void MmsClientController::scheduleEvent(cMessage* event, simtime_t delay) {
+	cancelEvent(event);
+    // Schedule event after delay from now
+	simtime_t sTime = simTime() + delay;
+	scheduleAt(sTime, event);
 }
 
-void MmsClientController::scheduleNextMmsConnect() {
-	cancelEvent(this->meas);
-    // Schedule the register for measure MMS message (1 second after TCP connection)
-	simtime_t dMeas = simTime() + SimTime(1, SIMTIME_S);
-	scheduleAt(dMeas, this->meas);
-}
-
-void MmsClientController::scheduleNextMmsRead() {
-	cancelEvent(this->read);
-    // Schedule a Read send
-    simtime_t dRead = simTime() + SimTime(par("sendReadInterval").intValue(), SIMTIME_S);
-    scheduleAt(dRead, this->read);
-}
-
-void MmsClientController::scheduleNextMmsCommand() {
-	cancelEvent(this->command);
-    // Schedule a Command send
-    simtime_t dCommand = simTime() + SimTime(par("sendCommandInterval").intValue(), SIMTIME_S);
-    scheduleAt(dCommand, this->command);
-}
-
-void MmsClientController::scheduleNextMmsDisconnect() {
-	cancelEvent(this->disconnect);
-	// Schedule MMS (and also TCP) disconnect
-	simtime_t dDisconnect = simTime() + SimTime(30, SIMTIME_S);
-	scheduleAt(dDisconnect, this->disconnect);
+void MmsClientController::descheduleEvent(cMessage* event) {
+	cancelEvent(event);
 }
 
 // TODO Just a temporary solution to test the client controller <--> operator communication

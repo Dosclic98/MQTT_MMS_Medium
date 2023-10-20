@@ -68,8 +68,17 @@ void MmsServerController::initialize() {
 
     this->fsmFactory = new MmsServerFSMFactory(this);
     this->controlFSM = this->fsmFactory->build();
+}
 
-	scheduleAt(1, sendDataEvent);
+void MmsServerController::scheduleEvent(cMessage* event, simtime_t delay) {
+	cancelEvent(event);
+    // Schedule event after delay from now
+	simtime_t sTime = simTime() + delay;
+	scheduleAt(sTime, event);
+}
+
+void MmsServerController::descheduleEvent(cMessage* event) {
+	cancelEvent(event);
 }
 
 void MmsServerController::handleMessage(cMessage *msg) {
@@ -112,10 +121,6 @@ void MmsServerController::removeMmsSubscriber(int connId) {
 
 std::list<std::pair<int,int>>& MmsServerController::getMmsSubscriberList() {
 	return clientConnIdList;
-}
-
-void MmsServerController::scheduleNextMeasureSend() {
-	scheduleAt(simTime() + SimTime(par("emitInterval").intValue(), SIMTIME_MS), sendDataEvent);
 }
 
 void MmsServerController::propagate(IOperation* op) {

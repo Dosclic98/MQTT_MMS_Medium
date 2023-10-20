@@ -70,6 +70,8 @@ class MmsAttackerController : public cSimpleModule, public IController {
     virtual void next(Packet* msg = nullptr) override;
     virtual void propagate(IOperation* op) override;
     virtual void evalRes(IResult* res) override;
+    virtual void scheduleEvent(cMessage* event, simtime_t delay) override;
+    virtual void descheduleEvent(cMessage* event) override;
     virtual void scheduleNextTcpConnect();
 
     void enqueueNSchedule(IOperation* operation) override;

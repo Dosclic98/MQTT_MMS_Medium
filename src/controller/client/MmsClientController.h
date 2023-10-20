@@ -27,13 +27,6 @@
 namespace inet  {
 
 class MmsClientController : public cSimpleModule, public IController {
-private:
-	cMessage* meas;
-	cMessage* read;
-	cMessage* command;
-	cMessage* disconnect;
-	cMessage* connect;
-
 
 public:
 	MmsClientController();
@@ -43,15 +36,12 @@ public:
 	void handleMessage(cMessage* msg) override;
 	void finish() override;
 
-	virtual void scheduleNextTcpConnect();
-	virtual void scheduleNextMmsConnect();
-	virtual void scheduleNextMmsRead();
-	virtual void scheduleNextMmsCommand();
-	virtual void scheduleNextMmsDisconnect();
 	virtual void next(Packet* msg = nullptr) override;
 	virtual void propagate(IOperation* op) override;
 	virtual void evalRes(IResult* res) override;
 	virtual void enqueueNSchedule(IOperation* operation) override;
+	virtual void scheduleEvent(cMessage* event, simtime_t delay) override;
+	virtual void descheduleEvent(cMessage* event) override;
 };
 
 }

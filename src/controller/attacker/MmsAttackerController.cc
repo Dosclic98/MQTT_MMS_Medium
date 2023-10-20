@@ -172,6 +172,17 @@ void MmsAttackerController::enqueueNSchedule(IOperation* operation) {
 	}
 }
 
+void MmsAttackerController::scheduleEvent(cMessage* event, simtime_t delay) {
+	cancelEvent(event);
+    // Schedule event after delay from now
+	simtime_t sTime = simTime() + delay;
+	scheduleAt(sTime, event);
+}
+
+void MmsAttackerController::descheduleEvent(cMessage* event) {
+	cancelEvent(event);
+}
+
 bool MmsAttackerController::isAtkLogging() {
 	return this->isLogging;
 }
