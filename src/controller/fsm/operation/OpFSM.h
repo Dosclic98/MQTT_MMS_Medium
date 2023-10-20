@@ -22,11 +22,14 @@
 namespace inet {
 
 class OpFSM : public IFSM {
+protected:
+	virtual void updateEventScheduling(IState* currentState, IState* nextState) override;
+
 public:
 	virtual IState* getCurrentState() override;
 	virtual void setCurrentState(IState* currentState) override;
 	virtual IState* next(Packet* msg) override;
-	virtual IState* next(cEvent* event) override;
+	virtual IState* next(cMessage* event) override;
 
 	OpFSM(IController* owner, IState* currentState);
 	virtual ~OpFSM() override;

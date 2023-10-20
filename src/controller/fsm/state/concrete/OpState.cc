@@ -61,7 +61,7 @@ IState* OpState::next(IFSM* machine, Packet* msg) {
 	return nextState;
 }
 
-IState* OpState::next(IFSM* machine, cEvent* event) {
+IState* OpState::next(IFSM* machine, cMessage* event) {
 	IState* nextState = this;
 	for(auto transition : this->transitions) {
 			if(transition->matchesTransition(event)) {

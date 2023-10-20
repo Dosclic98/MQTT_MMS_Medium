@@ -27,19 +27,39 @@ void OpFSM::setCurrentState(IState* currentState) {
 }
 
 IState* OpFSM::next(Packet* msg) {
-	this->currentState = currentState->next(this, msg);
+	IState* nextState = currentState->next(this, msg);
+	updateEventScheduling(currentState, nextState);
+	this->currentState = nextState;
 	return currentState;
 }
 
-IState* OpFSM::next(cEvent* event) {
-	this->currentState = currentState->next(this, event);
+IState* OpFSM::next(cMessage* event) {
+	IState* nextState = currentState->next(this, event);
+	updateEventScheduling(currentState, nextState);
+	this->currentState = nextState;
 	return currentState;
+}
+
+void OpFSM::updateEventScheduling(IState* currentState, IState* nextState) {
+	if(nextState != currentState) {
+		// Deschedule all the eventTransitions related to the currentState and
+		// schedule the ones associated to the tmpState
+		for(std::shared_ptr<ITransition> transition : currentState->getTransitions()) {
+			transition->descheduleSelf();
+		}
+		for(std::shared_ptr<ITransition> transition : nextState->getTransitions()) {
+			transition->scheduleSelf();
+		}
+	}
 }
 
 OpFSM::OpFSM(IController* owner, IState* currentState) {
 	this->owner = owner;
 	this->currentState = currentState;
 	this->initialState = currentState;
+	for(std::shared_ptr<ITransition> transition : currentState->getTransitions()) {
+		transition->scheduleSelf();
+	}
 }
 
 OpFSM::~OpFSM() {

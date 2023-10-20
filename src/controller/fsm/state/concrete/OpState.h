@@ -28,7 +28,7 @@ class IFSM;
 class OpState : public IState {
 public:
 	virtual IState* next(IFSM* machine, Packet* msg) override;
-	virtual IState* next(IFSM* machine, cEvent* event) override;
+	virtual IState* next(IFSM* machine, cMessage* event) override;
 	virtual void setTransitions(std::vector<std::shared_ptr<ITransition>>& transitions) override;
 	virtual std::vector<std::shared_ptr<ITransition>>& getTransitions() override;
 	virtual const char* getName() override;

@@ -31,11 +31,13 @@ protected:
 	IState* initialState;
 	IController* owner;
 
+	virtual void updateEventScheduling(IState* currentState, IState* nextState) = 0;
+
 public:
 	virtual IState* getCurrentState() = 0;
 	virtual void setCurrentState(IState* currentState) = 0;
 	virtual IState* next(Packet* msg) = 0;
-	virtual IState* next(cEvent* event) = 0;
+	virtual IState* next(cMessage* event) = 0;
 
 	virtual ~IFSM() = default;
 };
