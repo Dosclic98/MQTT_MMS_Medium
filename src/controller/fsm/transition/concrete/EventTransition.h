@@ -23,16 +23,19 @@ namespace inet {
 
 class EventTransition : public ITransition {
 protected:
-	cEvent* event;
+	cMessage* event;
 	EventMatchType matchType;
+	simtime_t delay;
 
 public:
 	virtual bool matchesTransition(Packet* packet) override;
 	virtual IState* execute(Packet* packet) override;
-	virtual bool matchesTransition(cEvent* event) override;
-	virtual IState* execute(cEvent* event) override;
+	virtual bool matchesTransition(cMessage* event) override;
+	virtual IState* execute(cMessage* event) override;
+	virtual void scheduleSelf() override;
+	virtual void descheduleSelf() override;
 
-	EventTransition(IOperationFactory* operationFactory, IState* arrivalState, cEvent* event, EventMatchType matchType);
+	EventTransition(IOperationFactory* operationFactory, IState* arrivalState, cMessage* event, EventMatchType matchType, simtime_t delay);
 	virtual ~EventTransition() override;
 };
 

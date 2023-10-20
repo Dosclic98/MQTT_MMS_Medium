@@ -28,10 +28,10 @@ IState* EventTransition::execute(Packet* packet) {
 	return nullptr;
 }
 
-bool EventTransition::matchesTransition(cEvent* event) {
+bool EventTransition::matchesTransition(cMessage* event) {
 	switch(this->matchType) {
 		case EventMatchType::Kind: {
-			return check_and_cast<cMessage*>(this->event)->getKind() == check_and_cast<cMessage*>(event)->getKind();
+			return this->event->getKind() == event->getKind();
 			break;
 		}
 		case EventMatchType::Ref: {
@@ -44,26 +44,44 @@ bool EventTransition::matchesTransition(cEvent* event) {
 	return this->event == event;
 }
 
-IState* EventTransition::execute(cEvent* event) {
+IState* EventTransition::execute(cMessage* event) {
 	if(matchesTransition(event)) {
 		EventOperationFactory* evOpFactory = static_cast<EventOperationFactory*>(operationFactory);
 		evOpFactory->build(event);
+		// Reschedule event triggering the transition
+		this->scheduleSelf();
 		return arrivalState;
 	} else {
 		throw std::logic_error("Trying to execute a transition not associated to the referenced event");
 	}
 }
 
-EventTransition::EventTransition(IOperationFactory* operationFactory, IState* arrivalState, cEvent* event, EventMatchType matchType) {
+void EventTransition::scheduleSelf() {
+	// Reschedule the event causing the transition to trigger;
+	EventOperationFactory* evOpFactory = static_cast<EventOperationFactory*>(operationFactory);
+	IController* controller = evOpFactory->getController();
+	controller->scheduleEvent(event, delay);
+}
+
+void EventTransition::descheduleSelf() {
+	EventOperationFactory* evOpFactory = static_cast<EventOperationFactory*>(operationFactory);
+	IController* controller = evOpFactory->getController();
+	controller->descheduleEvent(event);
+}
+
+EventTransition::EventTransition(IOperationFactory* operationFactory, IState* arrivalState, cMessage* event,
+		EventMatchType matchType, simtime_t delay) {
 	EventOperationFactory* tmpEvOpFactory = dynamic_cast<EventOperationFactory*>(operationFactory);
 	if(tmpEvOpFactory == nullptr) throw std::invalid_argument("EventTransition requires an EventOperationFactory as operationFactory parameter in the constructor\n");
 	this->operationFactory = operationFactory;
 	this->arrivalState = arrivalState;
 	this->event = event;
 	this->matchType = matchType;
+	this->delay = delay;
 }
 
 EventTransition::~EventTransition() {
+	this->descheduleSelf();
 	if(this->matchType == EventMatchType::Kind) {
 		delete this->event;
 	}

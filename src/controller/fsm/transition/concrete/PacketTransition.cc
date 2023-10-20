@@ -33,14 +33,22 @@ IState* PacketTransition::execute(Packet* packet) {
 	}
 }
 
-bool PacketTransition::matchesTransition(cEvent* event) {
+bool PacketTransition::matchesTransition(cMessage* event) {
 	// It is not an EventTransition
 	return false;
 }
 
-IState* PacketTransition::execute(cEvent* event) {
+IState* PacketTransition::execute(cMessage* event) {
 	// It is not an EventTransition
 	return nullptr;
+}
+
+void PacketTransition::scheduleSelf() {
+	// Nothing to do (this is not an eRventTransition)
+}
+
+void PacketTransition::descheduleSelf() {
+	// Nothing to do (this is not an eRventTransition)
 }
 
 PacketTransition::PacketTransition(IOperationFactory* operationFactory, IState* arrivalState, const char* expression) {

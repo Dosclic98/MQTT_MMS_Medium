@@ -37,8 +37,10 @@ protected:
 public:
 	virtual bool matchesTransition(Packet* packet) = 0;
 	virtual IState* execute(Packet* packet) = 0;
-	virtual bool matchesTransition(cEvent* event) = 0;
-	virtual IState* execute(cEvent* event) = 0;
+	virtual bool matchesTransition(cMessage* event) = 0;
+	virtual IState* execute(cMessage* event) = 0;
+	virtual void scheduleSelf() = 0;
+	virtual void descheduleSelf() = 0;
 	virtual IState* getArrivalState() {
 		return arrivalState;
 	};
