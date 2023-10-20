@@ -18,6 +18,7 @@ package tx_medium_exp.simulations;
 import tx_medium_exp.composer.MmsWiredClient;
 import tx_medium_exp.composer.MmsWiredServer;
 import tx_medium_exp.composer.MmsWiredAttacker;
+import tx_medium_exp.graph.attack.AttackGraph;
 import inet.node.inet.Router;
 import inet.node.inet.StandardHost;
 import inet.node.ethernet.Eth1G;
@@ -28,6 +29,7 @@ network IncrementalTest {
     parameters:
         volatile int numServers = default(1);
 	submodules:
+	    attackGraph: AttackGraph;
 	    controllerBinder: ControllerBinder;
 	    configurator: Ipv4NetworkConfigurator;
 	    client: MmsWiredClient {
