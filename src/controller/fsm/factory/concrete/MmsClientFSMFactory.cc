@@ -39,7 +39,8 @@ IFSM* MmsClientFSMFactory::build() {
 			new SendTcpConnectFactory(cliController),
 			connectedState,
 			new cMessage("TCPCONNECT", SEND_TCP_CONNECT),
-			EventMatchType::Kind
+			EventMatchType::Kind,
+			SimTime(1, SIMTIME_S)
 	));
 	unconnectedState->setTransitions(unconnectedTransitions);
 
@@ -49,7 +50,8 @@ IFSM* MmsClientFSMFactory::build() {
 			new SendMmsConnectFactory(cliController),
 			operatingState,
 			new cMessage("SENDMEAS", SEND_MMS_CONNECT),
-			EventMatchType::Kind
+			EventMatchType::Kind,
+			SimTime(1, SIMTIME_S)
 	));
 	connectedState->setTransitions(connectedTransitions);
 
@@ -59,19 +61,22 @@ IFSM* MmsClientFSMFactory::build() {
 			new SendMmsRequestFactory(cliController),
 			operatingState,
 			new cMessage("SENDREAD", SEND_MMS_READ),
-			EventMatchType::Kind
+			EventMatchType::Kind,
+			SimTime(cliController->par("sendReadInterval"), SIMTIME_S)
 	));
 	operatingTransitions.push_back(std::make_shared<EventTransition>(
 			new SendMmsRequestFactory(cliController),
 			operatingState,
 			new cMessage("SENDCOMMAND", SEND_MMS_COMMAND),
-			EventMatchType::Kind
+			EventMatchType::Kind,
+			SimTime(cliController->par("sendCommandInterval"), SIMTIME_S)
 	));
 	operatingTransitions.push_back(std::make_shared<EventTransition>(
 			new SendMmsDisconnectFactory(cliController),
 			terminatedState,
 			new cMessage("SENDDISCONNECT", SEND_MMS_DISCONNECT),
-			EventMatchType::Kind
+			EventMatchType::Kind,
+			SimTime(30, SIMTIME_S)
 	));
 	operatingState->setTransitions(operatingTransitions);
 
@@ -81,7 +86,8 @@ IFSM* MmsClientFSMFactory::build() {
 			new SendTcpConnectFactory(cliController, strConnAddr),
 			connectedState,
 			new cMessage("TCPCONNECT", SEND_TCP_CONNECT),
-			EventMatchType::Kind
+			EventMatchType::Kind,
+			SimTime(3, SIMTIME_S)
 	));
 	terminatedState->setTransitions(terminatedTransitions);
 

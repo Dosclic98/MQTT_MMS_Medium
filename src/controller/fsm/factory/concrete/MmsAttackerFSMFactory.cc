@@ -36,7 +36,8 @@ IFSM* MmsAttackerFSMFactory::build() {
 		new SendTcpConnectAtkFactory(atkController),
 		opState,
 		new cMessage("TCPCONNECT", MSGKIND_CONNECT),
-		EventMatchType::Kind
+		EventMatchType::Kind,
+		SimTime(1, SIMTIME_S)
 	));
 	unconnectedState->setTransitions(unconnectedTransitions);
 

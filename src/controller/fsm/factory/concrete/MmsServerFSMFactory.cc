@@ -45,7 +45,8 @@ IFSM* MmsServerFSMFactory::build() {
 		new GenerateMeasuresFactory(serController),
 		operativeState,
 		serController->getSendMeasuresEvent(),
-		EventMatchType::Ref
+		EventMatchType::Ref,
+		SimTime(serController->par("emitInterval").intValue(), SIMTIME_MS)
 	));
 
 	operativeState->setTransitions(operativeTransitions);
