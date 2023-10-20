@@ -23,7 +23,6 @@ void SendTcpConnectFactory::build(omnetpp::cEvent* event) {
 	MmsClientController* controller = static_cast<MmsClientController*>(this->controller);
 	SendTcpConnect* cliOp = new SendTcpConnect(this->connectAddress);
 	controller->propagate(cliOp);
-	controller->scheduleNextMmsConnect();
 }
 
 SendTcpConnectFactory::SendTcpConnectFactory(MmsClientController* controller, std::string* connectAddress) {

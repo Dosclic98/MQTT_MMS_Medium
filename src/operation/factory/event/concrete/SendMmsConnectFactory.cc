@@ -23,7 +23,6 @@ void SendMmsConnectFactory::build(omnetpp::cEvent* event) {
 	MmsClientController* controller = static_cast<MmsClientController*>(this->controller);
 	SendMmsConnect* cliOp = new SendMmsConnect();
 	controller->propagate(cliOp);
-	controller->scheduleNextMmsDisconnect();
 }
 
 SendMmsConnectFactory::SendMmsConnectFactory(MmsClientController* controller) {

@@ -45,7 +45,6 @@ void GenerateMeasuresFactory::build(omnetpp::cEvent* event) {
 		ForwardDeparture* opDep = new ForwardDeparture(pkt);
         controller->enqueueNSchedule(opDep);
 	}
-    controller->scheduleNextMeasureSend();
 }
 
 GenerateMeasuresFactory::GenerateMeasuresFactory(MmsServerController* controller) {

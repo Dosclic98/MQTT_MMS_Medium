@@ -50,7 +50,7 @@ void ForwardMmsMessageToServerFactory::build(Packet* packet) {
 				msg->addTag<CreationTimeTag>()->setCreationTime(simTime());
 				msg->setData(0);
 				msg->setAtkStatus(MITMKind::FAKEGEN);
-				if(controller->isAtkLogging()) controller->log(appmsg.get(), controller->getControlFSM()->getCurrentState()->getName(), simTime());
+				if(controller->isAtkLogging()) controller->log(msg, controller->getControlFSM()->getCurrentState()->getName(), simTime());
 
 				const auto& payload = controller->messageCopier->copyMessage(msg, true);
 				Packet *pckt = new Packet("data");
@@ -70,31 +70,31 @@ void ForwardMmsMessageToServerFactory::build(Packet* packet) {
 				if (p < controller->readRequestBlockProb) { // Block
 					controller->emit(controller->readRequestBlockSignal, true);
 					msg->setAtkStatus(MITMKind::BLOCK);
-					if(controller->isAtkLogging()) controller->log(appmsg.get(), controller->getControlFSM()->getCurrentState()->getName(), simTime());
+					if(controller->isAtkLogging()) controller->log(msg, controller->getControlFSM()->getCurrentState()->getName(), simTime());
 					delete msg;
 					return;
 				} else if (p - controller->readRequestBlockProb < controller->readRequestCompromisedProb) { // Compromise
 					msg->setAtkStatus(MITMKind::COMPR);
 					msg->setData(9);
-					if(controller->isAtkLogging()) controller->log(appmsg.get(), controller->getControlFSM()->getCurrentState()->getName(), simTime());
+					if(controller->isAtkLogging()) controller->log(msg, controller->getControlFSM()->getCurrentState()->getName(), simTime());
 					controller->emit(controller->readRequestCompromisedSignal, true);
 				} else {
-					if(controller->isAtkLogging()) controller->log(appmsg.get(), controller->getControlFSM()->getCurrentState()->getName(), simTime());
+					if(controller->isAtkLogging()) controller->log(msg, controller->getControlFSM()->getCurrentState()->getName(), simTime());
 				}
 			} else if(appmsg->getReqResKind() == ReqResKind::COMMAND) {
 				if (p < controller->commandRequestBlockProb) { // Block
 					controller->emit(controller->commandRequestBlockSignal, true);
 					msg->setAtkStatus(MITMKind::BLOCK);
-					if(controller->isAtkLogging()) controller->log(appmsg.get(), controller->getControlFSM()->getCurrentState()->getName(), simTime());
+					if(controller->isAtkLogging()) controller->log(msg, controller->getControlFSM()->getCurrentState()->getName(), simTime());
 					delete msg;
 					return;
 				} else if (p - controller->commandRequestBlockProb < controller->commandRequestCompromisedProb) { // Compromise
 					controller->emit(controller->commandRequestCompromisedSignal, true);
 					msg->setAtkStatus(MITMKind::COMPR);
 					msg->setData(9);
-					if(controller->isAtkLogging()) controller->log(appmsg.get(), controller->getControlFSM()->getCurrentState()->getName(), simTime());
+					if(controller->isAtkLogging()) controller->log(msg, controller->getControlFSM()->getCurrentState()->getName(), simTime());
 				} else {
-					if(controller->isAtkLogging()) controller->log(appmsg.get(), controller->getControlFSM()->getCurrentState()->getName(), simTime());
+					if(controller->isAtkLogging()) controller->log(msg, controller->getControlFSM()->getCurrentState()->getName(), simTime());
 				}
 			}
 		}

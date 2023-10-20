@@ -47,7 +47,7 @@ void ForwardMmsMessageToClientFactory::build(Packet* packet) {
 	        	controller->bubble("Measure blocked");
 	        	controller->emit(controller->measureBlockSignal, true);
 	            msg->setAtkStatus(MITMKind::BLOCK);
-	            if(controller->isAtkLogging()) controller->log(appmsg.get(), controller->getControlFSM()->getCurrentState()->getName(), simTime());
+	            if(controller->isAtkLogging()) controller->log(msg, controller->getControlFSM()->getCurrentState()->getName(), simTime());
 	            delete msg;
 	            delete pckt;
 	            return;
@@ -56,10 +56,10 @@ void ForwardMmsMessageToClientFactory::build(Packet* packet) {
 	        	controller->emit(controller->measureCompromisedSignal, true);
 	            msg->setAtkStatus(MITMKind::COMPR);
 	            msg->setData(9);
-	            if(controller->isAtkLogging()) controller->log(appmsg.get(), controller->getControlFSM()->getCurrentState()->getName(), simTime());
+	            if(controller->isAtkLogging()) controller->log(msg, controller->getControlFSM()->getCurrentState()->getName(), simTime());
 	        } else {
 	        	controller->bubble("Measure arrived from server");
-	        	if(controller->isAtkLogging()) controller->log(appmsg.get(), controller->getControlFSM()->getCurrentState()->getName(), simTime());
+	        	if(controller->isAtkLogging()) controller->log(msg, controller->getControlFSM()->getCurrentState()->getName(), simTime());
 	        }
 	    } else if (messageKind == MMSKind::GENRESP) {
 	    	if(reqResKind == ReqResKind::READ) {
@@ -67,7 +67,7 @@ void ForwardMmsMessageToClientFactory::build(Packet* packet) {
 		        	controller->bubble("Read response blocked");
 		        	controller->emit(controller->readResponseBlockSignal, true);
 		            msg->setAtkStatus(MITMKind::BLOCK);
-		            if(controller->isAtkLogging()) controller->log(appmsg.get(), controller->getControlFSM()->getCurrentState()->getName(), simTime());
+		            if(controller->isAtkLogging()) controller->log(msg, controller->getControlFSM()->getCurrentState()->getName(), simTime());
 		            delete msg;
 		            delete pckt;
 		            return;
@@ -76,17 +76,17 @@ void ForwardMmsMessageToClientFactory::build(Packet* packet) {
 		        	controller->emit(controller->readResponseCompromisedSignal, true);
 		            msg->setAtkStatus(MITMKind::COMPR);
 		            msg->setData(9);
-		            if(controller->isAtkLogging()) controller->log(appmsg.get(), controller->getControlFSM()->getCurrentState()->getName(), simTime());
+		            if(controller->isAtkLogging()) controller->log(msg, controller->getControlFSM()->getCurrentState()->getName(), simTime());
 		        } else {
 		        	controller->bubble("Read response arrived from server");
-		        	if(controller->isAtkLogging()) controller->log(appmsg.get(), controller->getControlFSM()->getCurrentState()->getName(), simTime());
+		        	if(controller->isAtkLogging()) controller->log(msg, controller->getControlFSM()->getCurrentState()->getName(), simTime());
 		        }
 	    	} else if(reqResKind == ReqResKind::COMMAND) {
 		        if (p < controller->commandResponseBlockProb) { // Block
 		        	controller->bubble("Command response blocked");
 		        	controller->emit(controller->commandResponseBlockSignal, true);
 		            msg->setAtkStatus(MITMKind::BLOCK);
-		            if(controller->isAtkLogging()) controller->log(appmsg.get(), controller->getControlFSM()->getCurrentState()->getName(), simTime());
+		            if(controller->isAtkLogging()) controller->log(msg, controller->getControlFSM()->getCurrentState()->getName(), simTime());
 		            delete msg;
 		            delete pckt;
 		            return;
@@ -95,10 +95,10 @@ void ForwardMmsMessageToClientFactory::build(Packet* packet) {
 		        	controller->emit(controller->commandResponseCompromisedSignal, true);
 		            msg->setAtkStatus(MITMKind::COMPR);
 		            msg->setData(9);
-		            if(controller->isAtkLogging()) controller->log(appmsg.get(), controller->getControlFSM()->getCurrentState()->getName(), simTime());
+		            if(controller->isAtkLogging()) controller->log(msg, controller->getControlFSM()->getCurrentState()->getName(), simTime());
 		        } else {
 		        	controller->bubble("Command response arrived from server");
-		        	if(controller->isAtkLogging()) controller->log(appmsg.get(), controller->getControlFSM()->getCurrentState()->getName(), simTime());
+		        	if(controller->isAtkLogging()) controller->log(msg, controller->getControlFSM()->getCurrentState()->getName(), simTime());
 		        }
 	    	}
 	    }

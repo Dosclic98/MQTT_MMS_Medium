@@ -24,6 +24,7 @@ class IOperationFactory {
 protected:
 	IController* controller;
 public:
+	virtual IController* getController() { return controller; }
 	virtual ~IOperationFactory() = default;
 };
 
