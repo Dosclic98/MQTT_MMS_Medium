@@ -20,11 +20,37 @@
 
 namespace inet {
 
-class AttackNode : public omnetpp::cSimpleModule
-{
+enum NodeType {
+	AND,
+	OR,
+	BEGIN,
+	END,
+	DEFENSE,
+	STEP
+};
+
+enum NodeState {
+	ACTIVE,
+	INACTIVE
+};
+
+class AttackNode : public omnetpp::cSimpleModule {
   protected:
     virtual void initialize() override;
     virtual void handleMessage(omnetpp::cMessage *msg) override;
+
+  public:
+    inline static std::vector<std::string> displayStrings = {
+    		"i=block/uparrow",
+    		"i=block/downarrow",
+			"i=misc/node2,blue",
+    		"i=status/excl3",
+			"i=block/circle",
+    		"i=block/square"
+    };
+
+    NodeType type;
+    NodeState state;
 };
 
 } // namespace inet

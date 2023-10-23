@@ -20,10 +20,9 @@ using namespace inet;
 Define_Module(AttackNode);
 
 void AttackNode::initialize() {
-    // TODO - Generated method body
+    EV << type << "\n";
 }
 
-void AttackNode::handleMessage(omnetpp::cMessage *msg)
-{
+void AttackNode::handleMessage(omnetpp::cMessage *msg) {
     // TODO - Generated method body
 }

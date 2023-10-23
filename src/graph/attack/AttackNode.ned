@@ -21,4 +21,7 @@ package tx_medium_exp.graph.attack;
 simple AttackNode {
     parameters:
         @class("inet::AttackNode");
+    gates:
+        input in[];
+        output out[];
 }
