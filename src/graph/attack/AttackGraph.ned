@@ -19,9 +19,9 @@ import tx_medium_exp.graph.attack.AttackNode;
 
 module AttackGraph {
     parameters:
+        @display("i=block/network2");
         @class("inet::AttackGraph");
-        int numNodes = default(2);
         
     submodules:
-        adjList[numNodes]: AttackNode;
+        adjList[0]: AttackNode;
 }

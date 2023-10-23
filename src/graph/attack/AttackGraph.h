@@ -18,12 +18,35 @@
 
 #include <omnetpp.h>
 #include "../IGraph.h"
+#include "AttackNode.h"
+
 
 namespace inet {
 
+struct NodeContent {
+	const char* displayName;
+	NodeType type;
+	std::vector<std::string> children;
+};
+
 class AttackGraph : public omnetpp::cModule, public IGraph {
   protected:
+	std::map<std::string, AttackNode*> nodesMap;
+	NodeContent nodes[7] = {
+			{ "NetworkBegin", NodeType::BEGIN, { "Networkaccess" } },
+			{ "Networkaccess", NodeType::STEP, { "ChannelnetSni", "ChanneladvInTheMid" } },
+			{ "NetworktlsSet", NodeType::DEFENSE, { "ChannelnetSni", "ChanneladvInTheMid" } },
+			{ "ChannelnetSni", NodeType::STEP, { "IEDpowSysacc" } },
+			{ "ChanneladvInTheMid", NodeType::STEP, { "IEDpowSysacc" } },
+			{ "IEDpowSysacc", NodeType::OR, { "PowerSystemEnd" } },
+			{ "PowerSystemEnd", NodeType::END, {  } }
+	};
+
     virtual void initialize() override;
+
+  private:
+    virtual void connectNodes(AttackNode* startNode, AttackNode* endNode);
+
 };
 
 } // namespace inet

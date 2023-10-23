@@ -20,5 +20,46 @@ using namespace inet;
 Define_Module(AttackGraph);
 
 void AttackGraph::initialize() {
-    // TODO - Generated method body
+	const char* vectorName = "adjList";
+	int vectorSize = 0;
+	omnetpp::cModuleType* nodeType = omnetpp::cModuleType::get("tx_medium_exp.graph.attack.AttackNode");
+
+	// Initialize nodes
+	for(NodeContent nodeContent : nodes) {
+		this->setSubmoduleVectorSize(vectorName, ++vectorSize);
+		omnetpp::cModule* nodeModule = nodeType->create(vectorName, this, vectorSize - 1);
+		AttackNode* nodeAttack = check_and_cast<AttackNode*>(nodeModule);
+		nodeAttack->type = nodeContent.type;
+		nodeAttack->finalizeParameters();
+		nodeAttack->buildInside();
+		nodeAttack->setDisplayName(nodeContent.displayName);
+		omnetpp::cDisplayString& dispStr = nodeAttack->getDisplayString();
+		dispStr.parse(AttackNode::displayStrings[nodeContent.type].c_str());
+		nodeAttack->scheduleStart(omnetpp::simTime());
+
+		// Just to introduce the arcs more efficiently
+		nodesMap.insert({nodeContent.displayName, nodeAttack});
+	}
+
+	// Initialize arcs
+	for(NodeContent nodeContent : nodes) {
+		AttackNode* startNodeAttack = nodesMap.at(nodeContent.displayName);
+		for(std::string childName : nodeContent.children) {
+			AttackNode* endNodeAttack = nodesMap.at(childName);
+			// Connect the nodes if found
+			this->connectNodes(startNodeAttack, endNodeAttack);
+		}
+	}
+}
+
+void AttackGraph::connectNodes(AttackNode* startNode, AttackNode* endNode) {
+	const char* inGate = "in";
+	const char* outGate = "out";
+
+	// Increase the gates sizes
+	startNode->setGateSize(outGate, startNode->gateSize(outGate) + 1);
+	endNode->setGateSize(inGate, endNode->gateSize(inGate) + 1);
+
+	startNode->gate(outGate, startNode->gateSize(outGate) - 1)
+			->connectTo(endNode->gate(inGate, endNode->gateSize(inGate) - 1));
 }
