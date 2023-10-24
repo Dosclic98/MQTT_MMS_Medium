@@ -26,6 +26,8 @@ namespace inet {
 struct NodeContent {
 	const char* displayName;
 	NodeType type;
+	bool state;
+	const char* activationDelayExpr;
 	std::vector<std::string> children;
 };
 
@@ -33,13 +35,13 @@ class AttackGraph : public omnetpp::cModule, public IGraph {
   protected:
 	std::map<std::string, AttackNode*> nodesMap;
 	NodeContent nodes[7] = {
-			{ "NetworkBegin", NodeType::BEGIN, { "Networkaccess" } },
-			{ "Networkaccess", NodeType::STEP, { "ChannelnetSni", "ChanneladvInTheMid" } },
-			{ "NetworktlsSet", NodeType::DEFENSE, { "ChannelnetSni", "ChanneladvInTheMid" } },
-			{ "ChannelnetSni", NodeType::STEP, { "IEDpowSysacc" } },
-			{ "ChanneladvInTheMid", NodeType::STEP, { "IEDpowSysacc" } },
-			{ "IEDpowSysacc", NodeType::OR, { "PowerSystemEnd" } },
-			{ "PowerSystemEnd", NodeType::END, {  } }
+			{ "NetworkBegin", NodeType::BEGIN, true, "uniform(4,6)", { "Networkaccess" } },
+			{ "Networkaccess", NodeType::STEP, false, "uniform(4,6)", { "ChannelnetSni", "ChanneladvInTheMid" } },
+			{ "NetworktlsSet", NodeType::DEFENSE, false, "uniform(4,6)", { "ChannelnetSni", "ChanneladvInTheMid" } },
+			{ "ChannelnetSni", NodeType::STEP, false, "uniform(4,6)", { "IEDpowSysacc" } },
+			{ "ChanneladvInTheMid", NodeType::STEP, false, "uniform(4,6)", { "IEDpowSysacc" } },
+			{ "IEDpowSysacc", NodeType::OR, false, "uniform(4,6)", { "PowerSystemEnd" } },
+			{ "PowerSystemEnd", NodeType::END, false, "uniform(4,6)", {  } }
 	};
 
     virtual void initialize() override;

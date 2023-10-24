@@ -21,6 +21,7 @@ Define_Module(AttackGraph);
 
 void AttackGraph::initialize() {
 	const char* vectorName = "adjList";
+	const char* activationDelayParName = "activationDelay";
 	int vectorSize = 0;
 	omnetpp::cModuleType* nodeType = omnetpp::cModuleType::get("tx_medium_exp.graph.attack.AttackNode");
 
@@ -29,12 +30,20 @@ void AttackGraph::initialize() {
 		this->setSubmoduleVectorSize(vectorName, ++vectorSize);
 		omnetpp::cModule* nodeModule = nodeType->create(vectorName, this, vectorSize - 1);
 		AttackNode* nodeAttack = check_and_cast<AttackNode*>(nodeModule);
-		nodeAttack->type = nodeContent.type;
+		// Set parameters
+		nodeAttack->setType(nodeContent.type);
+		nodeAttack->setState(nodeContent.state);
+		omnetpp::cDynamicExpression* activationDelayExpr = new omnetpp::cDynamicExpression();
+		activationDelayExpr->parse(nodeContent.activationDelayExpr);
+		nodeAttack->par(activationDelayParName).setExpression(activationDelayExpr);
+
 		nodeAttack->finalizeParameters();
 		nodeAttack->buildInside();
+		// Set display name and display string
 		nodeAttack->setDisplayName(nodeContent.displayName);
 		omnetpp::cDisplayString& dispStr = nodeAttack->getDisplayString();
 		dispStr.parse(AttackNode::displayStrings[nodeContent.type].c_str());
+
 		nodeAttack->scheduleStart(omnetpp::simTime());
 
 		// Just to introduce the arcs more efficiently
