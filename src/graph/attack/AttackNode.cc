@@ -20,9 +20,103 @@ using namespace inet;
 Define_Module(AttackNode);
 
 void AttackNode::initialize() {
-    EV << type << "\n";
+    if(this->isActive()) {
+    	if(this->getType() == NodeType::BEGIN || this->getType() == NodeType::DEFENSE) {
+    		scheduleAt(omnetpp::simTime(), new omnetpp::cMessage("Activate", KIND_ACTIVE));
+    	} else {
+    		throw std::invalid_argument("A node of type different from BEGIN or DEFENSE is active on initialization");
+    	}
+    }
 }
 
+// TODO Maybe implement node deactivation in the future
 void AttackNode::handleMessage(omnetpp::cMessage *msg) {
-    // TODO - Generated method body
+    if(msg->isSelfMessage()) {
+    	if(msg->getKind() == KIND_ACTIVE) {
+        	// The current completion time has expired the node is active (notify all children)
+        	for(int i = 0; i < this->gateSize("out"); i++) {
+        		this->send(new omnetpp::cMessage("Notify activation", KIND_NOTIFY_ACTIVE), "out", i);
+        	}
+    	}
+    } else {
+    	if(msg->getKind() == KIND_NOTIFY_ACTIVE) {
+    		// A parent has been activated
+    		if(!this->isActive()) {
+    			updateActivation();
+    			if(this->isActive()) {
+    				scheduleAt(omnetpp::simTime() + omnetpp::SimTime(par("activationDelay").doubleValue(), omnetpp::SIMTIME_S), new omnetpp::cMessage("Activate", KIND_ACTIVE));
+    			}
+    		}
+    	}
+    }
+
+    delete msg;
+}
+
+void AttackNode::updateActivation() {
+	std::vector<AttackNode*> parents = getParents();
+	// Defense check
+	for(AttackNode *parent : parents) {
+		// If a parent defense is active the node cannot be activated
+		if(parent->getType() == NodeType::DEFENSE && parent->isActive() &&
+				this->getType() == NodeType::STEP) {
+			this->state = false;
+			return;
+		}
+	}
+
+	// Other parents check
+	bool toActivate = false;
+	for(AttackNode *parent : parents) {
+		toActivate = parent->isActive();
+		if(this->getType() == NodeType::AND) {
+			if(!toActivate) break;
+		} else if(this->getType() == NodeType::OR || this->getType() == NodeType::STEP ||
+				this->getType() == NodeType::END) {
+			if(toActivate) break;
+		}
+	}
+
+	this->state = toActivate;
+}
+
+std::vector<AttackNode*> AttackNode::getParents() {
+	std::vector<AttackNode*> parentsVector(0);
+	for(int i = 0; i < this->gateSize("in"); i++) {
+		omnetpp::cGate* currGate = this->gate("in", i);
+		omnetpp::cGate* prevGate = currGate->getPreviousGate();
+		if(prevGate != nullptr) {
+			AttackNode* parent = dynamic_cast<AttackNode*>(prevGate->getOwner());
+			parentsVector.push_back(parent);
+		}
+	}
+
+	return parentsVector;
+}
+
+void AttackNode::setType(NodeType type) {
+	this->type = type;
+}
+
+NodeType AttackNode::getType() {
+	return this->type;
+}
+
+bool AttackNode::isActive() {
+	return this->state;
+}
+
+void AttackNode::setState(bool state) {
+	this->state = state;
+}
+
+void AttackNode::refreshDisplay() const {
+	cSimpleModule::refreshDisplay();
+
+	omnetpp::cDisplayString& displayString = this->getDisplayString();
+	if(state) {
+		displayString.setTagArg("i", 1, "blue");
+	} else {
+		displayString.setTagArg("i", 1, "");
+	}
 }

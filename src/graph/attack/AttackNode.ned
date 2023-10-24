@@ -21,6 +21,7 @@ package tx_medium_exp.graph.attack;
 simple AttackNode {
     parameters:
         @class("inet::AttackNode");
+        volatile double activationDelay = default(uniform(1,3));
     gates:
         input in[];
         output out[];

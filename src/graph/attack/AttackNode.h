@@ -20,6 +20,9 @@
 
 namespace inet {
 
+#define KIND_ACTIVE 0
+#define KIND_NOTIFY_ACTIVE 1
+
 enum NodeType {
 	AND,
 	OR,
@@ -29,15 +32,13 @@ enum NodeType {
 	STEP
 };
 
-enum NodeState {
-	ACTIVE,
-	INACTIVE
-};
-
 class AttackNode : public omnetpp::cSimpleModule {
   protected:
     virtual void initialize() override;
     virtual void handleMessage(omnetpp::cMessage *msg) override;
+    virtual void refreshDisplay() const override;
+    virtual std::vector<AttackNode*> getParents();
+    virtual void updateActivation();
 
   public:
     inline static std::vector<std::string> displayStrings = {
@@ -48,9 +49,14 @@ class AttackNode : public omnetpp::cSimpleModule {
 			"i=block/circle",
     		"i=block/square"
     };
+    virtual void setType(NodeType type);
+    virtual NodeType getType();
+    virtual bool isActive();
+    virtual void setState(bool state);
 
+  private:
     NodeType type;
-    NodeState state;
+    bool state;
 };
 
 } // namespace inet
