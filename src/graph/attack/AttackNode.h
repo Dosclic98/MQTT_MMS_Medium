@@ -17,6 +17,7 @@
 #define __TX_MEDIUM_EXP_ATTACKNODE_H_
 
 #include <omnetpp.h>
+#include "../../controller/IController.h"
 
 namespace inet {
 
@@ -24,12 +25,25 @@ namespace inet {
 #define KIND_NOTIFY_ACTIVE 1
 
 enum NodeType {
-	AND,
-	OR,
-	BEGIN,
-	END,
-	DEFENSE,
-	STEP
+	AND = 0,
+	OR = 1,
+	BEGIN = 2,
+	END = 3,
+	DEFENSE = 4,
+	STEP = 5
+};
+
+// A kind of attack for each attack step type
+enum AttackType {
+	ACCESS = 0,
+	NETSNI = 1,
+	ADVINTHEMID = 2,
+	READOP = 3,
+	WRITEOP = 4,
+	DELETEOP = 5,
+	SPOOFREPMES = 6,
+	UNACOMMES = 7,
+	UNSPOWSYS = 8
 };
 
 class AttackNode : public omnetpp::cSimpleModule {
@@ -39,6 +53,7 @@ class AttackNode : public omnetpp::cSimpleModule {
     virtual void refreshDisplay() const override;
     virtual std::vector<AttackNode*> getParents();
     virtual void updateActivation();
+    virtual void executeStep();
 
   public:
     inline static std::vector<std::string> displayStrings = {
@@ -49,14 +64,17 @@ class AttackNode : public omnetpp::cSimpleModule {
 			"i=block/circle",
     		"i=block/square"
     };
-    virtual void setType(NodeType type);
-    virtual NodeType getType();
+    virtual void setNodeType(NodeType nodetType);
+    virtual NodeType getNodeType();
     virtual bool isActive();
     virtual void setState(bool state);
+    virtual void setTargetControllers(std::vector<IController*> targetControllers);
 
   private:
-    NodeType type;
+    NodeType nodeType;
+    AttackType attackType;
     bool state;
+    std::vector<IController*> targetControllers;
 };
 
 } // namespace inet

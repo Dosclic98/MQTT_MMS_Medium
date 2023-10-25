@@ -21,30 +21,37 @@
 #include "AttackNode.h"
 
 
+
 namespace inet {
 
 struct NodeContent {
 	const char* displayName;
-	NodeType type;
+	NodeType nodeType;
 	bool state;
 	const char* activationDelayExpr;
+	std::vector<std::string> targetControllerList;
 	std::vector<std::string> children;
 };
 
 class AttackGraph : public omnetpp::cModule, public IGraph {
   protected:
 	std::map<std::string, AttackNode*> nodesMap;
-	NodeContent nodes[7] = {
-			{ "NetworkBegin", NodeType::BEGIN, true, "uniform(4,6)", { "Networkaccess" } },
-			{ "Networkaccess", NodeType::STEP, false, "uniform(4,6)", { "ChannelnetSni", "ChanneladvInTheMid" } },
-			{ "NetworktlsSet", NodeType::DEFENSE, false, "uniform(4,6)", { "ChannelnetSni", "ChanneladvInTheMid" } },
-			{ "ChannelnetSni", NodeType::STEP, false, "uniform(4,6)", { "IEDpowSysacc" } },
-			{ "ChanneladvInTheMid", NodeType::STEP, false, "uniform(4,6)", { "IEDpowSysacc" } },
-			{ "IEDpowSysacc", NodeType::OR, false, "uniform(4,6)", { "PowerSystemEnd" } },
-			{ "PowerSystemEnd", NodeType::END, false, "uniform(4,6)", {  } }
+	NodeContent nodes[8] = {
+			{ "NetworkBegin", NodeType::BEGIN, true, "uniform(4,6)", { }, { "Networkaccess" } },
+			{ "Networkaccess", NodeType::STEP, false, "uniform(4,6)", { "attacker.attackerController[0]", "attacker.attackerController[1]" }, { "ChanneladvInTheMid" } },
+			{ "NetworktlsSet", NodeType::DEFENSE, false, "uniform(4,6)", { }, { "ChanneladvInTheMid" } },
+			{ "ChanneladvInTheMid", NodeType::STEP, false, "uniform(4,6)", { "client.clientController[0]", "client.clientController[1]" }, { "DataFlowwrite" } },
+			{ "DataFlowwrite", NodeType::STEP, false, "uniform(4,6)", { }, { "MMSServerspoRepMes" } },
+			{ "MMSServerspoRepMes", NodeType::STEP, false, "uniform(20,30)", { }, { "IEDpowSysacc" } },
+			{ "IEDpowSysacc", NodeType::OR, false, "uniform(4,6)", { }, { "PowerSystemEnd" } },
+			{ "PowerSystemEnd", NodeType::END, false, "uniform(4,6)", { }, { } }
 	};
 
-    virtual void initialize() override;
+    virtual void initialize(int stage) override;
+    virtual int numInitStages() const override;
+    virtual ControllerBinder* getBinder() {
+        return check_and_cast<ControllerBinder*>(getSimulation()->getModuleByPath("controllerBinder"));
+    }
 
   private:
     virtual void connectNodes(AttackNode* startNode, AttackNode* endNode);

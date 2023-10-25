@@ -21,7 +21,7 @@ Define_Module(AttackNode);
 
 void AttackNode::initialize() {
     if(this->isActive()) {
-    	if(this->getType() == NodeType::BEGIN || this->getType() == NodeType::DEFENSE) {
+    	if(this->getNodeType() == NodeType::BEGIN || this->getNodeType() == NodeType::DEFENSE) {
     		scheduleAt(omnetpp::simTime(), new omnetpp::cMessage("Activate", KIND_ACTIVE));
     	} else {
     		throw std::invalid_argument("A node of type different from BEGIN or DEFENSE is active on initialization");
@@ -44,6 +44,10 @@ void AttackNode::handleMessage(omnetpp::cMessage *msg) {
     		if(!this->isActive()) {
     			updateActivation();
     			if(this->isActive()) {
+    				if(this->nodeType == NodeType::END) {
+    					// The attack has been completed
+    					this->endSimulation();
+    				}
     				scheduleAt(omnetpp::simTime() + omnetpp::SimTime(par("activationDelay").doubleValue(), omnetpp::SIMTIME_S), new omnetpp::cMessage("Activate", KIND_ACTIVE));
     			}
     		}
@@ -58,8 +62,8 @@ void AttackNode::updateActivation() {
 	// Defense check
 	for(AttackNode *parent : parents) {
 		// If a parent defense is active the node cannot be activated
-		if(parent->getType() == NodeType::DEFENSE && parent->isActive() &&
-				this->getType() == NodeType::STEP) {
+		if(parent->getNodeType() == NodeType::DEFENSE && parent->isActive() &&
+				this->getNodeType() == NodeType::STEP) {
 			this->state = false;
 			return;
 		}
@@ -69,15 +73,19 @@ void AttackNode::updateActivation() {
 	bool toActivate = false;
 	for(AttackNode *parent : parents) {
 		toActivate = parent->isActive();
-		if(this->getType() == NodeType::AND) {
+		if(this->getNodeType() == NodeType::AND) {
 			if(!toActivate) break;
-		} else if(this->getType() == NodeType::OR || this->getType() == NodeType::STEP ||
-				this->getType() == NodeType::END) {
+		} else if(this->getNodeType() == NodeType::OR || this->getNodeType() == NodeType::STEP ||
+				this->getNodeType() == NodeType::END) {
 			if(toActivate) break;
 		}
 	}
 
 	this->state = toActivate;
+}
+
+void AttackNode::executeStep() {
+	// TODO
 }
 
 std::vector<AttackNode*> AttackNode::getParents() {
@@ -94,12 +102,12 @@ std::vector<AttackNode*> AttackNode::getParents() {
 	return parentsVector;
 }
 
-void AttackNode::setType(NodeType type) {
-	this->type = type;
+void AttackNode::setNodeType(NodeType nodeType) {
+	this->nodeType = nodeType;
 }
 
-NodeType AttackNode::getType() {
-	return this->type;
+NodeType AttackNode::getNodeType() {
+	return this->nodeType;
 }
 
 bool AttackNode::isActive() {
@@ -108,6 +116,10 @@ bool AttackNode::isActive() {
 
 void AttackNode::setState(bool state) {
 	this->state = state;
+}
+
+void AttackNode::setTargetControllers(std::vector<IController*> targetControllers) {
+	this->targetControllers = targetControllers;
 }
 
 void AttackNode::refreshDisplay() const {

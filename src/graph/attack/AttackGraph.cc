@@ -19,46 +19,62 @@ using namespace inet;
 
 Define_Module(AttackGraph);
 
-void AttackGraph::initialize() {
-	const char* vectorName = "adjList";
-	const char* activationDelayParName = "activationDelay";
-	int vectorSize = 0;
-	omnetpp::cModuleType* nodeType = omnetpp::cModuleType::get("tx_medium_exp.graph.attack.AttackNode");
+void AttackGraph::initialize(int stage) {
+	// On stage 0 we suppose the controllers are still registering on the binder
+	if(stage == 1) {
+		const char* vectorName = "adjList";
+		const char* activationDelayParName = "activationDelay";
+		ControllerBinder* controllerBinder = this->getBinder();
+		int vectorSize = 0;
 
-	// Initialize nodes
-	for(NodeContent nodeContent : nodes) {
-		this->setSubmoduleVectorSize(vectorName, ++vectorSize);
-		omnetpp::cModule* nodeModule = nodeType->create(vectorName, this, vectorSize - 1);
-		AttackNode* nodeAttack = check_and_cast<AttackNode*>(nodeModule);
-		// Set parameters
-		nodeAttack->setType(nodeContent.type);
-		nodeAttack->setState(nodeContent.state);
-		omnetpp::cDynamicExpression* activationDelayExpr = new omnetpp::cDynamicExpression();
-		activationDelayExpr->parse(nodeContent.activationDelayExpr);
-		nodeAttack->par(activationDelayParName).setExpression(activationDelayExpr);
+		omnetpp::cModuleType* nodeType = omnetpp::cModuleType::get("tx_medium_exp.graph.attack.AttackNode");
 
-		nodeAttack->finalizeParameters();
-		nodeAttack->buildInside();
-		// Set display name and display string
-		nodeAttack->setDisplayName(nodeContent.displayName);
-		omnetpp::cDisplayString& dispStr = nodeAttack->getDisplayString();
-		dispStr.parse(AttackNode::displayStrings[nodeContent.type].c_str());
+		// Initialize nodes
+		for(NodeContent nodeContent : nodes) {
+			this->setSubmoduleVectorSize(vectorName, ++vectorSize);
+			omnetpp::cModule* nodeModule = nodeType->create(vectorName, this, vectorSize - 1);
+			AttackNode* nodeAttack = check_and_cast<AttackNode*>(nodeModule);
+			// Set parameters
+			nodeAttack->setNodeType(nodeContent.nodeType);
+			nodeAttack->setState(nodeContent.state);
+			omnetpp::cDynamicExpression* activationDelayExpr = new omnetpp::cDynamicExpression();
+			activationDelayExpr->parse(nodeContent.activationDelayExpr);
+			nodeAttack->par(activationDelayParName).setExpression(activationDelayExpr);
+			// Initialize controller references
+			std::vector<IController*> targetControllers;
+			for(std::string targetPathName : nodeContent.targetControllerList) {
+				IController* targetController = controllerBinder->getRefByPathName(targetPathName.c_str());
+				if(targetController == nullptr) throw std::invalid_argument("Invalid controller path name specified during initialization");
+				targetControllers.push_back(targetController);
+			}
 
-		nodeAttack->scheduleStart(omnetpp::simTime());
+			nodeAttack->finalizeParameters();
+			nodeAttack->buildInside();
+			// Set display name and display string
+			nodeAttack->setDisplayName(nodeContent.displayName);
+			omnetpp::cDisplayString& dispStr = nodeAttack->getDisplayString();
+			dispStr.parse(AttackNode::displayStrings[nodeContent.nodeType].c_str());
 
-		// Just to introduce the arcs more efficiently
-		nodesMap.insert({nodeContent.displayName, nodeAttack});
-	}
+			nodeAttack->scheduleStart(omnetpp::simTime());
 
-	// Initialize arcs
-	for(NodeContent nodeContent : nodes) {
-		AttackNode* startNodeAttack = nodesMap.at(nodeContent.displayName);
-		for(std::string childName : nodeContent.children) {
-			AttackNode* endNodeAttack = nodesMap.at(childName);
-			// Connect the nodes if found
-			this->connectNodes(startNodeAttack, endNodeAttack);
+			// Just to introduce the arcs more efficiently
+			nodesMap.insert({nodeContent.displayName, nodeAttack});
+		}
+
+		// Initialize arcs
+		for(NodeContent nodeContent : nodes) {
+			AttackNode* startNodeAttack = nodesMap.at(nodeContent.displayName);
+			for(std::string childName : nodeContent.children) {
+				AttackNode* endNodeAttack = nodesMap.at(childName);
+				// Connect the nodes if found
+				this->connectNodes(startNodeAttack, endNodeAttack);
+			}
 		}
 	}
+}
+
+int AttackGraph::numInitStages() const {
+	return 2;
 }
 
 void AttackGraph::connectNodes(AttackNode* startNode, AttackNode* endNode) {
