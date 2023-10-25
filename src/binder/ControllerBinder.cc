@@ -40,8 +40,12 @@ void ControllerBinder::unregisterController(int id) {
 }
 
 IController* ControllerBinder::getRefByPathName(const char* pathName) {
+	std::string pathNameStr = std::string(pathName);
+	if(pathNameStr.rfind(this->getSimulation()->getSystemModule()->getName(), 0) != 0) {
+		pathNameStr = std::string(this->getSimulation()->getSystemModule()->getName()) + "." + pathNameStr;
+	}
 	for(auto i = idToPathName.begin(); i != idToPathName.end(); i++) {
-		if(strcmp(i->second, pathName) == 0) {
+		if(strcmp(i->second, pathNameStr.c_str()) == 0) {
 			return idToRef[i->first];
 		}
 	}
@@ -73,6 +77,7 @@ void ControllerBinder::addPathName(int id, const char* pathName) {
 	if(idToPathName.find(id) != idToPathName.end()) {
 		throw cRuntimeError("PathName with id %d already present: cannot add\n", id);
 	}
+	EV << "Adding module: " << pathName << "\n";
 	idToPathName[id] = pathName;
 }
 
