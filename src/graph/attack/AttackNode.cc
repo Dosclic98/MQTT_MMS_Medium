@@ -85,7 +85,20 @@ void AttackNode::updateActivation() {
 }
 
 void AttackNode::executeStep() {
-	// TODO
+	if(this->nodeType == NodeType::STEP) {
+		switch(this->attackType) {
+			case AttackType::ACCESS: {
+
+				break;
+			}
+			case AttackType::ADVINTHEMID: {
+
+				break;
+			}
+			default:
+				EV << "No action define for the activated attack step\n";
+		}
+	}
 }
 
 std::vector<AttackNode*> AttackNode::getParents() {
