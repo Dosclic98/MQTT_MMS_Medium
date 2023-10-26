@@ -17,6 +17,7 @@
 #define CONTROLLER_FSM_STATE_ISTATE_H_
 
 #include <omnetpp.h>
+#include <cstring>
 #include "inet/common/packet/Packet.h"
 #include "../../../result/IResult.h"
 #include "../transition/ITransition.h"
@@ -35,7 +36,10 @@ public:
 	virtual std::vector<std::shared_ptr<ITransition>>& getTransitions() = 0;
 	virtual IState* next(IFSM* machine, Packet* msg) = 0;
 	virtual IState* next(IFSM* machine, cMessage* event) = 0;
-	virtual const char* getName() = 0;
+	virtual void merge(IState* other) = 0;
+	virtual const char* getName() {
+		return this->name;
+	};
 
 	virtual ~IState() = default;
 };

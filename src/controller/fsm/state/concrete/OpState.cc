@@ -35,17 +35,19 @@ OpState::OpState(const char* name) {
 	this->name = name;
 }
 
-
-const char* OpState::getName() {
-	return this->name;
-}
-
 std::vector<std::shared_ptr<ITransition>>& OpState::getTransitions() {
 	return this->transitions;
 }
 
 void OpState::setTransitions(std::vector<std::shared_ptr<ITransition>>& transitions) {
 	this->transitions = transitions;
+}
+
+void OpState::merge(IState* other) {
+	// Merge state's transitions in a single list
+	for(std::shared_ptr<ITransition> transition : this->transitions) {
+		// TODO
+	}
 }
 
 IState* OpState::next(IFSM* machine, Packet* msg) {
