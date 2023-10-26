@@ -32,12 +32,16 @@ protected:
 	IController* owner;
 
 	virtual void updateEventScheduling(IState* currentState, IState* nextState) = 0;
+	virtual void merge(IFSM* other) = 0;
+	virtual std::set<IState*> getStates() = 0;
 
 public:
 	virtual IState* getCurrentState() = 0;
 	virtual void setCurrentState(IState* currentState) = 0;
+	virtual IController* getOwner() = 0;
 	virtual IState* next(Packet* msg) = 0;
 	virtual IState* next(cMessage* event) = 0;
+	virtual std::map<std::string, IState*> getStatesMap() = 0;
 
 	virtual ~IFSM() = default;
 };

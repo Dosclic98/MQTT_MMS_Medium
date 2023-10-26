@@ -24,12 +24,16 @@ namespace inet {
 class OpFSM : public IFSM {
 protected:
 	virtual void updateEventScheduling(IState* currentState, IState* nextState) override;
+	virtual void merge(IFSM* other) override;
+	virtual std::set<IState*> getStates() override;
 
 public:
 	virtual IState* getCurrentState() override;
 	virtual void setCurrentState(IState* currentState) override;
+	virtual IController* getOwner() override;
 	virtual IState* next(Packet* msg) override;
 	virtual IState* next(cMessage* event) override;
+	virtual std::map<std::string, IState*> getStatesMap() override;
 
 	OpFSM(IController* owner, IState* currentState);
 	virtual ~OpFSM() override;

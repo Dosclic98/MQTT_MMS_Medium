@@ -53,16 +53,7 @@ void OpFSM::updateEventScheduling(IState* currentState, IState* nextState) {
 	}
 }
 
-OpFSM::OpFSM(IController* owner, IState* currentState) {
-	this->owner = owner;
-	this->currentState = currentState;
-	this->initialState = currentState;
-	for(std::shared_ptr<ITransition> transition : currentState->getTransitions()) {
-		transition->scheduleSelf();
-	}
-}
-
-OpFSM::~OpFSM() {
+std::set<IState*> OpFSM::getStates() {
 	std::set<IState*> visited;
 	std::queue<IState*> visiting;
 	IState* tmp;
@@ -84,9 +75,55 @@ OpFSM::~OpFSM() {
 			}
 		}
 	}
-	for(IState* visitedState : visited) {
-		EV << visitedState->getName() << "\n";
-		delete visitedState;
+
+	return visited;
+}
+
+std::map<std::string, IState*> OpFSM::getStatesMap() {
+	std::map<std::string, IState*> statesMap;
+	std::set<IState*> states = getStates();
+
+	for(IState* state : states) {
+		statesMap.insert({std::string(state->getName()), state});
+	}
+	return statesMap;
+}
+
+IController* OpFSM::getOwner() {
+	return owner;
+}
+
+void OpFSM::merge(IFSM* other) {
+	if(this->owner != other->getOwner()) {
+		throw std::invalid_argument("Trying to merge two OpFSM with different owners");
+	}
+	// Determine the common states (the ones with the same name)
+	std::map<std::string, IState*> states = this->getStatesMap();
+	std::map<std::string, IState*> otherStates = other->getStatesMap();
+	for(std::pair<std::string, IState*> pair : states) {
+		IState* state = pair.second;
+		if(otherStates.find(state->getName()) != otherStates.end()) {
+			IState* otherState = otherStates.at(state->getName());
+			state->merge(otherState);
+		}
+	}
+
+}
+
+OpFSM::OpFSM(IController* owner, IState* currentState) {
+	this->owner = owner;
+	this->currentState = currentState;
+	this->initialState = currentState;
+	for(std::shared_ptr<ITransition> transition : currentState->getTransitions()) {
+		transition->scheduleSelf();
+	}
+}
+
+OpFSM::~OpFSM() {
+	std::set<IState*> states = this->getStates();
+	for(IState* state : states) {
+		EV << state->getName() << "\n";
+		delete state;
 	}
 
 }
