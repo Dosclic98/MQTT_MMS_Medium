@@ -173,6 +173,8 @@ void MmsAttackerController::enqueueNSchedule(IOperation* operation) {
 }
 
 void MmsAttackerController::scheduleEvent(cMessage* event, simtime_t delay) {
+	Enter_Method("Possible scheduling by Attack graph");
+	take(event);
 	cancelEvent(event);
     // Schedule event after delay from now
 	simtime_t sTime = simTime() + delay;
@@ -180,10 +182,12 @@ void MmsAttackerController::scheduleEvent(cMessage* event, simtime_t delay) {
 }
 
 void MmsAttackerController::descheduleEvent(cMessage* event) {
+	Enter_Method("Possible descheduling by Attack graph");
 	cancelEvent(event);
 }
 
 bool MmsAttackerController::isAtkLogging() {
+	Enter_Method("Possible call by Attack graph");
 	return this->isLogging;
 }
 
