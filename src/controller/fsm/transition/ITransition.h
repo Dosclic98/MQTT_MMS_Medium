@@ -41,6 +41,11 @@ public:
 	virtual IState* execute(cMessage* event) = 0;
 	virtual void scheduleSelf() = 0;
 	virtual void descheduleSelf() = 0;
+	virtual bool isScheduled() = 0;
+	virtual bool equals(ITransition* other) = 0;
+	virtual void setArrivalState(IState* arrivalState) {
+		this->arrivalState = arrivalState;
+	};
 	virtual IState* getArrivalState() {
 		return arrivalState;
 	};

@@ -34,6 +34,8 @@ public:
 	virtual IState* execute(cMessage* event) override;
 	virtual void scheduleSelf() override;
 	virtual void descheduleSelf() override;
+	virtual bool isScheduled() override;
+	virtual bool equals(ITransition* other) override;
 
 	EventTransition(IOperationFactory* operationFactory, IState* arrivalState, cMessage* event, EventMatchType matchType, simtime_t delay);
 	virtual ~EventTransition() override;

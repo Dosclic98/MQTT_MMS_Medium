@@ -44,11 +44,26 @@ IState* PacketTransition::execute(cMessage* event) {
 }
 
 void PacketTransition::scheduleSelf() {
-	// Nothing to do (this is not an eRventTransition)
+	// Nothing to do (this is not an EventTransition)
 }
 
 void PacketTransition::descheduleSelf() {
-	// Nothing to do (this is not an eRventTransition)
+	// Nothing to do (this is not an EventTransition)
+}
+
+bool PacketTransition::isScheduled() {
+	// Nothing to do (this is not an EventTransition)
+	return false;
+}
+
+bool PacketTransition::equals(ITransition* other) {
+	// If the transition types doesn't math return false
+	PacketTransition* otherPacket = dynamic_cast<PacketTransition*>(other);
+	if(otherPacket == nullptr) return false;
+	// If the arrival states doesn't match (name-wise) return false
+	if(strcmp(this->arrivalState->getName(), otherPacket->arrivalState->getName()) != 0) return false;
+	// If the EventMatchType is different return false
+	return this->expression->compare(otherPacket->expression) == 0;
 }
 
 PacketTransition::PacketTransition(IOperationFactory* operationFactory, IState* arrivalState, const char* expression) {
@@ -59,10 +74,13 @@ PacketTransition::PacketTransition(IOperationFactory* operationFactory, IState* 
 	this->operationFactory = operationFactory;
 	this->arrivalState = arrivalState;
 
+	// Save expression externally for matching purposes
+	this->expression = new cDynamicExpression();
+	this->expression->parse(expression);
 	this->packetFilter.setExpression(expression);
 }
 
 PacketTransition::~PacketTransition() {
-
+	delete this->expression;
 }
 

@@ -25,6 +25,7 @@ namespace inet {
 class PacketTransition : public ITransition {
 protected:
 	PacketFilter packetFilter;
+	cDynamicExpression* expression;
 
 public:
 	virtual bool matchesTransition(Packet* packet) override;
@@ -33,6 +34,8 @@ public:
 	virtual IState* execute(cMessage* event) override;
 	virtual void scheduleSelf() override;
 	virtual void descheduleSelf() override;
+	virtual bool isScheduled() override;
+	virtual bool equals(ITransition* other) override;
 
 	PacketTransition(IOperationFactory* operationFactory, IState* arrivalState, const char* expression);
 	virtual ~PacketTransition() override;

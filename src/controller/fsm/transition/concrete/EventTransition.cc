@@ -69,6 +69,28 @@ void EventTransition::descheduleSelf() {
 	controller->descheduleEvent(event);
 }
 
+bool EventTransition::isScheduled() {
+	return this->event->isScheduled();
+}
+
+bool EventTransition::equals(ITransition* other) {
+	// If the transition types doesn't math return false
+	EventTransition* otherEvent = dynamic_cast<EventTransition*>(other);
+	if(otherEvent == nullptr) return false;
+	// If the arrival states doesn't match (name-wise) return false
+	if(strcmp(this->arrivalState->getName(), otherEvent->arrivalState->getName()) != 0) return false;
+	// If the EventMatchType is different return false
+	if(this->matchType == otherEvent->matchType) {
+		if(this->matchType == EventMatchType::Kind) {
+			return this->event->getKind() == otherEvent->event->getKind();
+		} else {
+			// Match by reference
+			return this->event == otherEvent->event;
+		}
+	}
+	return false;
+}
+
 EventTransition::EventTransition(IOperationFactory* operationFactory, IState* arrivalState, cMessage* event,
 		EventMatchType matchType, simtime_t delay) {
 	EventOperationFactory* tmpEvOpFactory = dynamic_cast<EventOperationFactory*>(operationFactory);
