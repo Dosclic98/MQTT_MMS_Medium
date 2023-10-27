@@ -23,8 +23,8 @@ namespace inet {
 
 class OpFSM : public IFSM {
 protected:
-	virtual void updateEventScheduling(IState* currentState, IState* nextState) override;
-	virtual void merge(IFSM* other) override;
+	virtual void updateEventSchedulingAfterExecution(IState* currentState, IState* nextState) override;
+	virtual void updateEventSchedulingAfterMerge(IState* currentState) override;
 	virtual std::set<IState*> getStates() override;
 
 public:
@@ -34,8 +34,9 @@ public:
 	virtual IState* next(Packet* msg) override;
 	virtual IState* next(cMessage* event) override;
 	virtual std::map<std::string, IState*> getStatesMap() override;
+	virtual void merge(IFSM* other) override;
 
-	OpFSM(IController* owner, IState* currentState);
+	OpFSM(IController* owner, IState* currentState, bool scheduleOnBuild = true);
 	virtual ~OpFSM() override;
 };
 

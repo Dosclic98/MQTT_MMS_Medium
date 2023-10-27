@@ -28,26 +28,36 @@ void OpFSM::setCurrentState(IState* currentState) {
 
 IState* OpFSM::next(Packet* msg) {
 	IState* nextState = currentState->next(this, msg);
-	updateEventScheduling(currentState, nextState);
+	updateEventSchedulingAfterExecution(currentState, nextState);
 	this->currentState = nextState;
 	return currentState;
 }
 
 IState* OpFSM::next(cMessage* event) {
 	IState* nextState = currentState->next(this, event);
-	updateEventScheduling(currentState, nextState);
+	updateEventSchedulingAfterExecution(currentState, nextState);
 	this->currentState = nextState;
 	return currentState;
 }
 
-void OpFSM::updateEventScheduling(IState* currentState, IState* nextState) {
+void OpFSM::updateEventSchedulingAfterExecution(IState* currentState, IState* nextState) {
 	if(nextState != currentState) {
 		// Deschedule all the eventTransitions related to the currentState and
-		// schedule the ones associated to the tmpState
+		// schedule the ones associated to the nextState (rescheduling of events
+		// if the arrival state is the same as the current one is managed in the execute())
 		for(std::shared_ptr<ITransition> transition : currentState->getTransitions()) {
 			transition->descheduleSelf();
 		}
 		for(std::shared_ptr<ITransition> transition : nextState->getTransitions()) {
+			transition->scheduleSelf();
+		}
+	}
+}
+
+void OpFSM::updateEventSchedulingAfterMerge(IState* currentState) {
+	// When a merge is performed we must schedule all the new events introduced by EventTransition(s)
+	for(std::shared_ptr<ITransition> transition : currentState->getTransitions()) {
+		if(!transition->isScheduled()) {
 			transition->scheduleSelf();
 		}
 	}
@@ -104,18 +114,21 @@ void OpFSM::merge(IFSM* other) {
 		IState* state = pair.second;
 		if(otherStates.find(state->getName()) != otherStates.end()) {
 			IState* otherState = otherStates.at(state->getName());
-			state->merge(otherState);
+			state->merge(otherState, states);
 		}
 	}
-
+	// When the merge is completed schedule the new events
+	this->updateEventSchedulingAfterMerge(this->currentState);
 }
 
-OpFSM::OpFSM(IController* owner, IState* currentState) {
+OpFSM::OpFSM(IController* owner, IState* currentState, bool scheduleOnBuild) {
 	this->owner = owner;
 	this->currentState = currentState;
 	this->initialState = currentState;
-	for(std::shared_ptr<ITransition> transition : currentState->getTransitions()) {
-		transition->scheduleSelf();
+	if(scheduleOnBuild) {
+		for(std::shared_ptr<ITransition> transition : currentState->getTransitions()) {
+			transition->scheduleSelf();
+		}
 	}
 }
 
