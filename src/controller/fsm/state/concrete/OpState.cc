@@ -43,10 +43,28 @@ void OpState::setTransitions(std::vector<std::shared_ptr<ITransition>>& transiti
 	this->transitions = transitions;
 }
 
-void OpState::merge(IState* other) {
+void OpState::merge(IState* other, std::map<std::string, IState*> states) {
 	// Merge state's transitions in a single list
-	for(std::shared_ptr<ITransition> transition : this->transitions) {
-		// TODO
+	for(std::shared_ptr<ITransition> otherTransition : other->getTransitions()) {
+		bool matched = false;
+		for(std::shared_ptr<ITransition> transition : this->getTransitions()) {
+			if(transition->equals(otherTransition.get())) {
+				// Match found (this transition already exists in the first FSM)
+				matched = true;
+			}
+		}
+		if(!matched) {
+			// This specific otherTransition does not exist in the current FSM
+			// so we add it to the current state transitions (basically to the current FSM)
+			const char* otherStateName = otherTransition->getArrivalState()->getName();
+			if(states.find(otherStateName) != states.end()) {
+				// If the otherTransition we are going to add ends in an arrivalState
+				// which matches a state in the current FSM, we substitute it with the corresponding
+				// state in the current FSM
+				otherTransition->setArrivalState(states.at(otherStateName));
+			}
+			this->transitions.push_back(otherTransition);
+		}
 	}
 }
 

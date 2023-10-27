@@ -36,7 +36,7 @@ public:
 	virtual std::vector<std::shared_ptr<ITransition>>& getTransitions() = 0;
 	virtual IState* next(IFSM* machine, Packet* msg) = 0;
 	virtual IState* next(IFSM* machine, cMessage* event) = 0;
-	virtual void merge(IState* other) = 0;
+	virtual void merge(IState* other, std::map<std::string, IState*> states) = 0;
 	virtual const char* getName() {
 		return this->name;
 	};
