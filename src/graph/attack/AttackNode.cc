@@ -14,15 +14,24 @@
 // 
 
 #include "AttackNode.h"
+#include "../../controller/attacker/MmsAttackerController.h"
+#include "../../controller/fsm/operation/OpFSM.h"
+#include "../../controller/fsm/state/concrete/OpState.h"
+#include "../../controller/fsm/transition/concrete/EventTransition.h"
+#include "../../controller/fsm/transition/concrete/PacketTransition.h"
+#include "../../operation/factory/packet/concrete/ForwardMmsMessageToServerFactory.h"
+#include "../../operation/factory/packet/concrete/ForwardMmsMessageToClientFactory.h"
+#include "../../operation/factory/event/concrete/SendTcpConnectAtkFactory.h"
 
 using namespace inet;
 
 Define_Module(AttackNode);
 
 void AttackNode::initialize() {
+	EV << "BLLLLLLLLL\n";
     if(this->isActive()) {
     	if(this->getNodeType() == NodeType::BEGIN || this->getNodeType() == NodeType::DEFENSE) {
-    		scheduleAt(omnetpp::simTime(), new omnetpp::cMessage("Activate", KIND_ACTIVE));
+    		scheduleAt(omnetpp::simTime() + omnetpp::SimTime(par("activationDelay").doubleValue(), omnetpp::SIMTIME_S), new omnetpp::cMessage("Activate", KIND_ACTIVE));
     	} else {
     		throw std::invalid_argument("A node of type different from BEGIN or DEFENSE is active on initialization");
     	}
@@ -48,6 +57,7 @@ void AttackNode::handleMessage(omnetpp::cMessage *msg) {
     					// The attack has been completed
     					this->endSimulation();
     				}
+    				this->executeStep();
     				scheduleAt(omnetpp::simTime() + omnetpp::SimTime(par("activationDelay").doubleValue(), omnetpp::SIMTIME_S), new omnetpp::cMessage("Activate", KIND_ACTIVE));
     			}
     		}
@@ -86,17 +96,55 @@ void AttackNode::updateActivation() {
 
 void AttackNode::executeStep() {
 	if(this->nodeType == NodeType::STEP) {
-		switch(this->attackType) {
-			case AttackType::ACCESS: {
+		for(IController* controller : this->targetControllers) {
+			switch(this->attackType) {
+				case AttackType::ACCESS: {
+					MmsAttackerController* atkController = static_cast<MmsAttackerController*>(controller);
+					OpState* unconnectedState = new OpState("UNCONNECTED");
+					OpState* opState = new OpState("OPERATIVE");
 
-				break;
-			}
-			case AttackType::ADVINTHEMID: {
+					std::vector<std::shared_ptr<ITransition>> unconnectedTransitions;
+					unconnectedTransitions.push_back(std::make_shared<EventTransition>(
+						new SendTcpConnectAtkFactory(atkController),
+						opState,
+						new cMessage("TCPCONNECT", MSGKIND_CONNECT),
+						EventMatchType::Kind,
+						SimTime(1, SIMTIME_S)
+					));
+					unconnectedState->setTransitions(unconnectedTransitions);
 
-				break;
+					OpFSM* fsm = new OpFSM(controller, unconnectedState, false);
+					atkController->getControlFSM()->merge(fsm);
+					break;
+				}
+				case AttackType::ADVINTHEMID: {
+
+					break;
+				}
+				case AttackType::WRITEOP: {
+					MmsAttackerController* atkController = static_cast<MmsAttackerController*>(controller);
+					OpState* opState = new OpState("OPERATIVE");
+
+					std::vector<std::shared_ptr<ITransition>> operativeTransitions;
+					operativeTransitions.push_back(std::make_shared<PacketTransition>(
+						new ForwardMmsMessageToClientFactory(atkController),
+						opState,
+						"content.messageKind == 1 || content.messageKind == 3" // messageKind == MMSKind::MEASURE || messageKind == MMSKind::GENRESP
+					));
+					operativeTransitions.push_back(std::make_shared<PacketTransition>(
+						new ForwardMmsMessageToServerFactory(atkController),
+						opState,
+						"content.messageKind == 0 || content.messageKind == 2" // messageKind == MMSKind::CONNECT || messageKind == MMSKind::GENREQ
+					));
+
+					opState->setTransitions(operativeTransitions);
+					OpFSM* fsm = new OpFSM(controller, opState, false);
+					atkController->getControlFSM()->merge(fsm);
+					break;
+				}
+				default:
+					EV << "No action define for the activated attack step\n";
 			}
-			default:
-				EV << "No action define for the activated attack step\n";
 		}
 	}
 }

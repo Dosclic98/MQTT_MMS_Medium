@@ -26,34 +26,10 @@
 
 using namespace inet;
 
+// Builds the initial Attacker's FSM (enriched then by the Attack graph execution)
 IFSM* MmsAttackerFSMFactory::build() {
 	MmsAttackerController* atkController = static_cast<MmsAttackerController*>(this->controller);
 	OpState* unconnectedState = new OpState("UNCONNECTED");
-	OpState* opState = new OpState("OPERATIVE");
-
-	std::vector<std::shared_ptr<ITransition>> unconnectedTransitions;
-	unconnectedTransitions.push_back(std::make_shared<EventTransition>(
-		new SendTcpConnectAtkFactory(atkController),
-		opState,
-		new cMessage("TCPCONNECT", MSGKIND_CONNECT),
-		EventMatchType::Kind,
-		SimTime(1, SIMTIME_S)
-	));
-	unconnectedState->setTransitions(unconnectedTransitions);
-
-	std::vector<std::shared_ptr<ITransition>> operativeTransitions;
-	operativeTransitions.push_back(std::make_shared<PacketTransition>(
-		new ForwardMmsMessageToClientFactory(atkController),
-		opState,
-		"content.messageKind == 1 || content.messageKind == 3" // messageKind == MMSKind::MEASURE || messageKind == MMSKind::GENRESP
-	));
-	operativeTransitions.push_back(std::make_shared<PacketTransition>(
-		new ForwardMmsMessageToServerFactory(atkController),
-		opState,
-		"content.messageKind == 0 || content.messageKind == 2" // messageKind == MMSKind::CONNECT || messageKind == MMSKind::GENREQ
-	));
-
-	opState->setTransitions(operativeTransitions);
 	OpFSM* fsm = new OpFSM(controller, unconnectedState);
 
 	return fsm;

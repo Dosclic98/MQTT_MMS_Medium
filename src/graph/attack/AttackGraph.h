@@ -37,11 +37,11 @@ class AttackGraph : public omnetpp::cModule, public IGraph {
   protected:
 	std::map<std::string, AttackNode*> nodesMap;
 	NodeContent nodes[8] = {
-			{ "NetworkBegin", NodeType::BEGIN, true, "uniform(4,6)", { }, { "Networkaccess" } },
+			{ "NetworkBegin", NodeType::BEGIN, true, "uniform(2,4)", { }, { "Networkaccess" } },
 			{ "Networkaccess", NodeType::STEP, false, "uniform(4,6)", { "attacker.attackerController[0]", "attacker.attackerController[1]" }, { "ChanneladvInTheMid" } },
 			{ "NetworktlsSet", NodeType::DEFENSE, false, "uniform(4,6)", { }, { "ChanneladvInTheMid" } },
-			{ "ChanneladvInTheMid", NodeType::STEP, false, "uniform(4,6)", { "client.clientController[0]", "client.clientController[1]" }, { "DataFlowwrite" } },
-			{ "DataFlowwrite", NodeType::STEP, false, "uniform(4,6)", { }, { "MMSServerspoRepMes" } },
+			{ "ChanneladvInTheMid", NodeType::STEP, false, "uniform(1,2)", { "client.clientController[0]", "client.clientController[1]" }, { "DataFlowwrite" } },
+			{ "DataFlowwrite", NodeType::STEP, false, "uniform(4,6)", { "attacker.attackerController[0]", "attacker.attackerController[1]" }, { "MMSServerspoRepMes" } },
 			{ "MMSServerspoRepMes", NodeType::STEP, false, "uniform(20,30)", { }, { "IEDpowSysacc" } },
 			{ "IEDpowSysacc", NodeType::OR, false, "uniform(4,6)", { }, { "PowerSystemEnd" } },
 			{ "PowerSystemEnd", NodeType::END, false, "uniform(4,6)", { }, { } }

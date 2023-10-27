@@ -20,11 +20,10 @@ using namespace inet;
 Define_Module(AttackGraph);
 
 void AttackGraph::initialize(int stage) {
-	// On stage 0 we suppose the controllers are still registering on the binder
-	if(stage == 1) {
+	// On stage 0 we initialize the Attack nodes
+	if(stage == 0) {
 		const char* vectorName = "adjList";
 		const char* activationDelayParName = "activationDelay";
-		ControllerBinder* controllerBinder = this->getBinder();
 		int vectorSize = 0;
 
 		omnetpp::cModuleType* nodeType = omnetpp::cModuleType::get("tx_medium_exp.graph.attack.AttackNode");
@@ -40,13 +39,6 @@ void AttackGraph::initialize(int stage) {
 			omnetpp::cDynamicExpression* activationDelayExpr = new omnetpp::cDynamicExpression();
 			activationDelayExpr->parse(nodeContent.activationDelayExpr);
 			nodeAttack->par(activationDelayParName).setExpression(activationDelayExpr);
-			// Initialize controller references
-			std::vector<IController*> targetControllers;
-			for(std::string targetPathName : nodeContent.targetControllerList) {
-				IController* targetController = controllerBinder->getRefByPathName(targetPathName.c_str());
-				if(targetController == nullptr) throw std::invalid_argument("Invalid controller path name specified during initialization");
-				targetControllers.push_back(targetController);
-			}
 
 			nodeAttack->finalizeParameters();
 			nodeAttack->buildInside();
@@ -69,6 +61,20 @@ void AttackGraph::initialize(int stage) {
 				// Connect the nodes if found
 				this->connectNodes(startNodeAttack, endNodeAttack);
 			}
+		}
+	}
+	if(stage == 1) {
+		// Initialize controller references
+		ControllerBinder* controllerBinder = this->getBinder();
+		for(NodeContent nodeContent : nodes) {
+			AttackNode* attackNode = nodesMap.at(nodeContent.displayName);
+			std::vector<IController*> targetControllers;
+			for(std::string targetPathName : nodeContent.targetControllerList) {
+				IController* targetController = controllerBinder->getRefByPathName(targetPathName.c_str());
+				if(targetController == nullptr) throw std::invalid_argument("Invalid controller path name specified during initialization");
+				targetControllers.push_back(targetController);
+			}
+			attackNode->setTargetControllers(targetControllers);
 		}
 	}
 }
