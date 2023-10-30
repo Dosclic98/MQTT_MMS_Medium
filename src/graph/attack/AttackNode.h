@@ -35,6 +35,7 @@ enum NodeType {
 
 // A kind of attack for each attack step type
 enum AttackType {
+	NOTSET = -1,
 	ACCESS = 0,
 	NETSNI = 1,
 	ADVINTHEMID = 2,
@@ -68,6 +69,7 @@ class AttackNode : public omnetpp::cSimpleModule {
     virtual NodeType getNodeType();
     virtual bool isActive();
     virtual void setState(bool state);
+    virtual void setAttackType(AttackType attackType);
     virtual void setTargetControllers(std::vector<IController*> targetControllers);
 
   private:

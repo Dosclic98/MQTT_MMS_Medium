@@ -14,6 +14,7 @@
 // 
 
 #include "AttackNode.h"
+#include "../../controller/client/MmsClientController.h"
 #include "../../controller/attacker/MmsAttackerController.h"
 #include "../../controller/fsm/operation/OpFSM.h"
 #include "../../controller/fsm/state/concrete/OpState.h"
@@ -22,13 +23,16 @@
 #include "../../operation/factory/packet/concrete/ForwardMmsMessageToServerFactory.h"
 #include "../../operation/factory/packet/concrete/ForwardMmsMessageToClientFactory.h"
 #include "../../operation/factory/event/concrete/SendTcpConnectAtkFactory.h"
+#include "../../operation/factory/event/concrete/SendTcpConnectFactory.h"
+#include "../../operation/factory/event/concrete/SendMmsDisconnectFactory.h"
+#include "../../operation/factory/event/concrete/SendMmsConnectFactory.h"
+#include "../../operation/factory/event/concrete/SendMmsRequestFactory.h"
 
 using namespace inet;
 
 Define_Module(AttackNode);
 
 void AttackNode::initialize() {
-	EV << "BLLLLLLLLL\n";
     if(this->isActive()) {
     	if(this->getNodeType() == NodeType::BEGIN || this->getNodeType() == NodeType::DEFENSE) {
     		scheduleAt(omnetpp::simTime() + omnetpp::SimTime(par("activationDelay").doubleValue(), omnetpp::SIMTIME_S), new omnetpp::cMessage("Activate", KIND_ACTIVE));
@@ -53,10 +57,6 @@ void AttackNode::handleMessage(omnetpp::cMessage *msg) {
     		if(!this->isActive()) {
     			updateActivation();
     			if(this->isActive()) {
-    				if(this->nodeType == NodeType::END) {
-    					// The attack has been completed
-    					this->endSimulation();
-    				}
     				this->executeStep();
     				scheduleAt(omnetpp::simTime() + omnetpp::SimTime(par("activationDelay").doubleValue(), omnetpp::SIMTIME_S), new omnetpp::cMessage("Activate", KIND_ACTIVE));
     			}
@@ -118,7 +118,68 @@ void AttackNode::executeStep() {
 					break;
 				}
 				case AttackType::ADVINTHEMID: {
+					MmsClientController* cliController = static_cast<MmsClientController*>(controller);
 
+					OpState* operatingState = new OpState("OPERATING");
+					OpState* terminatedState = new OpState("TERMINATED");
+					OpState* atkConnectedState = new OpState("ATKCONNECTED");
+					OpState* atkOperatingState = new OpState("ATKOPERATING");
+
+					// Create the operating transitions (add disconnect)
+					std::vector<std::shared_ptr<ITransition>> operatingTransitions;
+					operatingTransitions.push_back(std::make_shared<EventTransition>(
+							new SendMmsDisconnectFactory(cliController),
+							terminatedState,
+							new cMessage("SENDDISCONNECT", SEND_MMS_DISCONNECT),
+							EventMatchType::Kind,
+							SimTime(1, SIMTIME_S)
+					));
+					operatingState->setTransitions(operatingTransitions);
+
+
+					std::vector<std::shared_ptr<ITransition>> terminatedTransitions;
+					std::string* strConnAddr = new std::string("IncrementalTest.attacker.attackerOperator");
+					terminatedTransitions.push_back(std::make_shared<EventTransition>(
+							new SendTcpConnectFactory(cliController, strConnAddr),
+							atkConnectedState,
+							new cMessage("TCPCONNECT", SEND_TCP_CONNECT),
+							EventMatchType::Kind,
+							SimTime(1, SIMTIME_S)
+					));
+					terminatedState->setTransitions(terminatedTransitions);
+
+					// Create connected transitions
+					std::vector<std::shared_ptr<ITransition>> atkConnectedTransitions;
+					atkConnectedTransitions.push_back(std::make_shared<EventTransition>(
+							new SendMmsConnectFactory(cliController),
+							atkOperatingState,
+							new cMessage("SENDMEAS", SEND_MMS_CONNECT),
+							EventMatchType::Kind,
+							SimTime(1, SIMTIME_S)
+					));
+					atkConnectedState->setTransitions(atkConnectedTransitions);
+
+					// Create the operating transitions
+					std::vector<std::shared_ptr<ITransition>> atkOperatingTransitions;
+					atkOperatingTransitions.push_back(std::make_shared<EventTransition>(
+							new SendMmsRequestFactory(cliController),
+							atkOperatingState,
+							new cMessage("SENDREAD", SEND_MMS_READ),
+							EventMatchType::Kind,
+							SimTime(cliController->par("sendReadInterval"), SIMTIME_S)
+					));
+					atkOperatingTransitions.push_back(std::make_shared<EventTransition>(
+							new SendMmsRequestFactory(cliController),
+							atkOperatingState,
+							new cMessage("SENDCOMMAND", SEND_MMS_COMMAND),
+							EventMatchType::Kind,
+							SimTime(cliController->par("sendCommandInterval"), SIMTIME_S)
+					));
+					atkOperatingState->setTransitions(atkOperatingTransitions);
+
+					OpFSM* fsm = new OpFSM(controller, operatingState, false);
+
+					cliController->getControlFSM()->merge(fsm);
 					break;
 				}
 				case AttackType::WRITEOP: {
@@ -146,6 +207,10 @@ void AttackNode::executeStep() {
 					EV << "No action define for the activated attack step\n";
 			}
 		}
+	}
+	if(this->nodeType == NodeType::END) {
+		// The attack has been completed
+		this->endSimulation();
 	}
 }
 
@@ -177,6 +242,10 @@ bool AttackNode::isActive() {
 
 void AttackNode::setState(bool state) {
 	this->state = state;
+}
+
+void AttackNode::setAttackType(AttackType attackType) {
+	this->attackType = attackType;
 }
 
 void AttackNode::setTargetControllers(std::vector<IController*> targetControllers) {

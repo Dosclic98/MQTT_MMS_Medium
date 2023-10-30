@@ -31,7 +31,6 @@ IFSM* MmsClientFSMFactory::build() {
 	OpState* unconnectedState = new OpState("UNCONNECTED");
 	OpState* connectedState = new OpState("CONNECTED");
 	OpState* operatingState = new OpState("OPERATING");
-	OpState* terminatedState = new OpState("TERMINATED");
 
 	// Create unconnected transitions
 	std::vector<std::shared_ptr<ITransition>> unconnectedTransitions;
@@ -71,25 +70,7 @@ IFSM* MmsClientFSMFactory::build() {
 			EventMatchType::Kind,
 			SimTime(cliController->par("sendCommandInterval"), SIMTIME_S)
 	));
-	operatingTransitions.push_back(std::make_shared<EventTransition>(
-			new SendMmsDisconnectFactory(cliController),
-			terminatedState,
-			new cMessage("SENDDISCONNECT", SEND_MMS_DISCONNECT),
-			EventMatchType::Kind,
-			SimTime(30, SIMTIME_S)
-	));
 	operatingState->setTransitions(operatingTransitions);
-
-	std::vector<std::shared_ptr<ITransition>> terminatedTransitions;
-	std::string* strConnAddr = new std::string("IncrementalTest.server[" + std::to_string(this->index) + "].serverOperator");
-	terminatedTransitions.push_back(std::make_shared<EventTransition>(
-			new SendTcpConnectFactory(cliController, strConnAddr),
-			connectedState,
-			new cMessage("TCPCONNECT", SEND_TCP_CONNECT),
-			EventMatchType::Kind,
-			SimTime(3, SIMTIME_S)
-	));
-	terminatedState->setTransitions(terminatedTransitions);
 
 	return new OpFSM(this->controller, unconnectedState);
 }
