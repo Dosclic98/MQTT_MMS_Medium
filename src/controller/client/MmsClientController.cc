@@ -59,6 +59,8 @@ void MmsClientController::initialize() {
 }
 
 void MmsClientController::scheduleEvent(cMessage* event, simtime_t delay) {
+	Enter_Method("Possible scheduling by Attack graph");
+	take(event);
 	cancelEvent(event);
     // Schedule event after delay from now
 	simtime_t sTime = simTime() + delay;
@@ -66,6 +68,7 @@ void MmsClientController::scheduleEvent(cMessage* event, simtime_t delay) {
 }
 
 void MmsClientController::descheduleEvent(cMessage* event) {
+	Enter_Method("Possible descheduling by Attack graph");
 	cancelEvent(event);
 }
 
