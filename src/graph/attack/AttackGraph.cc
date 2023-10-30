@@ -36,6 +36,7 @@ void AttackGraph::initialize(int stage) {
 			// Set parameters
 			nodeAttack->setNodeType(nodeContent.nodeType);
 			nodeAttack->setState(nodeContent.state);
+			nodeAttack->setAttackType(nodeContent.attackType);
 			omnetpp::cDynamicExpression* activationDelayExpr = new omnetpp::cDynamicExpression();
 			activationDelayExpr->parse(nodeContent.activationDelayExpr);
 			nodeAttack->par(activationDelayParName).setExpression(activationDelayExpr);

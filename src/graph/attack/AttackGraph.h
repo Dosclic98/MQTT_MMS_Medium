@@ -27,6 +27,7 @@ namespace inet {
 struct NodeContent {
 	const char* displayName;
 	NodeType nodeType;
+	AttackType attackType;
 	bool state;
 	const char* activationDelayExpr;
 	std::vector<std::string> targetControllerList;
@@ -37,14 +38,14 @@ class AttackGraph : public omnetpp::cModule, public IGraph {
   protected:
 	std::map<std::string, AttackNode*> nodesMap;
 	NodeContent nodes[8] = {
-			{ "NetworkBegin", NodeType::BEGIN, true, "uniform(2,4)", { }, { "Networkaccess" } },
-			{ "Networkaccess", NodeType::STEP, false, "uniform(4,6)", { "attacker.attackerController[0]", "attacker.attackerController[1]" }, { "ChanneladvInTheMid" } },
-			{ "NetworktlsSet", NodeType::DEFENSE, false, "uniform(4,6)", { }, { "ChanneladvInTheMid" } },
-			{ "ChanneladvInTheMid", NodeType::STEP, false, "uniform(1,2)", { "client.clientController[0]", "client.clientController[1]" }, { "DataFlowwrite" } },
-			{ "DataFlowwrite", NodeType::STEP, false, "uniform(4,6)", { "attacker.attackerController[0]", "attacker.attackerController[1]" }, { "MMSServerspoRepMes" } },
-			{ "MMSServerspoRepMes", NodeType::STEP, false, "uniform(20,30)", { }, { "IEDpowSysacc" } },
-			{ "IEDpowSysacc", NodeType::OR, false, "uniform(4,6)", { }, { "PowerSystemEnd" } },
-			{ "PowerSystemEnd", NodeType::END, false, "uniform(4,6)", { }, { } }
+			{ "NetworkBegin", NodeType::BEGIN, AttackType::NOTSET, true, "uniform(2,4)", { }, { "Networkaccess" } },
+			{ "Networkaccess", NodeType::STEP, AttackType::ACCESS, false, "uniform(10,20)", { "attacker.attackerController[0]", "attacker.attackerController[1]" }, { "ChanneladvInTheMid" } },
+			{ "NetworktlsSet", NodeType::DEFENSE, AttackType::NOTSET, false, "uniform(4,6)", { }, { "ChanneladvInTheMid" } },
+			{ "ChanneladvInTheMid", NodeType::STEP, AttackType::ADVINTHEMID, false, "uniform(0,1)", { "client.clientController[0]", "client.clientController[1]" }, { "DataFlowwrite" } },
+			{ "DataFlowwrite", NodeType::STEP, AttackType::WRITEOP, false, "uniform(20,30)", { "attacker.attackerController[0]", "attacker.attackerController[1]" }, { "MMSServerspoRepMes" } },
+			{ "MMSServerspoRepMes", NodeType::STEP, AttackType::SPOOFREPMES, false, "uniform(50,60)", { }, { "IEDpowSysacc" } },
+			{ "IEDpowSysacc", NodeType::OR, AttackType::NOTSET, false, "uniform(4,6)", { }, { "PowerSystemEnd" } },
+			{ "PowerSystemEnd", NodeType::END, AttackType::NOTSET, false, "uniform(4,6)", { }, { } }
 	};
 
     virtual void initialize(int stage) override;
