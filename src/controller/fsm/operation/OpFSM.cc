@@ -110,13 +110,18 @@ void OpFSM::merge(IFSM* other) {
 	// Determine the common states (the ones with the same name)
 	std::map<std::string, IState*> states = this->getStatesMap();
 	std::map<std::string, IState*> otherStates = other->getStatesMap();
+	std::set<IState*> toDelete;
 	for(std::pair<std::string, IState*> pair : states) {
 		IState* state = pair.second;
 		if(otherStates.find(state->getName()) != otherStates.end()) {
 			IState* otherState = otherStates.at(state->getName());
 			state->merge(otherState, states);
+			// Insert the otherState in the deletion set
+			toDelete.insert(otherState);
 		}
 	}
+	// Delete the merged states
+	for(IState* delState : toDelete) { delete delState; }
 	// When the merge is completed schedule the new events
 	this->updateEventSchedulingAfterMerge(this->currentState);
 }

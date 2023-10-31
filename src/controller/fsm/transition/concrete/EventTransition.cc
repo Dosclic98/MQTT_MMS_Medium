@@ -103,7 +103,7 @@ EventTransition::EventTransition(IOperationFactory* operationFactory, IState* ar
 }
 
 EventTransition::~EventTransition() {
-	this->descheduleSelf();
+	if(this->isScheduled()) this->descheduleSelf();
 	if(this->matchType == EventMatchType::Kind) {
 		delete this->event;
 	}

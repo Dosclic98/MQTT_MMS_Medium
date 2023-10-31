@@ -46,6 +46,7 @@ void AttackNode::initialize() {
 void AttackNode::handleMessage(omnetpp::cMessage *msg) {
     if(msg->isSelfMessage()) {
     	if(msg->getKind() == KIND_ACTIVE) {
+    		delete msg;
         	// The current completion time has expired the node is active (notify all children)
         	for(int i = 0; i < this->gateSize("out"); i++) {
         		this->send(new omnetpp::cMessage("Notify activation", KIND_NOTIFY_ACTIVE), "out", i);
@@ -53,6 +54,7 @@ void AttackNode::handleMessage(omnetpp::cMessage *msg) {
     	}
     } else {
     	if(msg->getKind() == KIND_NOTIFY_ACTIVE) {
+    		delete msg;
     		// A parent has been activated
     		if(!this->isActive()) {
     			updateActivation();
@@ -63,8 +65,6 @@ void AttackNode::handleMessage(omnetpp::cMessage *msg) {
     		}
     	}
     }
-
-    delete msg;
 }
 
 void AttackNode::updateActivation() {
@@ -204,7 +204,7 @@ void AttackNode::executeStep() {
 					break;
 				}
 				default:
-					EV << "No action define for the activated attack step\n";
+					EV << "No action defined for the activated attack step\n";
 			}
 		}
 	}
