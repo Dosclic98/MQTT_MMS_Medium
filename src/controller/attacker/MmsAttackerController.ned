@@ -21,7 +21,7 @@ package tx_medium_exp.controller.attacker;
 simple MmsAttackerController {
 	parameters:
 	    @class("inet::MmsAttackerController");
-	    
+	    @display("i=block/cogwheel");
 	   	volatile int fakeGenReqThresh = default(10);
 	    
 	    volatile double readResponseBlockProb = default(0.1);
