@@ -20,6 +20,7 @@ import inet.applications.tcpapp.TcpGenericServerApp;
 simple MmsServerOperator extends TcpGenericServerApp {
 	parameters:
 	    @class("inet::MmsServerOperator");
+	  	
         bool isLogging = default(false); // Parameter to know if the server has to log all the packets it receives
         @display("i=block/app");
         @lifecycleSupport;
@@ -29,4 +30,6 @@ simple MmsServerOperator extends TcpGenericServerApp {
         @statistic[packetSent](title="packets sent"; source=packetSent; record=count,"sum(packetBytes)","vector(packetBytes)"; interpolationmode=none);
         @statistic[endToEndDelay](title="end-to-end delay"; source="dataAge(packetReceived)"; unit=s; record=histogram,weightedHistogram,vector; interpolationmode=none);
         
+        @signal[serResSig-*]();
+        @signal[serMsgSig-*]();
 }

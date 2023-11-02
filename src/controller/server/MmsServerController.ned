@@ -22,6 +22,10 @@ simple MmsServerController {
     parameters:
         @class("inet::MmsServerController");
 	    @display("i=block/cogwheel");
+
         volatile int serviceTime @unit(ms) = default(intuniform(2ms, 4ms));
         volatile int emitInterval @unit(ms) = default(4s);
+		
+		@signal[serMsgSig-*]();
+	    @signal[serCmdSig-*]();
 }

@@ -20,6 +20,7 @@ import inet.applications.tcpapp.TcpBasicClientApp;
 simple MmsClientOperator extends TcpBasicClientApp {
     parameters:
         @class("inet::MmsClientOperator");
+
         volatile int resTimeoutInterval @unit(s) = default(1s);		// timeout for generic responses
         bool isLogging = default(false);	// specify if the specific client must Log the packets on file
         
@@ -53,9 +54,12 @@ simple MmsClientOperator extends TcpBasicClientApp {
         @signal[commandResponseTimeoutSignal](type=bool);
         @statistic[commandResponseTimeout](source=commandResponseTimeoutSignal; record=count);
         
-        @signal[readResponseReceivedTimeSignal](type=int);
+        @signal[readResponseReceivedTimeSignal](type=simtime_t);
         @statistic[readResponseReceivedTime](source=readResponseReceivedTimeSignal; record=vector);
         
-        @signal[commandResponseReceivedTimeSignal](type=int);
+        @signal[commandResponseReceivedTimeSignal](type=simtime_t);
         @statistic[commandResponseReceivedTime](source=commandResponseReceivedTimeSignal; record=vector);    
+		
+		@signal[cliResSig-*]();
+        @signal[cliMsgSig-*]();
 }

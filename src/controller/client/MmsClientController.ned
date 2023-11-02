@@ -19,6 +19,10 @@ simple MmsClientController {
 	parameters:
 	    @class("inet::MmsClientController");
 	    @display("i=block/cogwheel");
+	    
 	    volatile int sendReadInterval @unit(s) = default(intuniform(8s, 10s));	// specify the interval between a read request and the next 
         volatile int sendCommandInterval @unit(s) = default(intuniform(12s, 15s));	// specify the interval between a command request and the next
+		
+		@signal[cliMsgSig-*]();
+	    @signal[cliCmdSig-*]();
 }

@@ -24,6 +24,7 @@ simple ClientEvilOperator extends TcpBasicClientApp {
 	parameters:
 	    @class("inet::ClientEvilOperator");
 		
-		@signal[pcktFromServerSignal](type=cObject*);
-		@signal[atkMsgSig-*](type=cObject*);
+		@signal[pcktFromServerSignal]();
+		@signal[atkMsgSig-*]();
+		@signal[atkResSig-*]();
 }

@@ -27,5 +27,5 @@ simple ServerEvilOperator extends TcpGenericServerApp {
         volatile int serviceTime @unit(ms) = default(intuniform(10ms, 18ms));
         volatile int forwardDelay @unit(us) = default(intuniform(1us, 3us));
         
-        @signal[pcktFromClientSignal-*](type=Packet);
+        @signal[pcktFromClientSignal-*]();
 }

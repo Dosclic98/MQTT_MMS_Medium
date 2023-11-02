@@ -68,4 +68,7 @@ simple MmsAttackerController {
         @statistic[commandResponseBlock](source=commandResponseBlockSignal; record=count);
         @signal[commandResponseCompromisedSignal](type=bool);
         @statistic[commandResponseCompromised](source=commandResponseCompromisedSignal; record=count);
+		
+		@signal[atkCmdSig-*]();
+		@signal[atkMsgSig-*]();
 }
