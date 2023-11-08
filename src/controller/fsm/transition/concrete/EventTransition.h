@@ -26,6 +26,7 @@ protected:
 	cMessage* event;
 	EventMatchType matchType;
 	simtime_t delay;
+	cExpression* delayExpression;
 
 public:
 	virtual bool matchesTransition(Packet* packet) override;
@@ -37,7 +38,7 @@ public:
 	virtual bool isScheduled() override;
 	virtual bool equals(ITransition* other) override;
 
-	EventTransition(IOperationFactory* operationFactory, IState* arrivalState, cMessage* event, EventMatchType matchType, simtime_t delay);
+	EventTransition(IOperationFactory* operationFactory, IState* arrivalState, cMessage* event, EventMatchType matchType, simtime_t delay, cExpression* delayExpression = nullptr);
 	virtual ~EventTransition() override;
 };
 
