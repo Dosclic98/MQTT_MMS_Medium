@@ -176,3 +176,7 @@ simulations/analysis/*.csv
 simulations/analysis/plotsNRes/*
 src/TX_Medium_Exp
 src/TX_Medium_Exp_dbg
+simulations/analysis/.ipynb_checkpoints
+simulations/analysis/.idea
+simulations/analysis/supporting_files
+simulations/analysis/htmlplots
