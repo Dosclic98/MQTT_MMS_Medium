@@ -67,7 +67,7 @@ class AttackNode : public omnetpp::cSimpleModule {
     };
     virtual void setNodeType(NodeType nodetType);
     virtual NodeType getNodeType();
-    virtual bool isActive();
+    virtual bool isCompleted();
     virtual void setState(bool state);
     virtual void setAttackType(AttackType attackType);
     virtual void setTargetControllers(std::vector<IController*> targetControllers);
@@ -75,8 +75,12 @@ class AttackNode : public omnetpp::cSimpleModule {
   private:
     NodeType nodeType;
     AttackType attackType;
+    // Node state (active or not)
     bool state;
+    // Node completion state (completed or not)
+    bool completedState;
     std::vector<IController*> targetControllers;
+    virtual bool isActive();
 };
 
 } // namespace inet

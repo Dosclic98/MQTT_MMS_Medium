@@ -33,6 +33,8 @@ using namespace inet;
 Define_Module(AttackNode);
 
 void AttackNode::initialize() {
+	// By default an AttackNode is not completed
+	completedState = false;
     if(this->isActive()) {
     	if(this->getNodeType() == NodeType::BEGIN || this->getNodeType() == NodeType::DEFENSE) {
     		scheduleAt(omnetpp::simTime() + omnetpp::SimTime(par("activationDelay").doubleValue(), omnetpp::SIMTIME_S), new omnetpp::cMessage("Activate", KIND_ACTIVE));
@@ -47,7 +49,8 @@ void AttackNode::handleMessage(omnetpp::cMessage *msg) {
     if(msg->isSelfMessage()) {
     	if(msg->getKind() == KIND_ACTIVE) {
     		delete msg;
-        	// The current completion time has expired the node is active (notify all children)
+        	// The current completion time has expired so the attack step is completed (notify all children)
+    		this->completedState = true;
         	for(int i = 0; i < this->gateSize("out"); i++) {
         		this->send(new omnetpp::cMessage("Notify activation", KIND_NOTIFY_ACTIVE), "out", i);
         	}
@@ -82,7 +85,7 @@ void AttackNode::updateActivation() {
 	// Other parents check
 	bool toActivate = false;
 	for(AttackNode *parent : parents) {
-		toActivate = parent->isActive();
+		toActivate = parent->isCompleted();
 		if(this->getNodeType() == NodeType::AND) {
 			if(!toActivate) break;
 		} else if(this->getNodeType() == NodeType::OR || this->getNodeType() == NodeType::STEP ||
@@ -240,6 +243,10 @@ NodeType AttackNode::getNodeType() {
 
 bool AttackNode::isActive() {
 	return this->state;
+}
+
+bool AttackNode::isCompleted() {
+	return this->completedState;
 }
 
 void AttackNode::setState(bool state) {
