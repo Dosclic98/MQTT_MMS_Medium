@@ -107,13 +107,16 @@ void AttackNode::executeStep() {
 					OpState* opState = new OpState("OPERATIVE");
 
 					std::vector<std::shared_ptr<ITransition>> unconnectedTransitions;
-					unconnectedTransitions.push_back(std::make_shared<EventTransition>(
-						new SendTcpConnectAtkFactory(atkController),
-						opState,
-						new cMessage("TCPCONNECT", MSGKIND_CONNECT),
-						EventMatchType::Kind,
-						SimTime(1, SIMTIME_S)
-					));
+					std::shared_ptr<ITransition> unconCon = std::make_shared<EventTransition>(
+							new SendTcpConnectAtkFactory(atkController),
+							opState,
+							new cMessage("TCPCONNECT", MSGKIND_CONNECT),
+							EventMatchType::Kind,
+							SimTime(1, SIMTIME_S)
+						);
+					// Push transitions into canary
+					completionCanary.insert({unconCon, false});
+					unconnectedTransitions.push_back(unconCon);
 					unconnectedState->setTransitions(unconnectedTransitions);
 
 					OpFSM* fsm = new OpFSM(controller, unconnectedState, false);
@@ -164,22 +167,27 @@ void AttackNode::executeStep() {
 
 					// Create the operating transitions
 					std::vector<std::shared_ptr<ITransition>> atkOperatingTransitions;
-					atkOperatingTransitions.push_back(std::make_shared<EventTransition>(
+					std::shared_ptr<ITransition>atkOpRead = std::make_shared<EventTransition>(
 							new SendMmsRequestFactory(cliController),
 							atkOperatingState,
 							new cMessage("SENDREAD", SEND_MMS_READ),
 							EventMatchType::Kind,
 							SimTime(cliController->par("sendReadInterval"), SIMTIME_S),
 							cliController->par("sendReadInterval").getExpression()
-					));
-					atkOperatingTransitions.push_back(std::make_shared<EventTransition>(
+					);
+					atkOperatingTransitions.push_back(atkOpRead);
+					std::shared_ptr<ITransition> atkOpCmd = std::make_shared<EventTransition>(
 							new SendMmsRequestFactory(cliController),
 							atkOperatingState,
 							new cMessage("SENDCOMMAND", SEND_MMS_COMMAND),
 							EventMatchType::Kind,
 							SimTime(cliController->par("sendCommandInterval"), SIMTIME_S),
 							cliController->par("sendCommandInterval").getExpression()
-					));
+					);
+					atkOperatingTransitions.push_back(atkOpCmd);
+					// Push transitions into canary
+					completionCanary.insert({atkOpRead, false});
+					completionCanary.insert({atkOpCmd, false});
 					atkOperatingState->setTransitions(atkOperatingTransitions);
 
 					OpFSM* fsm = new OpFSM(controller, operatingState, false);
@@ -192,17 +200,21 @@ void AttackNode::executeStep() {
 					OpState* opState = new OpState("OPERATIVE");
 
 					std::vector<std::shared_ptr<ITransition>> operativeTransitions;
-					operativeTransitions.push_back(std::make_shared<PacketTransition>(
-						new ForwardMmsMessageToClientFactory(atkController),
-						opState,
-						"content.messageKind == 1 || content.messageKind == 3" // messageKind == MMSKind::MEASURE || messageKind == MMSKind::GENRESP
-					));
-					operativeTransitions.push_back(std::make_shared<PacketTransition>(
-						new ForwardMmsMessageToServerFactory(atkController),
-						opState,
-						"content.messageKind == 0 || content.messageKind == 2" // messageKind == MMSKind::CONNECT || messageKind == MMSKind::GENREQ
-					));
-
+					std::shared_ptr<ITransition> opToCli = std::make_shared<PacketTransition>(
+							new ForwardMmsMessageToClientFactory(atkController),
+							opState,
+							"content.messageKind == 1 || content.messageKind == 3" // messageKind == MMSKind::MEASURE || messageKind == MMSKind::GENRESP
+						);
+					operativeTransitions.push_back(opToCli);
+					std::shared_ptr<ITransition> opToSer = std::make_shared<PacketTransition>(
+							new ForwardMmsMessageToServerFactory(atkController),
+							opState,
+							"content.messageKind == 0 || content.messageKind == 2" // messageKind == MMSKind::CONNECT || messageKind == MMSKind::GENREQ
+						);
+					operativeTransitions.push_back(opToSer);
+					// Push transitions into canary
+					completionCanary.insert({opToCli, false});
+					completionCanary.insert({opToSer, false});
 					opState->setTransitions(operativeTransitions);
 					OpFSM* fsm = new OpFSM(controller, opState, false);
 					atkController->getControlFSM()->merge(fsm);

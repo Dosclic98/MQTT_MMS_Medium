@@ -24,6 +24,8 @@ namespace inet {
 #define KIND_ACTIVE 0
 #define KIND_NOTIFY_ACTIVE 1
 
+class ITransition;
+
 enum NodeType {
 	AND = 0,
 	OR = 1,
@@ -80,6 +82,7 @@ class AttackNode : public omnetpp::cSimpleModule {
     // Node completion state (completed or not)
     bool completedState;
     std::vector<IController*> targetControllers;
+    std::map<std::shared_ptr<ITransition>, bool> completionCanary;
     virtual bool isActive();
 };
 
