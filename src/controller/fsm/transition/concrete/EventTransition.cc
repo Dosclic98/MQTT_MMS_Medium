@@ -15,6 +15,7 @@
 
 #include "EventTransition.h"
 #include "../../../../operation/factory/event/EventOperationFactory.h"
+#include "../../../../graph/attack/AttackNode.h"
 
 using namespace inet;
 
@@ -48,6 +49,10 @@ IState* EventTransition::execute(cMessage* event) {
 	if(matchesTransition(event)) {
 		EventOperationFactory* evOpFactory = static_cast<EventOperationFactory*>(operationFactory);
 		evOpFactory->build(event);
+		if(canaryNode != nullptr) {
+			AttackNode* attackCanaryNode = check_and_cast<AttackNode*>(this->canaryNode);
+			attackCanaryNode->updateCanary(this);
+		}
 		// Reschedule event triggering the transition
 		this->scheduleSelf();
 		return arrivalState;
@@ -99,9 +104,10 @@ bool EventTransition::equals(ITransition* other) {
 }
 
 EventTransition::EventTransition(IOperationFactory* operationFactory, IState* arrivalState, cMessage* event,
-		EventMatchType matchType, simtime_t delay, cExpression* delayExpression) {
+		EventMatchType matchType, simtime_t delay, cExpression* delayExpression, INode* canaryNode) {
 	EventOperationFactory* tmpEvOpFactory = dynamic_cast<EventOperationFactory*>(operationFactory);
 	if(tmpEvOpFactory == nullptr) throw std::invalid_argument("EventTransition requires an EventOperationFactory as operationFactory parameter in the constructor\n");
+	this->canaryNode = canaryNode;
 	this->operationFactory = operationFactory;
 	this->arrivalState = arrivalState;
 	this->event = event;

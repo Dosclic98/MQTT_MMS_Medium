@@ -38,7 +38,7 @@ public:
 	virtual bool isScheduled() override;
 	virtual bool equals(ITransition* other) override;
 
-	EventTransition(IOperationFactory* operationFactory, IState* arrivalState, cMessage* event, EventMatchType matchType, simtime_t delay, cExpression* delayExpression = nullptr);
+	EventTransition(IOperationFactory* operationFactory, IState* arrivalState, cMessage* event, EventMatchType matchType, simtime_t delay, cExpression* delayExpression = nullptr, INode* canaryNode = nullptr);
 	virtual ~EventTransition() override;
 };
 

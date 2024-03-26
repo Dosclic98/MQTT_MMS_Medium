@@ -15,6 +15,7 @@
 
 #include "PacketTransition.h"
 #include "../../../../operation/factory/packet/PacketOperationFactory.h"
+#include "../../../../graph/attack/AttackNode.h"
 
 using namespace inet;
 
@@ -27,6 +28,10 @@ IState* PacketTransition::execute(Packet* packet) {
 	if(matchesTransition(packet)) {
 		PacketOperationFactory* packetOperationFactory = static_cast<PacketOperationFactory*>(this->operationFactory);
 		packetOperationFactory->build(packet);
+		if(canaryNode != nullptr) {
+			AttackNode* attackCanaryNode = check_and_cast<AttackNode*>(this->canaryNode);
+			attackCanaryNode->updateCanary(this);
+		}
 		return arrivalState;
 	} else {
 		throw std::logic_error("Trying to execute a transition not associated to the referenced packet");
@@ -66,11 +71,12 @@ bool PacketTransition::equals(ITransition* other) {
 	return this->expression->compare(otherPacket->expression) == 0;
 }
 
-PacketTransition::PacketTransition(IOperationFactory* operationFactory, IState* arrivalState, const char* expression) {
+PacketTransition::PacketTransition(IOperationFactory* operationFactory, IState* arrivalState, const char* expression, INode* canaryNode) {
 	PacketOperationFactory* tmpPcktOpFactory = dynamic_cast<PacketOperationFactory*>(operationFactory);
 	if(tmpPcktOpFactory == nullptr) {
 		throw std::invalid_argument("PacketTransition requires an PacketOperationFactory as operationFactory parameter in the constructor\n");
 	}
+	this->canaryNode = canaryNode;
 	this->operationFactory = operationFactory;
 	this->arrivalState = arrivalState;
 

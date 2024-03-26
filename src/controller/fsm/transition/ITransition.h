@@ -27,12 +27,15 @@ enum EventMatchType {
 };
 
 class IState;
+class INode;
 
 class ITransition {
 
 protected:
 	IOperationFactory* operationFactory;
 	IState* arrivalState;
+	// The eventual attack node on which the canary completion is performed
+	INode* canaryNode = nullptr;
 
 public:
 	virtual bool matchesTransition(Packet* packet) = 0;

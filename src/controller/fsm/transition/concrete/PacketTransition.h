@@ -37,7 +37,7 @@ public:
 	virtual bool isScheduled() override;
 	virtual bool equals(ITransition* other) override;
 
-	PacketTransition(IOperationFactory* operationFactory, IState* arrivalState, const char* expression);
+	PacketTransition(IOperationFactory* operationFactory, IState* arrivalState, const char* expression, INode* canaryNode = nullptr);
 	virtual ~PacketTransition() override;
 };
 
