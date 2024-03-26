@@ -23,7 +23,7 @@ void AttackGraph::initialize(int stage) {
 	// On stage 0 we initialize the Attack nodes
 	if(stage == 0) {
 		const char* vectorName = "adjList";
-		const char* activationDelayParName = "activationDelay";
+		const char* activationDelayParName = "completionDelay";
 		int vectorSize = 0;
 
 		omnetpp::cModuleType* nodeType = omnetpp::cModuleType::get("tx_medium_exp.graph.attack.AttackNode");
@@ -37,9 +37,16 @@ void AttackGraph::initialize(int stage) {
 			nodeAttack->setNodeType(nodeContent.nodeType);
 			nodeAttack->setState(nodeContent.state);
 			nodeAttack->setAttackType(nodeContent.attackType);
-			omnetpp::cDynamicExpression* activationDelayExpr = new omnetpp::cDynamicExpression();
-			activationDelayExpr->parse(nodeContent.activationDelayExpr);
-			nodeAttack->par(activationDelayParName).setExpression(activationDelayExpr);
+			// If the activationDelayExpr is nullptr the default(0) is used
+			if(nodeContent.completionDelayExpr != nullptr) {
+				omnetpp::cDynamicExpression* activationDelayExpr = new omnetpp::cDynamicExpression();
+				activationDelayExpr->parse(nodeContent.completionDelayExpr);
+				nodeAttack->par(activationDelayParName).setExpression(activationDelayExpr);
+			} else {
+				if(nodeContent.nodeType == NodeType::BEGIN || nodeContent.nodeType == NodeType::DEFENSE) {
+					throw std::invalid_argument("Incompatible completion delay expression for the node type");
+				}
+			}
 
 			nodeAttack->finalizeParameters();
 			nodeAttack->buildInside();
