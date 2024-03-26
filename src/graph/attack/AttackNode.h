@@ -18,11 +18,12 @@
 
 #include <omnetpp.h>
 #include "../../controller/IController.h"
+#include "../INode.h"
 
 namespace inet {
 
-#define KIND_ACTIVE 0
-#define KIND_NOTIFY_ACTIVE 1
+#define KIND_COMPLETED 0
+#define KIND_NOTIFY_COMPLETED 1
 
 class ITransition;
 
@@ -49,7 +50,7 @@ enum AttackType {
 	UNSPOWSYS = 8
 };
 
-class AttackNode : public omnetpp::cSimpleModule {
+class AttackNode : public omnetpp::cSimpleModule, public INode{
   protected:
     virtual void initialize() override;
     virtual void handleMessage(omnetpp::cMessage *msg) override;
@@ -73,6 +74,10 @@ class AttackNode : public omnetpp::cSimpleModule {
     virtual void setState(bool state);
     virtual void setAttackType(AttackType attackType);
     virtual void setTargetControllers(std::vector<IController*> targetControllers);
+    virtual void updateCanary(ITransition* trans);
+    virtual void checkForCompletion();
+    virtual void notifyCompletion();
+    virtual void scheduleCompletionDelay();
 
   private:
     NodeType nodeType;
@@ -82,7 +87,9 @@ class AttackNode : public omnetpp::cSimpleModule {
     // Node completion state (completed or not)
     bool completedState;
     std::vector<IController*> targetControllers;
-    std::map<std::shared_ptr<ITransition>, bool> completionCanary;
+    // Map <K, V> of <ITransition, boolean> that records if a certain transition has been
+    // traversed to implement a time-to-completion statistic for the attack step
+    std::map<ITransition*, bool> completionCanary;
     virtual bool isActive();
 };
 

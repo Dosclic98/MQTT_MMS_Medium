@@ -23,11 +23,8 @@ namespace inet {
 
 class INode {
 public:
-	int id;
-	std::string& name;
-	std::vector<std::shared_ptr<INode>> edgeList;
 
-	virtual ~INode();
+	virtual ~INode() = default;
 };
 
 } // namespace inet

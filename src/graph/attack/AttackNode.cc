@@ -37,7 +37,7 @@ void AttackNode::initialize() {
 	completedState = false;
     if(this->isActive()) {
     	if(this->getNodeType() == NodeType::BEGIN || this->getNodeType() == NodeType::DEFENSE) {
-    		scheduleAt(omnetpp::simTime() + omnetpp::SimTime(par("activationDelay").doubleValue(), omnetpp::SIMTIME_S), new omnetpp::cMessage("Activate", KIND_ACTIVE));
+    		scheduleCompletionDelay();
     	} else {
     		throw std::invalid_argument("A node of type different from BEGIN or DEFENSE is active on initialization");
     	}
@@ -47,27 +47,33 @@ void AttackNode::initialize() {
 // TODO Maybe implement node deactivation in the future
 void AttackNode::handleMessage(omnetpp::cMessage *msg) {
     if(msg->isSelfMessage()) {
-    	if(msg->getKind() == KIND_ACTIVE) {
+    	if(msg->getKind() == KIND_COMPLETED) {
     		delete msg;
-        	// The current completion time has expired so the attack step is completed (notify all children)
+        	// The current attack step has been completed completion delay has expired so the attack node is completed (notify all children)
     		this->completedState = true;
-        	for(int i = 0; i < this->gateSize("out"); i++) {
-        		this->send(new omnetpp::cMessage("Notify activation", KIND_NOTIFY_ACTIVE), "out", i);
-        	}
+        	notifyCompletion();
+        	// TODO Emit completion time statistic
     	}
     } else {
-    	if(msg->getKind() == KIND_NOTIFY_ACTIVE) {
+    	if(msg->getKind() == KIND_NOTIFY_COMPLETED) {
     		delete msg;
     		// A parent has been activated
     		if(!this->isActive()) {
     			updateActivation();
     			if(this->isActive()) {
     				this->executeStep();
-    				scheduleAt(omnetpp::simTime() + omnetpp::SimTime(par("activationDelay").doubleValue(), omnetpp::SIMTIME_S), new omnetpp::cMessage("Activate", KIND_ACTIVE));
+    				// In the following case the canary is empty so just schedule a completion message
+    				if(this->getNodeType() == NodeType::AND || this->getNodeType() == NodeType::OR) {
+    					scheduleCompletionDelay();
+    				}
     			}
     		}
     	}
     }
+}
+
+void AttackNode::scheduleCompletionDelay() {
+	scheduleAt(omnetpp::simTime() + omnetpp::SimTime(par("completionDelay").doubleValue(), omnetpp::SIMTIME_S), new omnetpp::cMessage("Completed", KIND_COMPLETED));
 }
 
 void AttackNode::updateActivation() {
@@ -97,6 +103,32 @@ void AttackNode::updateActivation() {
 	this->state = toActivate;
 }
 
+void AttackNode::updateCanary(ITransition* trans) {
+	Enter_Method("Updating canary status from controller context");
+	auto extrTransition = this->completionCanary.find(trans);
+	if(extrTransition != this->completionCanary.end()) {
+		this->completionCanary[trans] = true;
+		// Now check for attack step completion
+		checkForCompletion();
+	}
+}
+
+void AttackNode::checkForCompletion() {
+	if(!completedState) {
+		for(auto const& item : completionCanary) {
+			if(!item.second) { return; }
+		}
+		// The attack step can be completed
+		scheduleCompletionDelay();
+	}
+}
+
+void AttackNode::notifyCompletion() {
+	for(int i = 0; i < this->gateSize("out"); i++) {
+		this->send(new omnetpp::cMessage("Notify completion", KIND_NOTIFY_COMPLETED), "out", i);
+	}
+}
+
 void AttackNode::executeStep() {
 	if(this->nodeType == NodeType::STEP) {
 		for(IController* controller : this->targetControllers) {
@@ -112,10 +144,12 @@ void AttackNode::executeStep() {
 							opState,
 							new cMessage("TCPCONNECT", MSGKIND_CONNECT),
 							EventMatchType::Kind,
-							SimTime(1, SIMTIME_S)
+							SimTime(1, SIMTIME_S),
+							nullptr,
+							this
 						);
 					// Push transitions into canary
-					completionCanary.insert({unconCon, false});
+					completionCanary.insert({unconCon.get(), false});
 					unconnectedTransitions.push_back(unconCon);
 					unconnectedState->setTransitions(unconnectedTransitions);
 
@@ -173,7 +207,8 @@ void AttackNode::executeStep() {
 							new cMessage("SENDREAD", SEND_MMS_READ),
 							EventMatchType::Kind,
 							SimTime(cliController->par("sendReadInterval"), SIMTIME_S),
-							cliController->par("sendReadInterval").getExpression()
+							cliController->par("sendReadInterval").getExpression(),
+							this
 					);
 					atkOperatingTransitions.push_back(atkOpRead);
 					std::shared_ptr<ITransition> atkOpCmd = std::make_shared<EventTransition>(
@@ -182,12 +217,13 @@ void AttackNode::executeStep() {
 							new cMessage("SENDCOMMAND", SEND_MMS_COMMAND),
 							EventMatchType::Kind,
 							SimTime(cliController->par("sendCommandInterval"), SIMTIME_S),
-							cliController->par("sendCommandInterval").getExpression()
+							cliController->par("sendCommandInterval").getExpression(),
+							this
 					);
 					atkOperatingTransitions.push_back(atkOpCmd);
 					// Push transitions into canary
-					completionCanary.insert({atkOpRead, false});
-					completionCanary.insert({atkOpCmd, false});
+					completionCanary.insert({atkOpRead.get(), false});
+					completionCanary.insert({atkOpCmd.get(), false});
 					atkOperatingState->setTransitions(atkOperatingTransitions);
 
 					OpFSM* fsm = new OpFSM(controller, operatingState, false);
@@ -203,18 +239,20 @@ void AttackNode::executeStep() {
 					std::shared_ptr<ITransition> opToCli = std::make_shared<PacketTransition>(
 							new ForwardMmsMessageToClientFactory(atkController),
 							opState,
-							"content.messageKind == 1 || content.messageKind == 3" // messageKind == MMSKind::MEASURE || messageKind == MMSKind::GENRESP
+							"content.messageKind == 1 || content.messageKind == 3", // messageKind == MMSKind::MEASURE || messageKind == MMSKind::GENRESP
+							this
 						);
 					operativeTransitions.push_back(opToCli);
 					std::shared_ptr<ITransition> opToSer = std::make_shared<PacketTransition>(
 							new ForwardMmsMessageToServerFactory(atkController),
 							opState,
-							"content.messageKind == 0 || content.messageKind == 2" // messageKind == MMSKind::CONNECT || messageKind == MMSKind::GENREQ
+							"content.messageKind == 0 || content.messageKind == 2", // messageKind == MMSKind::CONNECT || messageKind == MMSKind::GENREQ
+							this
 						);
 					operativeTransitions.push_back(opToSer);
 					// Push transitions into canary
-					completionCanary.insert({opToCli, false});
-					completionCanary.insert({opToSer, false});
+					completionCanary.insert({opToCli.get(), false});
+					completionCanary.insert({opToSer.get(), false});
 					opState->setTransitions(operativeTransitions);
 					OpFSM* fsm = new OpFSM(controller, opState, false);
 					atkController->getControlFSM()->merge(fsm);
