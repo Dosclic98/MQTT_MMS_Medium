@@ -21,6 +21,9 @@ package tx_medium_exp.graph.attack;
 simple AttackNode {
     parameters:
         @class("inet::AttackNode");
+        @signal[complTimeSignal](type="simtime_t");
+        @statistic[complTime](source=complTimeSignal; record=mean);
+        
         volatile double completionDelay = default(0);
     gates:
         input in[];

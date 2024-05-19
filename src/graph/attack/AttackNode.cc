@@ -35,6 +35,7 @@ Define_Module(AttackNode);
 void AttackNode::initialize() {
 	// By default an AttackNode is not completed
 	completedState = false;
+	complTimeSignal = registerSignal("complTimeSignal");
     if(this->isActive()) {
     	if(this->getNodeType() == NodeType::BEGIN || this->getNodeType() == NodeType::DEFENSE) {
     		scheduleCompletionDelay();
@@ -52,7 +53,8 @@ void AttackNode::handleMessage(omnetpp::cMessage *msg) {
         	// The current attack step has been completed completion delay has expired so the attack node is completed (notify all children)
     		this->completedState = true;
         	notifyCompletion();
-        	// TODO Emit completion time statistic
+        	// Emit completion time statistic
+        	emit(complTimeSignal, simTime() - this->stepStart);
     	}
     } else {
     	if(msg->getKind() == KIND_NOTIFY_COMPLETED) {
@@ -61,6 +63,7 @@ void AttackNode::handleMessage(omnetpp::cMessage *msg) {
     		if(!this->isActive()) {
     			updateActivation();
     			if(this->isActive()) {
+    			    stepStart = simTime();
     				this->executeStep();
     				// In the following case the canary is empty so just schedule a completion message
     				if(this->getNodeType() == NodeType::AND || this->getNodeType() == NodeType::OR) {
