@@ -22,7 +22,7 @@ simple AttackNode {
     parameters:
         @class("inet::AttackNode");
         @signal[complTimeSignal](type="simtime_t");
-        @statistic[complTime](source=complTimeSignal; record=mean);
+        @statistic[complTime](source=complTimeSignal; record=last);
         
         volatile double completionDelay = default(0);
     gates:

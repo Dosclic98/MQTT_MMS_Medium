@@ -38,11 +38,13 @@ void AttackNode::initialize() {
 	complTimeSignal = registerSignal("complTimeSignal");
     if(this->isActive()) {
     	if(this->getNodeType() == NodeType::BEGIN || this->getNodeType() == NodeType::DEFENSE) {
+    	    stepStart = simTime();
     		scheduleCompletionDelay();
     	} else {
     		throw std::invalid_argument("A node of type different from BEGIN or DEFENSE is active on initialization");
     	}
     }
+    // If a defense is not active we do not emit anything as completion time signal
 }
 
 // TODO Maybe implement node deactivation in the future
@@ -268,7 +270,8 @@ void AttackNode::executeStep() {
 	}
 	if(this->nodeType == NodeType::END) {
 		// The attack has been completed
-		this->endSimulation();
+	    emit(complTimeSignal, simTime() - this->stepStart);
+	    this->endSimulation();
 	}
 }
 
