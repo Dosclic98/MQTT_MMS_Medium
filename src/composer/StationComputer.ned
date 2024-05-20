@@ -19,21 +19,21 @@ import tx_medium_exp.operator.client.MmsClientOperator;
 import tx_medium_exp.controller.client.MmsClientController;
 import inet.node.inet.StandardHost;
 
-module MmsWiredClient {
+module StationComputer {
     parameters:
         @display("i=device/pc4");
-        volatile int numServers = default(1);
+        volatile int numMmsServers = default(1);
     
    	gates:
         inout gate;    
         
     submodules:
-        clientOperator: StandardHost {
-        	numApps = parent.numServers;
+        mmsClientOperator: StandardHost {
+        	numApps = parent.numMmsServers;
         };
-    	clientController[numServers]: MmsClientController;   
+    	mmsClientController[numMmsServers]: MmsClientController;   
     
     connections:
-        clientOperator.ethg++ <--> gate; 
+        mmsClientOperator.ethg++ <--> gate; 
    	    
 }

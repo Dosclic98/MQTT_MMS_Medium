@@ -23,16 +23,16 @@ import inet.node.inet.StandardHost;
 module MmsWiredAttacker {
     parameters:
         @display("i=old/comp_a");
-        volatile int numServers = default(1);
+        volatile int numMmsServers = default(1);
     
     gates:
         inout gate;
         
     submodules:
         attackerOperator: StandardHost {
-        	numApps = parent.numServers + 1;
+        	numApps = parent.numMmsServers + 1;
         };
-    	attackerController[numServers]: MmsAttackerController;   
+    	attackerController[numMmsServers]: MmsAttackerController;   
     
     connections:
         attackerOperator.ethg++ <--> gate; 

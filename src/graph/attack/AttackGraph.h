@@ -41,7 +41,7 @@ class AttackGraph : public omnetpp::cModule, public IGraph {
 			{ "NetworkBegin", NodeType::BEGIN, AttackType::NOTSET, true, "uniform(2,4)", { }, { "Networkaccess" } },
 			{ "Networkaccess", NodeType::STEP, AttackType::ACCESS, false, nullptr, { "attacker.attackerController[0]", "attacker.attackerController[1]" }, { "ChanneladvInTheMid" } },
 			{ "NetworktlsSet", NodeType::DEFENSE, AttackType::NOTSET, false, "uniform(4,6)", { }, { "ChanneladvInTheMid" } },
-			{ "ChanneladvInTheMid", NodeType::STEP, AttackType::ADVINTHEMID, false, nullptr, { "client.clientController[0]", "client.clientController[1]" }, { "DataFlowwrite" } },
+			{ "ChanneladvInTheMid", NodeType::STEP, AttackType::ADVINTHEMID, false, nullptr, { "stationComputer.mmsClientController[0]", "stationComputer.mmsClientController[1]" }, { "DataFlowwrite" } },
 			{ "DataFlowwrite", NodeType::STEP, AttackType::WRITEOP, false, nullptr, { "attacker.attackerController[0]", "attacker.attackerController[1]" }, { "IEDpowSysacc" } },
 			//{ "MMSServerspoRepMes", NodeType::STEP, AttackType::SPOOFREPMES, false, nullptr, { }, { "IEDpowSysacc" } },
 			{ "IEDpowSysacc", NodeType::OR, AttackType::NOTSET, false, nullptr, { }, { "PowerSystemEnd" } },
