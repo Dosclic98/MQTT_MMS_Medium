@@ -211,7 +211,7 @@ void AttackNode::executeStep() {
 							atkOperatingState,
 							new cMessage("SENDREAD", SEND_MMS_READ),
 							EventMatchType::Kind,
-							SimTime(cliController->par("sendReadInterval"), SIMTIME_S),
+							SimTime(cliController->par("sendReadInterval")),
 							cliController->par("sendReadInterval").getExpression(),
 							this
 					);
@@ -221,7 +221,7 @@ void AttackNode::executeStep() {
 							atkOperatingState,
 							new cMessage("SENDCOMMAND", SEND_MMS_COMMAND),
 							EventMatchType::Kind,
-							SimTime(cliController->par("sendCommandInterval"), SIMTIME_S),
+							SimTime(cliController->par("sendCommandInterval")),
 							cliController->par("sendCommandInterval").getExpression(),
 							this
 					);
