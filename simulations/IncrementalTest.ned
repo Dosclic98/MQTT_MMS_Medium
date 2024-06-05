@@ -17,6 +17,7 @@ package tx_medium_exp.simulations;
 
 import tx_medium_exp.composer.StationComputer;
 import tx_medium_exp.composer.MmsWiredServer;
+import tx_medium_exp.composer.Mms5GServer;
 import tx_medium_exp.composer.MmsWiredAttacker;
 import tx_medium_exp.composer.HistorianServer;
 import tx_medium_exp.graph.attack.AttackGraph;
@@ -25,6 +26,11 @@ import inet.node.ethernet.EthernetSwitch;
 import inet.node.inet.StandardHost;
 import inet.node.ethernet.Eth1G;
 import inet.node.ethernet.Eth100M;
+import simu5g.nodes.NR.gNodeB;
+import simu5g.nodes.Upf;
+import simu5g.world.radio.LteChannelControl;
+import simu5g.common.carrierAggregation.CarrierAggregation;
+import simu5g.common.binder.Binder;
 import tx_medium_exp.binder.ControllerBinder;
 import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 
@@ -32,7 +38,7 @@ network IncrementalTest
 {
     parameters:
         volatile int numMmsServers = default(1);
-        @display("bgb=633,673");
+        @display("bgb=1177,673");
     submodules:
         attackGraph: AttackGraph {
             @display("p=54,121");
@@ -40,43 +46,62 @@ network IncrementalTest
         controllerBinder: ControllerBinder {
             @display("p=54,38");
         }
+        binder: Binder {
+
+            @display("p=166,38");
+        }
         configurator: Ipv4NetworkConfigurator {
             @display("p=54,204");
         }
+        carrierAggregation: CarrierAggregation {
+            @display("p=54,378;is=s");
+        }
+        channelControl: LteChannelControl {
+            @display("p=53,293;is=s");
+        }
         stationComputer: StationComputer {
             numMmsServers = parent.numMmsServers;
-            @display("p=78,514");
+            @display("p=157,514");
         }
-        server[numMmsServers]: MmsWiredServer;
+        server[numMmsServers]: Mms5GServer {
+            @display("p=907.89374,513.735");
+        }
         attacker: MmsWiredAttacker {
             numMmsServers = parent.numMmsServers;
-            @display("p=474,55");
+            @display("p=553,55");
         }
         pkiServer: StandardHost {
-            @display("p=474,191;i=device/server");
+            @display("p=553,191;i=device/server");
         }
         historianServer: HistorianServer {
-            @display("p=474,293");
+            @display("p=553,293");
         }
         // Network components
         itSwitch: EthernetSwitch {
-            @display("p=283,54");
+            @display("p=362,54");
         }
         router1: Router {
-            @display("p=283,157");
+            @display("p=362,157");
         }
         dmzSwitch: EthernetSwitch {
-            @display("p=283,261");
+            @display("p=362,261");
         }
         router2: Router {
-            @display("p=283,378");
+            @display("p=362,378");
         }
         otSwitch: EthernetSwitch {
-            @display("p=283,513");
+            @display("p=362,513");
         }
         router3: Router {
-            @display("p=437,514");
+            @display("p=507,514");
         }
+        upf: Upf {
+            @display("p=619,514");
+        }
+        gnb: gNodeB {
+            @display("p=717,514");
+        }
+
     connections:
         attacker.gate <--> Eth1G <--> itSwitch.ethg++;
         itSwitch.ethg++ <--> Eth1G <--> router1.ethg++;
@@ -87,8 +112,10 @@ network IncrementalTest
         router2.ethg++ <--> Eth1G <--> otSwitch.ethg++;
         stationComputer.gate <--> Eth1G <--> otSwitch.ethg++;
         otSwitch.ethg++ <--> Eth1G <--> router3.ethg++;
-        for i=0..numMmsServers-1 {
-            router3.ethg++ <--> Eth1G <--> server[i].gate;
-        }
+
+		// Start of the 5G Network
+        router3.pppg++ <--> Eth1G <--> upf.filterGate;
+        upf.pppg++ <--> Eth1G <--> gnb.ppp;
+
 
 }
