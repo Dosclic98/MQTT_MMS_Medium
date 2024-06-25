@@ -39,15 +39,22 @@ enum NodeType {
 // A kind of attack for each attack step type
 enum AttackType {
 	NOTSET = -1,
-	ACCESS = 0,
-	NETSNI = 1,
-	ADVINTHEMID = 2,
-	READOP = 3,
-	WRITEOP = 4,
-	DELETEOP = 5,
-	SPOOFREPMES = 6,
-	UNACOMMES = 7,
-	UNSPOWSYS = 8
+	COMPROMISE = 0,
+	SCANIP = 1,
+	SCANVULN = 2,
+	REMOTESRVC = 3,
+	SHELL = 4,
+	ADDSSHKEY = 5,
+	REMOTESHELL = 6,
+	BRUTEFORCE = 7,
+	ESCAPEHOST = 8,
+	MODAUTHPROC = 9,
+	UNSECCRED = 10,
+	CREDACC = 11,
+	AITM = 12,
+	UNAUTHCMDMSG = 13,
+	SPOOFREPMSG = 14,
+	DERFAILURE = 15
 };
 
 class AttackNode : public omnetpp::cSimpleModule, public INode{

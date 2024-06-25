@@ -140,6 +140,7 @@ void AttackNode::notifyCompletion() {
 void AttackNode::executeStep() {
 	if(this->nodeType == NodeType::STEP) {
 		for(IController* controller : this->targetControllers) {
+/*
 			switch(this->attackType) {
 				case AttackType::ACCESS: {
 					MmsAttackerController* atkController = static_cast<MmsAttackerController*>(controller);
@@ -269,6 +270,7 @@ void AttackNode::executeStep() {
 				default:
 					EV << "No action defined for the activated attack step\n";
 			}
+*/
 		}
 	}
 	if(this->nodeType == NodeType::END) {

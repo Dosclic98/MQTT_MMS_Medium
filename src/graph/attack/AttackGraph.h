@@ -37,15 +37,37 @@ struct NodeContent {
 class AttackGraph : public omnetpp::cModule, public IGraph {
   protected:
 	std::map<std::string, AttackNode*> nodesMap;
-	NodeContent nodes[7] = {
-			{ "NetworkBegin", NodeType::BEGIN, AttackType::NOTSET, true, "uniform(2,4)", { }, { "Networkaccess" } },
-			{ "Networkaccess", NodeType::STEP, AttackType::ACCESS, false, nullptr, { "attacker.attackerController[0]", "attacker.attackerController[1]" }, { "ChanneladvInTheMid" } },
-			{ "NetworktlsSet", NodeType::DEFENSE, AttackType::NOTSET, false, "uniform(4,6)", { }, { "ChanneladvInTheMid" } },
-			{ "ChanneladvInTheMid", NodeType::STEP, AttackType::ADVINTHEMID, false, nullptr, { "stationComputer.mmsClientController[0]", "stationComputer.mmsClientController[1]" }, { "DataFlowwrite" } },
-			{ "DataFlowwrite", NodeType::STEP, AttackType::WRITEOP, false, nullptr, { "attacker.attackerController[0]", "attacker.attackerController[1]" }, { "IEDpowSysacc" } },
-			//{ "MMSServerspoRepMes", NodeType::STEP, AttackType::SPOOFREPMES, false, nullptr, { }, { "IEDpowSysacc" } },
-			{ "IEDpowSysacc", NodeType::OR, AttackType::NOTSET, false, nullptr, { }, { "PowerSystemEnd" } },
-			{ "PowerSystemEnd", NodeType::END, AttackType::NOTSET, false, nullptr, { }, { } }
+	NodeContent nodes[21] = {
+	        { "workStation_compromise", NodeType::BEGIN, AttackType::NOTSET, true, "uniform(2,4)", { }, { "DMZ_scanIP", "historianServer_remoteShellAND" } },
+	        { "DMZ_scanIP", NodeType::STEP, AttackType::SCANIP, false, nullptr, { }, { "historian_scanVuln" } },
+	        { "historian_scanVuln", NodeType::STEP, AttackType::SCANVULN, false, nullptr, { }, { "historian_remoteSrvc" } },
+	        { "historian_remoteSrvc", NodeType::STEP, AttackType::REMOTESRVC, false, nullptr, { }, { "historianServer_shell" } },
+	        { "historianServer_shell", NodeType::STEP, AttackType::SHELL, false, nullptr, { }, { "historianServer_NodeAND", "historianServer_addSSHKey" } },
+	        { "historianServer_addSSHKey", NodeType::STEP, AttackType::ADDSSHKEY, false, nullptr, { }, { "historianServer_remoteShellAND", "historianServer_addSSHKey" } },
+	        { "historianServer_remoteShellAND", NodeType::AND, AttackType::NOTSET, false, nullptr, { }, { "historianServer_remoteShell" } },
+	        { "historianServer_remoteShell", NodeType::STEP, AttackType::REMOTESHELL, false, nullptr, { }, { "historianServer_NodeAND"} },
+	        { "historianServer_NodeAND", NodeType::AND, AttackType::NOTSET, false, nullptr, { }, { "tomcatWebServer_bruteForce" } },
+	        { "tomcatWebServer_bruteForce", NodeType::STEP, AttackType::BRUTEFORCE, false, nullptr, { }, { "virtualEng_escapeHost" } },
+	        { "virtualEng_escapeHost", NodeType::STEP, AttackType::ESCAPEHOST, false, nullptr, { }, { "stationComputer_shell" } },
+	        { "stationComputer_shell", NodeType::STEP, AttackType::SHELL, false, nullptr, { }, { "MMSclient_unsecCred", "MMSclient_modAuthProc" } },
+	        { "MMSclient_unsecCred", NodeType::STEP, AttackType::UNSECCRED, false, nullptr, { }, { "MMSclient_AND" } },
+	        { "MMSclient_modAuthProc", NodeType::STEP, AttackType::MODAUTHPROC, false, nullptr, { }, { "MMSclient_AND" } },
+	        { "MMSclient_AND", NodeType::AND, AttackType::NOTSET, false, nullptr, { }, { "MMSclient_credAcc" } },
+	        { "MMSclient_credAcc", NodeType::STEP, AttackType::CREDACC, false, nullptr, { }, { "MMSTLS_AITM" } },
+	        { "MMSTLS_AITM", NodeType::STEP, AttackType::AITM, false, nullptr, { }, { "MMS_unauthCmdMsg", "MMSclient_spoofRepMsg" } },
+	        { "MMS_unauthCmdMsg", NodeType::STEP, AttackType::UNAUTHCMDMSG, false, nullptr, { }, { "IED_DERfailureOR" } },
+	        { "MMSclient_spoofRepMsg", NodeType::STEP, AttackType::SPOOFREPMSG, false, nullptr, { }, { "IED_DERfailureOR" } },
+	        { "IED_DERfailureOR", NodeType::OR, AttackType::NOTSET, false, nullptr, { }, { "IED_DERfailure" } },
+	        { "IED_DERfailure", NodeType::END, AttackType::NOTSET, false, nullptr, { }, { } },
+
+			// { "NetworkBegin", NodeType::BEGIN, AttackType::NOTSET, true, "uniform(2,4)", { }, { "Networkaccess" } },
+			// { "Networkaccess", NodeType::STEP, AttackType::ACCESS, false, nullptr, { "attacker.attackerController[0]", "attacker.attackerController[1]" }, { "ChanneladvInTheMid" } },
+			// { "NetworktlsSet", NodeType::DEFENSE, AttackType::NOTSET, false, "uniform(4,6)", { }, { "ChanneladvInTheMid" } },
+			// { "ChanneladvInTheMid", NodeType::STEP, AttackType::ADVINTHEMID, false, nullptr, { "stationComputer.mmsClientController[0]", "stationComputer.mmsClientController[1]" }, { "DataFlowwrite" } },
+			// { "DataFlowwrite", NodeType::STEP, AttackType::WRITEOP, false, nullptr, { "attacker.attackerController[0]", "attacker.attackerController[1]" }, { "IEDpowSysacc" } },
+			// { "MMSServerspoRepMes", NodeType::STEP, AttackType::SPOOFREPMES, false, nullptr, { }, { "IEDpowSysacc" } },
+			// { "IEDpowSysacc", NodeType::OR, AttackType::NOTSET, false, nullptr, { }, { "PowerSystemEnd" } },
+			// { "PowerSystemEnd", NodeType::END, AttackType::NOTSET, false, nullptr, { }, { } }
 	};
 
     virtual void initialize(int stage) override;
