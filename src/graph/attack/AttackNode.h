@@ -85,6 +85,10 @@ class AttackNode : public omnetpp::cSimpleModule, public INode{
 
     // Signal for completion time statistic
     simsignal_t complTimeSignal;
+    // Signal for start time statistic
+    simsignal_t startTimeSignal;
+    // Signal for end time statistic
+    simsignal_t endTimeSignal;
     // Signal to record when the attack step starts
     simtime_t stepStart;
     // Node state (active or not)

@@ -24,6 +24,10 @@ simple AttackNode {
         @signal[complTimeSignal](type="simtime_t");
         @statistic[complTime](source=complTimeSignal; record=last);
         
+        @signal[endTimeSignal](type="simtime_t");
+        @statistic[endTime](source=endTimeSignal; record=last);
+        
+        
         volatile double completionDelay = default(0);
     gates:
         input in[];

@@ -36,6 +36,8 @@ void AttackNode::initialize() {
 	// By default an AttackNode is not completed
 	completedState = false;
 	complTimeSignal = registerSignal("complTimeSignal");
+	startTimeSignal = registerSignal("startTimeSignal");
+	endTimeSignal = registerSignal("endTimeSignal");
     if(this->isActive()) {
     	if(this->getNodeType() == NodeType::BEGIN || this->getNodeType() == NodeType::DEFENSE) {
     	    stepStart = simTime();
@@ -57,6 +59,7 @@ void AttackNode::handleMessage(omnetpp::cMessage *msg) {
         	notifyCompletion();
         	// Emit completion time statistic
         	emit(complTimeSignal, simTime() - this->stepStart);
+        	emit(endTimeSignal, simTime());
     	}
     } else {
     	if(msg->getKind() == KIND_NOTIFY_COMPLETED) {
@@ -271,6 +274,7 @@ void AttackNode::executeStep() {
 	if(this->nodeType == NodeType::END) {
 		// The attack has been completed
 	    emit(complTimeSignal, simTime() - this->stepStart);
+	    emit(endTimeSignal, simTime());
 	    this->endSimulation();
 	}
 }
