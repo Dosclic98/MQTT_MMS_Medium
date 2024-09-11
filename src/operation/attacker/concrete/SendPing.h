@@ -16,10 +16,16 @@
 #ifndef OPERATION_ATTACKER_CONCRETE_SENDPING_H_
 #define OPERATION_ATTACKER_CONCRETE_SENDPING_H_
 
-class SendPing {
+#include "../PingAttackerOperation.h"
+
+class SendPing : public PingAttackerOperation {
 public:
+    virtual void execute() = 0;
+
     SendPing();
     virtual ~SendPing();
+
+
 };
 
 #endif /* OPERATION_ATTACKER_CONCRETE_SENDPING_H_ */

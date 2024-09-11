@@ -14,6 +14,7 @@
 // 
 
 #include "PingEvilOperator.h"
+#include "inet/networklayer/contract/ipv4/Ipv4Socket.h"
 
 #define INIT_SOCKET 1
 
@@ -33,16 +34,44 @@ void PingEvilOperator::initialize() {
 void PingEvilOperator::handleMessage(cMessage *msg) {
     // TODO This must be transfered within a new ping send
     if(msg->getKind() == INIT_SOCKET) {
-        currentSocket = nullptr;
-        currentSocket = new Ipv4Socket(gate("socketOut"));
-        socketMap.addSocket(currentSocket);
-        currentSocket->bind(icmp, L3Address());
-        currentSocket->setCallback(this);
+
     }
 }
 
-void PingApp::socketClosed(INetworkSocket *socket)
-{
+void PingEvilOperator::sendPing() {
+
+}
+
+void PingEvilOperator::bindNewSocket() {
+    currentSocket = nullptr;
+    currentSocket = new Ipv4Socket(gate("socketOut"));
+    socketMap.addSocket(currentSocket);
+    //currentSocket->bind(icmp, L3Address());
+    currentSocket->setCallback(this);
+}
+
+void PingEvilOperator::handleMessageWhenUp(cMessage *msg) {
+
+}
+
+void PingEvilOperator::handleStartOperation(LifecycleOperation *operation) {
+
+}
+
+void PingEvilOperator::handleStopOperation(LifecycleOperation *operation) {
+
+}
+
+void PingEvilOperator::handleCrashOperation(LifecycleOperation *operation) {
+
+}
+
+void PingEvilOperator::socketDataArrived(INetworkSocket *socket, Packet *packet) {
+
+}
+
+
+void PingEvilOperator::socketClosed(INetworkSocket *socket) {
     if (socket == currentSocket)
         currentSocket = nullptr;
     delete socketMap.removeSocket(socket);

@@ -15,8 +15,14 @@
 
 #include "SendPing.h"
 
+void SendPing::execute() {
+    PingEvilOperator* operatorOwner = (PingEvilOperator*)this->getOperatorOwner();
+    // TODO Expose a method inside the operator to send a ping
+
+}
+
 SendPing::SendPing() {
-    // TODO Auto-generated constructor stub
+    this->id = ++SendPing::idCounter;
 
 }
 

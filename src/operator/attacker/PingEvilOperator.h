@@ -18,18 +18,22 @@
 
 #include <omnetpp.h>
 #include "../IOperator.h"
+#include "inet/applications/base/ApplicationBase.h"
 #include "inet/common/socket/SocketMap.h"
 #include "inet/networklayer/common/L3Address.h"
+#include "inet/common/Protocol.h"
 #include "inet/networklayer/contract/INetworkSocket.h"
 
 using namespace inet;
 
-class PingEvilOperator : public cSimpleModule, public IOperator {
+class PingEvilOperator : public ApplicationBase, public INetworkSocket::ICallback, public IOperator {
 
 public:
     // The IOperator methods
     virtual void propagate(IResult* res) override;
     virtual void propagate(Packet* msg = nullptr) override;
+    virtual void sendPing();
+    virtual void bindNewSocket();
 
     virtual ~PingEvilOperator();
 
@@ -42,6 +46,12 @@ protected:
 
     virtual void initialize() override;
     virtual void handleMessage(cMessage *msg) override;
+
+    virtual void handleMessageWhenUp(cMessage *msg) override;
+    virtual void handleStartOperation(LifecycleOperation *operation) override;
+    virtual void handleStopOperation(LifecycleOperation *operation) override;
+    virtual void handleCrashOperation(LifecycleOperation *operation) override;
+    virtual void socketDataArrived(INetworkSocket *socket, Packet *packet) override;
     virtual void socketClosed(INetworkSocket *socket) override;
 };
 
