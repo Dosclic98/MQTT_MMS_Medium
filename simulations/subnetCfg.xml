@@ -1,0 +1,23 @@
+<config>
+	<!-- IT Network IPs -->
+	<interface hosts="attacker.attackerOperator" address="192.168.0.x"/>
+	<interface hosts="router1" towards="itSwitch" address="192.168.0.x"/>
+	
+	<!-- DMZ Network IPs -->
+	<interface hosts="pkiServer" address="192.168.1.x"/>
+	<interface hosts="historianServer" address="192.168.1.x"/>
+	<interface hosts="router{1-2}" towards="dmzSwitch" address="192.168.1.x"/>
+	
+	<!-- OT Network IPs -->
+	<interface hosts="stationComputer.mmsClientOperator" address="192.168.2.x"/>
+	<interface hosts="router{2-3}" towards="otSwitch" address="192.168.2.x"/>
+	
+	<!-- WAN Network IPs -->
+	<interface hosts="upf" address="192.168.3.x"/>
+	<interface hosts="gnb" address="192.168.3.x"/>
+	<interface hosts="server[*].serverOperator" address="192.168.3.x"/>
+	<interface hosts="router3" towards="upf" address="192.168.3.x"/>
+	
+	<!-- Other interfaces IP not captured by previous rules -->
+	<interface hosts="*" address="192.168.x.x"/>
+</config>
