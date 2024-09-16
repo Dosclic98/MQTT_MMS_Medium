@@ -71,7 +71,11 @@ bool PacketTransition::equals(ITransition* other) {
 	return this->expression->compare(otherPacket->expression) == 0;
 }
 
-PacketTransition::PacketTransition(IOperationFactory* operationFactory, IState* arrivalState, const char* expression, INode* canaryNode) {
+void PacketTransition::setDormant(bool isDormant) {
+    this->isDormant = isDormant;
+}
+
+PacketTransition::PacketTransition(IOperationFactory* operationFactory, IState* arrivalState, const char* expression, INode* canaryNode, bool isDormant) {
 	PacketOperationFactory* tmpPcktOpFactory = dynamic_cast<PacketOperationFactory*>(operationFactory);
 	if(tmpPcktOpFactory == nullptr) {
 		throw std::invalid_argument("PacketTransition requires an PacketOperationFactory as operationFactory parameter in the constructor\n");
@@ -79,6 +83,7 @@ PacketTransition::PacketTransition(IOperationFactory* operationFactory, IState* 
 	this->canaryNode = canaryNode;
 	this->operationFactory = operationFactory;
 	this->arrivalState = arrivalState;
+	this->isDormant = isDormant;
 
 	// Save expression externally for matching purposes
 	this->expression = new cDynamicExpression();

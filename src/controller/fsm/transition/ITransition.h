@@ -36,6 +36,8 @@ protected:
 	IState* arrivalState;
 	// The eventual attack node on which the canary completion is performed
 	INode* canaryNode = nullptr;
+	// Defines if the transition is dormant (it must not be taken into account) or not
+	bool isDormant;
 
 public:
 	virtual bool matchesTransition(Packet* packet) = 0;
@@ -46,6 +48,10 @@ public:
 	virtual void descheduleSelf() = 0;
 	virtual bool isScheduled() = 0;
 	virtual bool equals(ITransition* other) = 0;
+	virtual void setDormant(bool isDormant) = 0;
+	virtual bool getDormant() {
+	    return this->isDormant;
+	}
 	virtual void setArrivalState(IState* arrivalState) {
 		this->arrivalState = arrivalState;
 	};

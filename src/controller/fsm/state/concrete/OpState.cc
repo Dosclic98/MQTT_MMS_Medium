@@ -71,7 +71,7 @@ void OpState::merge(IState* other, std::map<std::string, IState*> states) {
 IState* OpState::next(IFSM* machine, Packet* msg) {
 	IState* nextState = this;
 	for(auto transition : this->transitions) {
-		if(transition->matchesTransition(msg)) {
+		if(transition->matchesTransition(msg) && !transition->getDormant()) {
 			nextState = transition->execute(msg);
 			// This break is necessary because
 			// the packet has possibly been deleted
@@ -84,12 +84,12 @@ IState* OpState::next(IFSM* machine, Packet* msg) {
 IState* OpState::next(IFSM* machine, cMessage* event) {
 	IState* nextState = this;
 	for(auto transition : this->transitions) {
-			if(transition->matchesTransition(event)) {
-				nextState = transition->execute(event);
-				// This break is necessary because
-				// the packet has possibly been deleted
-				break;
-			}
+        if(transition->matchesTransition(event) && !transition->getDormant()) {
+            nextState = transition->execute(event);
+            // This break is necessary because
+            // the packet has possibly been deleted
+            break;
+        }
 	}
 	return nextState;
 }

@@ -35,9 +35,10 @@ public:
 	virtual void scheduleSelf() override;
 	virtual void descheduleSelf() override;
 	virtual bool isScheduled() override;
+	virtual void setDormant(bool isDormant) override;
 	virtual bool equals(ITransition* other) override;
 
-	PacketTransition(IOperationFactory* operationFactory, IState* arrivalState, const char* expression, INode* canaryNode = nullptr);
+	PacketTransition(IOperationFactory* operationFactory, IState* arrivalState, const char* expression, INode* canaryNode = nullptr, bool isDormant = false);
 	virtual ~PacketTransition() override;
 };
 

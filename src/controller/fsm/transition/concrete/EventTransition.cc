@@ -62,17 +62,19 @@ IState* EventTransition::execute(cMessage* event) {
 }
 
 void EventTransition::scheduleSelf() {
-	// Reschedule the event causing the transition to trigger;
-	EventOperationFactory* evOpFactory = static_cast<EventOperationFactory*>(operationFactory);
-	IController* controller = evOpFactory->getController();
-	cComponent* controllerComponent = dynamic_cast<cComponent*>(controller);
-	if(delayExpression == nullptr) controller->scheduleEvent(event, delay);
-	else {
-		cValue valueExpr = delayExpression->evaluate(controllerComponent);
-		// Parse the cValue considering its raw value and its unit
-		simtime_t delayExpr = SimTime::parse(std::string(std::to_string(valueExpr.doubleValueRaw()) + std::string(valueExpr.getUnit())).c_str());
-		controller->scheduleEvent(event, delayExpr);
-	}
+    if(!this->isDormant) {
+        // Reschedule the event causing the transition to trigger;
+        EventOperationFactory* evOpFactory = static_cast<EventOperationFactory*>(operationFactory);
+        IController* controller = evOpFactory->getController();
+        cComponent* controllerComponent = dynamic_cast<cComponent*>(controller);
+        if(delayExpression == nullptr) controller->scheduleEvent(event, delay);
+        else {
+            cValue valueExpr = delayExpression->evaluate(controllerComponent);
+            // Parse the cValue considering its raw value and its unit
+            simtime_t delayExpr = SimTime::parse(std::string(std::to_string(valueExpr.doubleValueRaw()) + std::string(valueExpr.getUnit())).c_str());
+            controller->scheduleEvent(event, delayExpr);
+        }
+    }
 }
 
 void EventTransition::descheduleSelf() {
@@ -103,8 +105,18 @@ bool EventTransition::equals(ITransition* other) {
 	return false;
 }
 
+void EventTransition::setDormant(bool isDormant) {
+    this->isDormant = isDormant;
+    // Deschedule transition when set as dormant
+    if(isDormant) {
+        if(isScheduled()) descheduleSelf();
+    }
+    // If the transition is set as not dormant while
+    // its start state is active nothing happens
+}
+
 EventTransition::EventTransition(IOperationFactory* operationFactory, IState* arrivalState, cMessage* event,
-		EventMatchType matchType, simtime_t delay, cExpression* delayExpression, INode* canaryNode) {
+		EventMatchType matchType, simtime_t delay, cExpression* delayExpression, INode* canaryNode, bool isDormant) {
 	EventOperationFactory* tmpEvOpFactory = dynamic_cast<EventOperationFactory*>(operationFactory);
 	if(tmpEvOpFactory == nullptr) throw std::invalid_argument("EventTransition requires an EventOperationFactory as operationFactory parameter in the constructor\n");
 	this->canaryNode = canaryNode;
@@ -114,6 +126,7 @@ EventTransition::EventTransition(IOperationFactory* operationFactory, IState* ar
 	this->matchType = matchType;
 	this->delay = delay;
 	this->delayExpression = delayExpression;
+	this->isDormant = isDormant;
 }
 
 EventTransition::~EventTransition() {
