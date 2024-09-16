@@ -14,6 +14,7 @@
 // 
 
 #include "HttpClientEvilOperator.h"
+#include "../../result/attacker/HttpAttackerResult.h"
 
 using namespace inet;
 
@@ -47,7 +48,9 @@ void HttpClientEvilOperator::socketClosed(TcpSocket *socket) {
 }
 
 void HttpClientEvilOperator::sendTcpConnect(int opId) {
-
+    Enter_Method("Initializing TCP connection");
+    connect();
+    propagate(new HttpAttackerResult(opId, ResultOutcome::SUCCESS));
 }
 
 void HttpClientEvilOperator::sendTcpDisconnect(int opId) {
