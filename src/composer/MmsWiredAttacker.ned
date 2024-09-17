@@ -18,6 +18,7 @@ package tx_medium_exp.composer;
 import tx_medium_exp.operator.attacker.ClientEvilOperator;
 import tx_medium_exp.operator.attacker.ServerEvilOperator;
 import tx_medium_exp.controller.attacker.MmsAttackerController;
+import tx_medium_exp.controller.attacker.HttpAttackerController;
 import inet.node.inet.StandardHost;
 
 module MmsWiredAttacker {
@@ -29,10 +30,15 @@ module MmsWiredAttacker {
         inout gate;
         
     submodules:
+        // As many apps as the number of servers plus the 
+        // server itself plus the http client
         attackerOperator: StandardHost {
-        	numApps = parent.numMmsServers + 1;
+        	numApps = parent.numMmsServers + 2;
         };
+        // As many controllers as the MMS client
     	attackerController[numMmsServers]: MmsAttackerController;   
+    	// One controller more for the Http Client
+    	httpAttackerController: HttpAttackerController;
     
     connections:
         attackerOperator.ethg++ <--> gate; 
