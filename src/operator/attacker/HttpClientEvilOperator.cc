@@ -18,43 +18,64 @@
 
 using namespace inet;
 
-#define MSGKIND_CONNECT    0
-#define MSGKIND_DISCONNECT    2
+#define MSGKIND_CONNECT    1
+#define MSGKIND_SEND       2
+#define MSGKIND_CLOSE      3
 
 Define_Module(HttpClientEvilOperator);
 
 void HttpClientEvilOperator::initialize(int stage) {
+    TcpAppBase::initialize(stage);
 
-}
+    int maxNetSpace = par("maxNetSpace").intValue();
+    std::string netIpPrefix = par("netIpPrefix").stdstringValue();
+    int connectPort = par("connectPort");
 
-void HttpClientEvilOperator::handleStartOperation(LifecycleOperation *operation) {
-
-}
-
-void HttpClientEvilOperator::handleTimer(cMessage* msg) {
-
+    for(int i = 0; i < maxNetSpace; i++) {
+        std::string complAddr = netIpPrefix + std::to_string(i);
+        L3Address addr = L3Address(complAddr.c_str());
+        addrSpaceVector.push_back(addr);
+        EV << addr.toIpv4() << "\n";
+    }
+    nextAddr = 0;
 }
 
 void HttpClientEvilOperator::socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent) {
 
 }
 
-void HttpClientEvilOperator::socketEstablished(TcpSocket *socket) {
+void HttpClientEvilOperator::handleMessageWhenUp(cMessage *msg) {
 
 }
 
-void HttpClientEvilOperator::socketClosed(TcpSocket *socket) {
+void HttpClientEvilOperator::handleTimer(cMessage *msg) {
 
+}
+
+void HttpClientEvilOperator::socketEstablished(TcpSocket *socket) {
+    Packet* connectedSocketMsg = new Packet("Socket connected");
+    connectedSocketMsg->setKind(MSGKIND_CONNECT);
+    propagate(connectedSocketMsg);
+}
+
+void HttpClientEvilOperator::socketClosed(TcpSocket *socket) {
+    Packet* closedSocketMsg = new Packet("Socket closed");
+    closedSocketMsg->setKind(MSGKIND_CONNECT);
+    propagate(closedSocketMsg);
 }
 
 void HttpClientEvilOperator::sendTcpConnect(int opId) {
     Enter_Method("Initializing TCP connection");
-    connect();
+
+
+
     propagate(new HttpAttackerResult(opId, ResultOutcome::SUCCESS));
 }
 
 void HttpClientEvilOperator::sendTcpDisconnect(int opId) {
-
+    Enter_Method("Closing TCP Connection");
+    close();
+    propagate(new HttpAttackerResult(opId, ResultOutcome::SUCCESS));
 }
 
 HttpClientEvilOperator::~HttpClientEvilOperator() {

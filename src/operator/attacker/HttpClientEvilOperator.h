@@ -17,13 +17,16 @@
 #define __MQTT_MMS_MEDIUM_HTTPCLIENTEVILOPERATOR_H_
 
 #include <omnetpp.h>
-#include "inet/applications/tcpapp/TcpBasicClientApp.h"
+#include "inet/applications/tcpapp/TcpAppBase.h"
 #include "../IOperator.h"
 
 namespace inet {
 
-class HttpClientEvilOperator : public TcpBasicClientApp, public IOperator {
+class HttpClientEvilOperator : public TcpAppBase, public IOperator {
 public:
+    std::vector<L3Address> addrSpaceVector;
+    int nextAddr = 0;
+
     // The IOperator methods
     virtual void propagate(IResult* res) override;
     virtual void propagate(Packet* msg = nullptr) override;
@@ -36,11 +39,18 @@ public:
 
 protected:
     virtual void initialize(int stage) override;
-    virtual void handleStartOperation(LifecycleOperation *operation) override;
-    virtual void handleTimer(cMessage* msg) override;
+    virtual void handleMessageWhenUp(cMessage *msg) override;
+    virtual void handleTimer(cMessage *msg) override;
     virtual void socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent) override;
+    // Implement it sending a application level packet of type CONECTED
     virtual void socketEstablished(TcpSocket *socket) override;
+    // Implement it sending a application level packet of type CLOSED
     virtual void socketClosed(TcpSocket *socket) override;
+
+    // Not necessary to handle start and stop operations by default
+    virtual void handleStartOperation(LifecycleOperation *operation) override {}
+    virtual void handleStopOperation(LifecycleOperation *operation) override {}
+    virtual void handleCrashOperation(LifecycleOperation *operation) override {}
     // TODO Implement a method that calculates all addresses within a specific network space (look inside the PingApp)
 };
 

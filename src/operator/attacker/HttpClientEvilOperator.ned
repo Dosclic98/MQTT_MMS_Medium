@@ -15,9 +15,16 @@
 
 package tx_medium_exp.operator.attacker;
 
-//
-// TODO auto-generated module
-//
-simple HttpClientEvilOperator
-{
+import inet.applications.contract.IApp;
+
+simple HttpClientEvilOperator like IApp {
+     parameters:
+     	@class("inet::HttpClientEvilOperator");
+     	
+     	string netIpPrefix = "192.168.1";
+     	int maxNetSpace = default(255);
+     	int connectPort = default(1000);
+     gates:
+        input socketIn @labels(TcpCommand/up);
+        output socketOut @labels(TcpCommand/down);
 }
