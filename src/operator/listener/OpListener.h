@@ -13,20 +13,24 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#include "MmsResListener.h"
+#ifndef OPERATOR_LISTENER_OPLISTENER_H_
+#define OPERATOR_LISTENER_OPLISTENER_H_
 
-using namespace inet;
+#include <omnetpp.h>
+#include "../IOperator.h"
 
-MmsResListener::MmsResListener(IController* parent) {
-	this->parent = parent;
-}
+namespace inet {
 
-MmsResListener::~MmsResListener() {
-	// TODO Auto-generated destructor stub
-}
+class OpListener : public omnetpp::cListener{
+public:
+	IOperator* parent;
 
-void MmsResListener::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, omnetpp::cObject* value, omnetpp::cObject *obj) {
-	IResult* res = check_and_cast<IResult*>(value);
-	res->setControllerOwner(parent);
-	parent->evalRes(res);
-}
+	OpListener(IOperator* parent);
+	virtual ~OpListener();
+
+	virtual void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, omnetpp::cObject* value, omnetpp::cObject *obj) override;
+};
+
+} // namespace inet
+
+#endif /* OPERATOR_LISTENER_OPLISTENER_H_ */

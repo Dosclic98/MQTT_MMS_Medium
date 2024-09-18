@@ -13,25 +13,25 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef CONTROLLER_LISTENER_MMSMSGLISTENER_H_
-#define CONTROLLER_LISTENER_MMSMSGLISTENER_H_
+#ifndef CONTROLLER_LISTENER_MSGLISTENER_H_
+#define CONTROLLER_LISTENER_MSGLISTENER_H_
 
 #include <omnetpp.h>
 #include "../IController.h"
 
 namespace inet {
 
-class MmsMsgListener : public omnetpp::cListener {
+class MsgListener : public omnetpp::cListener {
 private:
 	IController* parent;
 
 public:
-	MmsMsgListener(IController* parent);
-	virtual ~MmsMsgListener();
+	MsgListener(IController* parent);
+	virtual ~MsgListener();
 
 	virtual void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, omnetpp::cObject* value, omnetpp::cObject *obj) override;
 };
 
 } // namespace inet
 
-#endif /* CONTROLLER_LISTENER_MMSMSGLISTENER_H_ */
+#endif /* CONTROLLER_LISTENER_MSGLISTENER_H_ */

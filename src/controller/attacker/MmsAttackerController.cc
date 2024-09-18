@@ -14,14 +14,14 @@
 // 
 
 #include "MmsAttackerController.h"
-#include "../listener/MmsMsgListener.h"
-#include "../listener/MmsResListener.h"
 #include "../../operation/attacker/concrete/ForwardMmsMessageToClient.h"
 #include "../../operation/attacker/concrete/ForwardMmsMessageToServer.h"
 
 #include "../../operation/factory/packet/concrete/ForwardMmsMessageToServerFactory.h"
 #include "../../operation/factory/packet/concrete/ForwardMmsMessageToClientFactory.h"
 #include "../fsm/factory/concrete/MmsAttackerFSMFactory.h"
+#include "../listener/MsgListener.h"
+#include "../listener/ResListener.h"
 
 using namespace inet;
 
@@ -41,8 +41,8 @@ void MmsAttackerController::initialize() {
     char strMsgSubSig[30];
     sprintf(strResSubSig, "atkResSig-%d", this->getIndex());
     sprintf(strMsgSubSig, "atkMsgSig-%d", this->getIndex());
-	resListener = new MmsResListener(this);
-	msgListener = new MmsMsgListener(this);
+	resListener = new ResListener(this);
+	msgListener = new MsgListener(this);
 	// Subscribe listeners on the right module and signal
 	getParentModule()->getParentModule()->subscribe(strResSubSig, resListener);
 	getParentModule()->getParentModule()->subscribe(strMsgSubSig, msgListener);

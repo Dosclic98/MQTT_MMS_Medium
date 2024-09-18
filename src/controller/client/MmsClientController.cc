@@ -14,10 +14,10 @@
 // 
 
 #include "MmsClientController.h"
-#include "../listener/MmsMsgListener.h"
-#include "../listener/MmsResListener.h"
 #include "../fsm/operation/OpFSM.h"
 #include "../fsm/factory/concrete/MmsClientFSMFactory.h"
+#include "../listener/MsgListener.h"
+#include "../listener/ResListener.h"
 
 using namespace inet;
 
@@ -48,8 +48,8 @@ void MmsClientController::initialize() {
     sprintf(strCliCmdPubSig, "cliCmdSig-%d", this->getIndex());
 	cmdPubSig = registerSignal(strCliCmdPubSig);
 
-	resListener = new MmsResListener(this);
-	msgListener = new MmsMsgListener(this);
+	resListener = new ResListener(this);
+	msgListener = new MsgListener(this);
 	// Subscribe listeners on the right module and signal
 	getParentModule()->getParentModule()->subscribe(strResSubSig, resListener);
 	getParentModule()->getParentModule()->subscribe(strMsgSubSig, msgListener);

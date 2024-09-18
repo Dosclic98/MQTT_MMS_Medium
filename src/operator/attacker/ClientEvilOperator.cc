@@ -58,7 +58,7 @@ void ClientEvilOperator::initialize(int stage)
         // Initializing inherited signals
         resPubSig = registerSignal(strResPubSig);
         msgPubSig = registerSignal(strMsgPubSig);
-        cmdListener = new MmsOpListener(this);
+        cmdListener = new OpListener(this);
         char strCliCmdSig[30];
         sprintf(strCliCmdSig, "atkCmdSig-%d", this->getIndex());
         // Go up of two levels in the modules hierarchy (the first is the host module)

@@ -14,8 +14,6 @@
 // 
 
 #include "MmsServerController.h"
-#include "../listener/MmsMsgListener.h"
-#include "../listener/MmsResListener.h"
 #include "inet/common/socket/SocketTag_m.h"
 #include "inet/common/ModuleAccess.h"
 #include "inet/common/ProtocolTag_m.h"
@@ -28,6 +26,8 @@
 
 #include "../fsm/operation/OpFSM.h"
 #include "../fsm/factory/concrete/MmsServerFSMFactory.h"
+#include "../listener/MsgListener.h"
+#include "../listener/ResListener.h"
 
 using namespace inet;
 
@@ -56,8 +56,8 @@ void MmsServerController::initialize() {
 	sprintf(strSerMsgSig, "serMsgSig-%d", getParentModule()->getIndex());
 	cmdPubSig = registerSignal(strCmdPubSig);
 
-	resListener = new MmsResListener(this);
-	msgListener = new MmsMsgListener(this);
+	resListener = new ResListener(this);
+	msgListener = new MsgListener(this);
 	// Subscribe listeners on the right module and signal
 	getParentModule()->getParentModule()->subscribe(strSerResSig, resListener);
 	getParentModule()->getParentModule()->subscribe(strSerMsgSig, msgListener);

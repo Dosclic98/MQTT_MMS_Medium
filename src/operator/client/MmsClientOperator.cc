@@ -77,7 +77,7 @@ void MmsClientOperator::initialize(int stage) {
 
         resPubSig = registerSignal(strResPubSig);
         msgPubSig = registerSignal(strMsgPubSig);
-        cmdListener = new MmsOpListener(this);
+        cmdListener = new OpListener(this);
         // Go up of two levels in the modules hierarchy (the first is the host module)
         getParentModule()->getParentModule()->subscribe(strCliCmdSig, cmdListener);
 

@@ -51,7 +51,7 @@ void MmsServerOperator::initialize(int stage) {
         sprintf(strSerMsgPubSig, "serMsgSig-%d",  getParentModule()->getParentModule()->getIndex());
         resPubSig = registerSignal(strSerResPubSig);
         msgPubSig = registerSignal(strSerMsgPubSig);
-        cmdListener = new MmsOpListener(this);
+        cmdListener = new OpListener(this);
         // Go up of two levels in the modules hierarchy (the first is the host module)
         getParentModule()->getParentModule()->subscribe(strSerCmdSig, cmdListener);
     }
