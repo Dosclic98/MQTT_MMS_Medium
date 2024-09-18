@@ -25,7 +25,10 @@ namespace inet {
 class HttpClientEvilOperator : public TcpAppBase, public IOperator {
 public:
     std::vector<L3Address> addrSpaceVector;
-    int nextAddr = 0;
+    int nextAddrIdx = 0;
+
+    cMessage* connectionTimer = new cMessage("Connection Timer");
+    cMessage* timeoutTimer = new cMessage("Timeout Timer");
 
     // The IOperator methods
     virtual void propagate(IResult* res) override;
@@ -46,11 +49,15 @@ protected:
     virtual void socketEstablished(TcpSocket *socket) override;
     // Implement it sending a application level packet of type CLOSED
     virtual void socketClosed(TcpSocket *socket) override;
+    virtual void socketPeerClosed(TcpSocket *socket_) override;
+    virtual void socketFailure(TcpSocket* socket, int code) override;
+    // Close socket
+    virtual void close() override;
 
     // Not necessary to handle start and stop operations by default
     virtual void handleStartOperation(LifecycleOperation *operation) override {}
     virtual void handleStopOperation(LifecycleOperation *operation) override {}
-    virtual void handleCrashOperation(LifecycleOperation *operation) override {}
+    virtual void handleCrashOperation(LifecycleOperation *operation) override {EV << "SPIZZICO\n";}
     // TODO Implement a method that calculates all addresses within a specific network space (look inside the PingApp)
 };
 

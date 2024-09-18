@@ -23,9 +23,13 @@ simple HttpClientEvilOperator like IApp {
      	
      	string localAddress = default(""); // may be left empty ("")
         int localPort = default(-1); // port number to listen on
+        int connectPort = default(1000); // port number to connect to
+
      	string netIpPrefix = "192.168.1";
      	int maxNetSpace = default(256);
-     	int connectPort = default(1000);
+     	
+     	@signal[httpAtkMsgSig]();
+		@signal[httpAtkResSig]();
      gates:
         input socketIn @labels(TcpCommand/up);
         output socketOut @labels(TcpCommand/down);
