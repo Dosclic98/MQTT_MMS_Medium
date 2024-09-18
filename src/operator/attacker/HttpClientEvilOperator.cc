@@ -32,10 +32,10 @@ void HttpClientEvilOperator::initialize(int stage) {
     int connectPort = par("connectPort");
 
     for(int i = 0; i < maxNetSpace; i++) {
-        std::string complAddr = netIpPrefix + std::to_string(i);
-        L3Address addr = L3Address(complAddr.c_str());
+        std::string complAddr = netIpPrefix + std::string(".") + std::to_string(i);
+        Ipv4Address ipv4Addr = Ipv4Address(complAddr.c_str());
+        L3Address addr = L3Address(ipv4Addr);
         addrSpaceVector.push_back(addr);
-        EV << addr.toIpv4() << "\n";
     }
     nextAddr = 0;
 }

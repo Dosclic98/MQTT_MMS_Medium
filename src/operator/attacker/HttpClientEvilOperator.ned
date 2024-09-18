@@ -21,8 +21,10 @@ simple HttpClientEvilOperator like IApp {
      parameters:
      	@class("inet::HttpClientEvilOperator");
      	
+     	string localAddress = default(""); // may be left empty ("")
+        int localPort = default(-1); // port number to listen on
      	string netIpPrefix = "192.168.1";
-     	int maxNetSpace = default(255);
+     	int maxNetSpace = default(256);
      	int connectPort = default(1000);
      gates:
         input socketIn @labels(TcpCommand/up);
