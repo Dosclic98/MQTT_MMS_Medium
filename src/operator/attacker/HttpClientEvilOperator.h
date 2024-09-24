@@ -24,17 +24,11 @@ namespace inet {
 
 class HttpClientEvilOperator : public TcpAppBase, public IOperator {
 public:
-    std::vector<L3Address> addrSpaceVector;
-    int nextAddrIdx = 0;
-
-    cMessage* connectionTimer = new cMessage("Connection Timer");
-    cMessage* timeoutTimer = new cMessage("Timeout Timer");
-
     // The IOperator methods
     virtual void propagate(IResult* res) override;
     virtual void propagate(Packet* msg = nullptr) override;
 
-    virtual void sendTcpConnect(int opId);
+    virtual void sendTcpConnect(int opId, L3Address* address);
     virtual void sendTcpDisconnect(int opId);
 
 
@@ -57,8 +51,7 @@ protected:
     // Not necessary to handle start and stop operations by default
     virtual void handleStartOperation(LifecycleOperation *operation) override {}
     virtual void handleStopOperation(LifecycleOperation *operation) override {}
-    virtual void handleCrashOperation(LifecycleOperation *operation) override {EV << "SPIZZICO\n";}
-    // TODO Implement a method that calculates all addresses within a specific network space (look inside the PingApp)
+    virtual void handleCrashOperation(LifecycleOperation *operation) override {}
 };
 
 }; // namespace inet

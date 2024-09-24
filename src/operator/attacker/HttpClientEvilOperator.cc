@@ -38,18 +38,6 @@ void HttpClientEvilOperator::initialize(int stage) {
         const char* strCliCmdSig = "httpAtkCmdSig";
         // Go up of two levels in the modules hierarchy (the first is the host module)
         getParentModule()->getParentModule()->subscribe(strCliCmdSig, cmdListener);
-    } else if(stage == INITSTAGE_APPLICATION_LAYER) {
-        int maxNetSpace = par("maxNetSpace").intValue();
-        std::string netIpPrefix = par("netIpPrefix").stdstringValue();
-
-        for(int i = 0; i < maxNetSpace; i++) {
-            std::string complAddr = netIpPrefix + std::string(".") + std::to_string(i);
-            Ipv4Address ipv4Addr = Ipv4Address(complAddr.c_str());
-            L3Address addr = L3Address(ipv4Addr);
-            addrSpaceVector.push_back(addr);
-        }
-        nextAddrIdx = 0;
-
     }
 }
 
@@ -77,10 +65,10 @@ void HttpClientEvilOperator::socketClosed(TcpSocket *socket) {
     propagate(closedSocketMsg);
 }
 
-void HttpClientEvilOperator::sendTcpConnect(int opId) {
+void HttpClientEvilOperator::sendTcpConnect(int opId, L3Address* address) {
     Enter_Method("Initializing TCP connection");
-    if(nextAddrIdx < addrSpaceVector.size()) {
-        L3Address addr = addrSpaceVector[nextAddrIdx];
+
+    if(address != nullptr) {
         // we need a new connId if this is not the first connection
         socket.renewSocket();
 
@@ -89,14 +77,12 @@ void HttpClientEvilOperator::sendTcpConnect(int opId) {
         socket.bind(*localAddress ? L3AddressResolver().resolve(localAddress) : L3Address(), localPort);
 
         int connectPort = par("connectPort");
-        socket.connect(addr, connectPort);
-
-        nextAddrIdx++;
+        socket.connect(*address, connectPort);
 
         // Propagate operation result
         propagate(new HttpAttackerResult(opId, ResultOutcome::SUCCESS));
+
     } else {
-        // TODO Probably just keep the indexes to which we could connect
         propagate(new HttpAttackerResult(opId, ResultOutcome::FAIL));
     }
 }
@@ -120,7 +106,7 @@ void HttpClientEvilOperator::socketPeerClosed(TcpSocket *socket_) {
     }
 }
 
-// TODO Understand better when this functio is called
+// TODO Understand better when this function is called
 void HttpClientEvilOperator::socketFailure(TcpSocket* socket, int code) {
     // subclasses may override this function, and add code try to reconnect after a delay.
     EV_WARN << "connection broken\n";
