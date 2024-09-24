@@ -66,7 +66,7 @@ network IncrementalTest
         server[numMmsServers]: Mms5GServer {
             @display("p=907.89374,513.735");
         }
-        attacker: MmsWiredAttacker {
+        workstation: MmsWiredAttacker {
             numMmsServers = parent.numMmsServers;
             @display("p=553,55");
         }
@@ -103,7 +103,7 @@ network IncrementalTest
         }
 
     connections:
-        attacker.gate <--> Eth1G <--> itSwitch.ethg++;
+        workstation.gate <--> Eth1G <--> itSwitch.ethg++;
         itSwitch.ethg++ <--> Eth1G <--> router1.ethg++;
         router1.ethg++ <--> Eth1G <--> dmzSwitch.ethg++;
         pkiServer.ethg++ <--> Eth100M <--> dmzSwitch.ethg++;
