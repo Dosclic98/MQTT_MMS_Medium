@@ -15,6 +15,7 @@
 
 #include "AttackNode.h"
 #include "../../controller/client/MmsClientController.h"
+#include "../../controller/attacker/HttpAttackerController.h"
 #include "../../controller/attacker/MmsAttackerController.h"
 #include "../../controller/fsm/operation/OpFSM.h"
 #include "../../controller/fsm/state/concrete/OpState.h"
@@ -140,6 +141,22 @@ void AttackNode::notifyCompletion() {
 void AttackNode::executeStep() {
 	if(this->nodeType == NodeType::STEP) {
 		for(IController* controller : this->targetControllers) {
+		    switch(this->attackType) {
+		        case AttackType::SCANIP: {
+		            HttpAttackerController* atkController = static_cast<HttpAttackerController*>(controller);
+		            OpState* scanningState = new OpState("SCANNING");
+		            OpState* connectingState = new OpState("CONNECTING");
+		            OpState* connectedState = new OpState("CONNECTED");
+		            OpState* disconnectingState = new OpState("DISCONNECTING");
+		            OpState* doneState = new OpState("DONE");
+
+		            std::vector<std::shared_ptr<ITransition>> scanningTransitions;
+		            //std::shared_ptr<ITransition> scanConning = std::make_shared<EventTransition>(
+
+		            //);
+		        }
+		    }
+
 /*
 			switch(this->attackType) {
 				case AttackType::ACCESS: {
