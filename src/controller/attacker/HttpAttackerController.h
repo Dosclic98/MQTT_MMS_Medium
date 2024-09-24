@@ -18,10 +18,17 @@
 
 #include <omnetpp.h>
 #include "../IController.h"
+#include "inet/networklayer/common/L3Address.h"
 
 namespace inet {
 class HttpAttackerController : public cSimpleModule, public IController {
   public:
+    std::vector<L3Address> addrSpaceVector;
+    int nextAddrIdx = 0;
+
+    cMessage* connectionTimer = new cMessage("Connection Timer");
+    cMessage* timeoutTimer = new cMessage("Timeout Timer");
+
     virtual void initialize() override;
     virtual void handleMessage(cMessage *msg) override;
 
@@ -31,6 +38,7 @@ class HttpAttackerController : public cSimpleModule, public IController {
     virtual void scheduleEvent(cMessage* event, simtime_t delay) override;
     virtual void descheduleEvent(cMessage* event) override;
     virtual void enqueueNSchedule(IOperation* operation) override;
+    virtual void scheduleNextTcpConnect();
 };
 
 } // namespace inet

@@ -19,6 +19,13 @@ package tx_medium_exp.controller.attacker;
 // TODO auto-generated module
 //
 simple HttpAttackerController {
-    @class("inet::HttpAttackerController");
-	@display("i=block/cogwheel");
+    
+    parameters:
+		@class("inet::HttpAttackerController");
+	
+	    string netIpPrefix = "192.168.1";
+     	int maxNetSpace = default(256);
+    
+    
+		@display("i=block/cogwheel");
 }
