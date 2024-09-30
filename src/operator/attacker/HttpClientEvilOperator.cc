@@ -65,10 +65,10 @@ void HttpClientEvilOperator::socketClosed(TcpSocket *socket) {
     propagate(closedSocketMsg);
 }
 
-void HttpClientEvilOperator::sendTcpConnect(int opId, L3Address* address) {
+void HttpClientEvilOperator::sendTcpConnect(int opId, L3Address& address) {
     Enter_Method("Initializing TCP connection");
 
-    if(address != nullptr) {
+    if(!address.isUnspecified()) {
         // we need a new connId if this is not the first connection
         socket.renewSocket();
 
@@ -77,7 +77,7 @@ void HttpClientEvilOperator::sendTcpConnect(int opId, L3Address* address) {
         socket.bind(*localAddress ? L3AddressResolver().resolve(localAddress) : L3Address(), localPort);
 
         int connectPort = par("connectPort");
-        socket.connect(*address, connectPort);
+        socket.connect(address, connectPort);
 
         // Propagate operation result
         propagate(new HttpAttackerResult(opId, ResultOutcome::SUCCESS));

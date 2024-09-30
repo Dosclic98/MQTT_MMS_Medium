@@ -28,7 +28,7 @@ public:
     virtual void propagate(IResult* res) override;
     virtual void propagate(Packet* msg = nullptr) override;
 
-    virtual void sendTcpConnect(int opId, L3Address* address);
+    virtual void sendTcpConnect(int opId, L3Address& address);
     virtual void sendTcpDisconnect(int opId);
 
 

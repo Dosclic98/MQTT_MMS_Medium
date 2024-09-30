@@ -21,7 +21,7 @@ using namespace inet;
 void SendHttpTcpConnectAtk::execute() {
     HttpClientEvilOperator* oper = check_and_cast<HttpClientEvilOperator*>(operatorOwner);
 
-    if(this->addr != nullptr) {
+    if(!this->addr.isUnspecified()) {
         oper->sendTcpConnect(this->id, this->addr);
     } else {
         throw std::invalid_argument("Cannot execute SendHttpTcpConnectAtk operation on nullptr address");
@@ -29,12 +29,8 @@ void SendHttpTcpConnectAtk::execute() {
 
 }
 
-SendHttpTcpConnectAtk::SendHttpTcpConnectAtk() {
+SendHttpTcpConnectAtk::SendHttpTcpConnectAtk(L3Address& addr) : addr(addr){
     this->id = ++SendHttpTcpConnectAtk::idCounter;
-}
-
-SendHttpTcpConnectAtk::SendHttpTcpConnectAtk(L3Address* addr) : SendHttpTcpConnectAtk() {
-    this->addr = addr;
 }
 
 SendHttpTcpConnectAtk::~SendHttpTcpConnectAtk() {

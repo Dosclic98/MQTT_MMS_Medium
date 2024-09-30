@@ -24,14 +24,13 @@ class L3Address;
 
 class SendHttpTcpConnectAtk : public HttpAttackerOperation {
 public:
-    SendHttpTcpConnectAtk();
-    SendHttpTcpConnectAtk(L3Address* addr);
+    SendHttpTcpConnectAtk(L3Address& addr);
     virtual ~SendHttpTcpConnectAtk();
 
     virtual void execute() override;
 
 protected:
-    L3Address* addr = nullptr;
+    L3Address& addr;
 };
 
 }; // namespace inet
