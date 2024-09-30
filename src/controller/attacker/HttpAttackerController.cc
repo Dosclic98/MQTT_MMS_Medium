@@ -43,18 +43,9 @@ void HttpAttackerController::initialize() {
     getParentModule()->getParentModule()->subscribe(strResSubSig, resListener);
     getParentModule()->getParentModule()->subscribe(strMsgSubSig, msgListener);
 
-
     // Initialize network address space vector
-    int maxNetSpace = par("maxNetSpace").intValue();
-    std::string netIpPrefix = par("netIpPrefix").stdstringValue();
-
-    for(int i = 0; i < maxNetSpace; i++) {
-        std::string complAddr = netIpPrefix + std::string(".") + std::to_string(i);
-        Ipv4Address ipv4Addr = Ipv4Address(complAddr.c_str());
-        L3Address addr = L3Address(ipv4Addr);
-        addrSpaceVector.push_back(addr);
-    }
-    nextAddrIdx = 0;
+    maxNetSpace = par("maxNetSpace").intValue();
+    netIpPrefix = par("netIpPrefix").stdstringValue();
 
     controllerStatus = false;
 
