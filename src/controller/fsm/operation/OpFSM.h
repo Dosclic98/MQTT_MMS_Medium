@@ -35,6 +35,10 @@ public:
 	virtual IState* next(cMessage* event) override;
 	virtual std::map<std::string, IState*> getStatesMap() override;
 	virtual void merge(IFSM* other) override;
+    virtual void addDormancyUpdate(cMessage* event, std::shared_ptr<ITransition> transition, bool newDormancyState) override;
+    virtual bool removeDormancyUpdate(cMessage* event, std::shared_ptr<ITransition> transition) override;
+    virtual bool cleanDormancyUpdate(cMessage* event) override;
+    virtual bool updateDormancy(cMessage* event) override;
 
 	OpFSM(IController* owner, IState* currentState, bool scheduleOnBuild = true);
 	virtual ~OpFSM() override;

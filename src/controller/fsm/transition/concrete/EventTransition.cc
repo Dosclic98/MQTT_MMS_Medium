@@ -107,12 +107,6 @@ bool EventTransition::equals(ITransition* other) {
 
 void EventTransition::setDormant(bool isDormant) {
     this->isDormant = isDormant;
-    // Deschedule transition when set as dormant
-    if(isDormant) {
-        if(isScheduled()) descheduleSelf();
-    }
-    // If the transition is set as not dormant while
-    // its start state is active nothing happens
 }
 
 EventTransition::EventTransition(IOperationFactory* operationFactory, IState* arrivalState, cMessage* event,

@@ -89,6 +89,43 @@ std::set<IState*> OpFSM::getStates() {
 	return visited;
 }
 
+void OpFSM::addDormancyUpdate(cMessage* event, std::shared_ptr<ITransition> transition, bool newDormancyState) {
+    auto eventMap = dormancyUpdater.find(event);
+    if(eventMap != dormancyUpdater.end()) {
+        eventMap->second[transition] = newDormancyState;
+    } else {
+        dormancyUpdater.insert({event, std::map<std::shared_ptr<ITransition>, bool>{{transition, newDormancyState}}});
+    }
+}
+
+bool OpFSM::removeDormancyUpdate(cMessage* event, std::shared_ptr<ITransition> transition) {
+    auto eventMap = dormancyUpdater.find(event);
+    if(eventMap != dormancyUpdater.end()) {
+        int rem = eventMap->second.erase(transition);
+        return rem == 1;
+    }
+
+    return false;
+}
+
+bool OpFSM::cleanDormancyUpdate(cMessage* event) {
+    auto eventMap = dormancyUpdater.find(event);
+    if(eventMap != dormancyUpdater.end()) {
+        eventMap->second.clear();
+        return true;
+    } else { return false; }
+}
+
+bool OpFSM::updateDormancy(cMessage* event) {
+    auto eventMap = dormancyUpdater.find(event);
+    if(eventMap != dormancyUpdater.end()) {
+        for(auto pair : eventMap->second) {
+            pair.first->setDormant(pair.second);
+        }
+    }
+    return false;
+}
+
 std::map<std::string, IState*> OpFSM::getStatesMap() {
 	std::map<std::string, IState*> statesMap;
 	std::set<IState*> states = getStates();
@@ -122,6 +159,23 @@ void OpFSM::merge(IFSM* other) {
 	}
 	// Delete the merged states
 	for(IState* delState : toDelete) { delete delState; }
+
+	// Merge dormancy updater maps
+	std::map<cMessage*, std::map<std::shared_ptr<ITransition>, bool>> otherDormancyUpdater = other->getDormancyUpdater();
+	for(std::pair<cMessage*, std::map<std::shared_ptr<ITransition>, bool>> pair : otherDormancyUpdater) {
+	    if(dormancyUpdater.find(pair.first) != dormancyUpdater.end()) {
+	        // If the event exists then update its transition --> dormancy state map
+	        for(std::pair<std::shared_ptr<ITransition>, bool> transDorPair : pair.second) {
+	            dormancyUpdater[pair.first][transDorPair.first] = transDorPair.second;
+	        }
+	    } else {
+	        // If the event does not exist in the dormancy updater then add the corresponding map
+	        dormancyUpdater[pair.first] = pair.second;
+	    }
+	}
+
+	// TODO For each transition within the CFSM check that it is correctly referenced in the dormancyUpdater if present
+
 	// When the merge is completed schedule the new events
 	this->updateEventSchedulingAfterMerge(this->currentState);
 }

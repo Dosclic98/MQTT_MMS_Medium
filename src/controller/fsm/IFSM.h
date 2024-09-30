@@ -22,6 +22,7 @@ namespace inet {
 
 class IState;
 class IController;
+class ITransition;
 
 class IFSM {
 protected:
@@ -30,6 +31,7 @@ protected:
 	// all the other states are reachable
 	IState* initialState;
 	IController* owner;
+	std::map<cMessage*, std::map<std::shared_ptr<ITransition>, bool>> dormancyUpdater;
 
 	virtual void updateEventSchedulingAfterExecution(IState* currentState, IState* nextState) = 0;
 	virtual void updateEventSchedulingAfterMerge(IState* currentState) = 0;
@@ -43,6 +45,14 @@ public:
 	virtual IState* next(cMessage* event) = 0;
 	virtual std::map<std::string, IState*> getStatesMap() = 0;
 	virtual void merge(IFSM* other) = 0;
+	// Dormancy update methods
+    virtual void addDormancyUpdate(cMessage* event, std::shared_ptr<ITransition> transition, bool newDormancyState) = 0;
+    virtual bool removeDormancyUpdate(cMessage* event, std::shared_ptr<ITransition> transition) = 0;
+    virtual bool cleanDormancyUpdate(cMessage* event) = 0;
+    virtual bool updateDormancy(cMessage* event) = 0;
+    virtual std::map<cMessage*, std::map<std::shared_ptr<ITransition>, bool>> getDormancyUpdater() {
+        return dormancyUpdater;
+    }
 
 	virtual ~IFSM() = default;
 };
