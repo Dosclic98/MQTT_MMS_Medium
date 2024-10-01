@@ -13,7 +13,8 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#include "OpFSM.h"
+#include "../concrete/OpFSM.h"
+
 #include <queue>
 
 using namespace inet;

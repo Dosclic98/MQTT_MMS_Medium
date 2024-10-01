@@ -13,8 +13,8 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef CONTROLLER_FSM_OPERATION_OPFSM_H_
-#define CONTROLLER_FSM_OPERATION_OPFSM_H_
+#ifndef CONTROLLER_FSM_CONCRETE_OPFSM_H_
+#define CONTROLLER_FSM_CONCRETE_OPFSM_H_
 
 #include "../IFSM.h"
 #include "../state/IState.h"
@@ -46,4 +46,4 @@ public:
 
 } // namespace inet
 
-#endif /* CONTROLLER_FSM_OPERATION_OPFSM_H_ */
+#endif /* CONTROLLER_FSM_CONCRETE_OPFSM_H_ */

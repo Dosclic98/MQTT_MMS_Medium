@@ -16,8 +16,8 @@
 #include "HttpAttackerFSMFactory.h"
 #include "../../../../controller/IController.h"
 #include "../../../../controller/attacker/HttpAttackerController.h"
+#include "../../concrete/OpFSM.h"
 #include "../../state/concrete/OpState.h"
-#include "../../operation/OpFSM.h"
 
 using namespace inet;
 

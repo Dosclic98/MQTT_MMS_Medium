@@ -16,12 +16,12 @@
 #include "MmsClientFSMFactory.h"
 #include "../../../../controller/client/MmsClientController.h"
 #include "../../state/concrete/OpState.h"
-#include "../../operation/OpFSM.h"
 #include "../../transition/concrete/EventTransition.h"
 #include "../../../../operation/factory/event/concrete/SendTcpConnectFactory.h"
 #include "../../../../operation/factory/event/concrete/SendMmsConnectFactory.h"
 #include "../../../../operation/factory/event/concrete/SendMmsDisconnectFactory.h"
 #include "../../../../operation/factory/event/concrete/SendMmsRequestFactory.h"
+#include "../../concrete/OpFSM.h"
 
 
 using namespace inet;

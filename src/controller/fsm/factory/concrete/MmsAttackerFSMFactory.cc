@@ -17,12 +17,12 @@
 #include "../../../../controller/IController.h"
 #include "../../../../controller/attacker/MmsAttackerController.h"
 #include "../../state/concrete/OpState.h"
-#include "../../operation/OpFSM.h"
 #include "../../transition/concrete/EventTransition.h"
 #include "../../transition/concrete/PacketTransition.h"
 #include "../../../../operation/factory/packet/concrete/ForwardMmsMessageToServerFactory.h"
 #include "../../../../operation/factory/packet/concrete/ForwardMmsMessageToClientFactory.h"
 #include "../../../../operation/factory/event/concrete/SendTcpConnectAtkFactory.h"
+#include "../../concrete/OpFSM.h"
 
 using namespace inet;
 

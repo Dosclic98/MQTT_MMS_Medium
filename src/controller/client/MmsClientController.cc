@@ -14,7 +14,8 @@
 // 
 
 #include "MmsClientController.h"
-#include "../fsm/operation/OpFSM.h"
+
+#include "../fsm/concrete/OpFSM.h"
 #include "../fsm/factory/concrete/MmsClientFSMFactory.h"
 #include "../listener/MsgListener.h"
 #include "../listener/ResListener.h"

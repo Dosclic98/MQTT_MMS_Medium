@@ -14,6 +14,8 @@
 // 
 
 #include "MmsServerController.h"
+
+#include "../fsm/concrete/OpFSM.h"
 #include "inet/common/socket/SocketTag_m.h"
 #include "inet/common/ModuleAccess.h"
 #include "inet/common/ProtocolTag_m.h"
@@ -24,7 +26,6 @@
 #include "inet/networklayer/common/L3AddressResolver.h"
 #include "inet/transportlayer/contract/tcp/TcpCommand_m.h"
 
-#include "../fsm/operation/OpFSM.h"
 #include "../fsm/factory/concrete/MmsServerFSMFactory.h"
 #include "../listener/MsgListener.h"
 #include "../listener/ResListener.h"

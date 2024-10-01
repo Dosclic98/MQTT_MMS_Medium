@@ -17,11 +17,11 @@
 #include "../../../../controller/IController.h"
 #include "../../../../controller/server/MmsServerController.h"
 #include "../../state/concrete/OpState.h"
-#include "../../operation/OpFSM.h"
 #include "../../transition/concrete/EventTransition.h"
 #include "../../transition/concrete/PacketTransition.h"
 #include "../../../../operation/factory/packet/concrete/ForwardDepartureFactory.h"
 #include "../../../../operation/factory/event/concrete/GenerateMeasuresFactory.h"
+#include "../../concrete/OpFSM.h"
 
 using namespace inet;
 

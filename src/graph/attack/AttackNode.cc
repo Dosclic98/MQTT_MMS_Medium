@@ -17,7 +17,7 @@
 #include "../../controller/client/MmsClientController.h"
 #include "../../controller/attacker/HttpAttackerController.h"
 #include "../../controller/attacker/MmsAttackerController.h"
-#include "../../controller/fsm/operation/OpFSM.h"
+#include "../../controller/fsm/concrete/OpFSM.h"
 #include "../../controller/fsm/state/concrete/OpState.h"
 #include "../../controller/fsm/transition/concrete/EventTransition.h"
 #include "../../controller/fsm/transition/concrete/PacketTransition.h"
