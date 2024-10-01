@@ -87,6 +87,24 @@ void HttpClientEvilOperator::sendTcpConnect(int opId, L3Address& address) {
     }
 }
 
+void HttpClientEvilOperator::handleTcpConnection(int opId) {
+    // Nothing to be done other than propagating the operation result
+    Enter_Method("Managing connected TCP Socket");
+    propagate(new HttpAttackerResult(opId, ResultOutcome::SUCCESS));
+}
+
+void HttpClientEvilOperator::handleTcpDisconnection(int opId) {
+    // Nothing to be done other than propagating the operation result
+    Enter_Method("Managing disconnected TCP Socket");
+    propagate(new HttpAttackerResult(opId, ResultOutcome::SUCCESS));
+}
+
+void HttpClientEvilOperator::handleTcpConnectTimeout(int opId) {
+    Enter_Method("Closing dangling TCP Connection");
+    close();
+    propagate(new HttpAttackerResult(opId, ResultOutcome::SUCCESS));
+}
+
 void HttpClientEvilOperator::sendTcpDisconnect(int opId) {
     Enter_Method("Closing TCP Connection");
     close();

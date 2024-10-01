@@ -30,6 +30,9 @@ public:
 
     virtual void sendTcpConnect(int opId, L3Address& address);
     virtual void sendTcpDisconnect(int opId);
+    virtual void handleTcpConnectTimeout(int opId);
+    virtual void handleTcpConnection(int opId);
+    virtual void handleTcpDisconnection(int opId);
 
 
     virtual ~HttpClientEvilOperator();
@@ -45,6 +48,7 @@ protected:
     virtual void socketClosed(TcpSocket *socket) override;
     virtual void socketPeerClosed(TcpSocket *socket_) override;
     virtual void socketFailure(TcpSocket* socket, int code) override;
+
     // Close socket
     virtual void close() override;
 
