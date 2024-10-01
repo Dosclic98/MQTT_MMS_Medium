@@ -46,6 +46,7 @@ void HttpAttackerController::initialize() {
     // Initialize network address space vector
     maxNetSpace = par("maxNetSpace").intValue();
     netIpPrefix = par("netIpPrefix").stdstringValue();
+    connectTimeout = par("connectTimeout");
 
     controllerStatus = false;
 

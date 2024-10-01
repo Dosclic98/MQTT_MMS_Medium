@@ -25,7 +25,11 @@ simple HttpAttackerController {
 	
 	    string netIpPrefix = "192.168.1";
      	int maxNetSpace = default(256);
+     	double connectTimeout @unit(s) = default(1s);
     
     
 		@display("i=block/cogwheel");
+		
+		@signal[httpAtkCmdSig]();
+		@signal[httpAtkMsgSig]();
 }

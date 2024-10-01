@@ -22,6 +22,7 @@
 namespace inet {
 class HttpAttackerController : public cSimpleModule, public IController {
   public:
+    simtime_t connectTimeout;
     int maxNetSpace;
     std::string netIpPrefix;
 
