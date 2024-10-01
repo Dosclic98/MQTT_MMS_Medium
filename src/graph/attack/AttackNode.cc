@@ -24,6 +24,9 @@
 #include "../../operation/factory/packet/concrete/ForwardMmsMessageToServerFactory.h"
 #include "../../operation/factory/packet/concrete/ForwardMmsMessageToClientFactory.h"
 #include "../../operation/factory/event/concrete/SendTcpConnectAtkFactory.h"
+#include "../../operation/factory/event/concrete/SendHttpTcpConnectAtkFactory.h"
+#include "../../operation/factory/event/concrete/GenHttpTcpConnectTimeoutAtkFactory.h"
+#include "../../operation/factory/packet/concrete/ManageHttpTcpSocketAtkFactory.h"
 #include "../../operation/factory/event/concrete/SendTcpConnectFactory.h"
 #include "../../operation/factory/event/concrete/SendMmsDisconnectFactory.h"
 #include "../../operation/factory/event/concrete/SendMmsConnectFactory.h"
@@ -151,9 +154,42 @@ void AttackNode::executeStep() {
 		            OpState* doneState = new OpState("DONE");
 
 		            std::vector<std::shared_ptr<ITransition>> scanningTransitions;
-		            //std::shared_ptr<ITransition> scanConning = std::make_shared<EventTransition>(
+		            std::shared_ptr<ITransition> scanConning = std::make_shared<EventTransition>(
+		                    new SendHttpTcpConnectAtkFactory(atkController),
+		                            connectingState,
+		                            atkController->connectionTimer,
+		                            EventMatchType::Ref,
+		                            SimTime(20, SIMTIME_MS));
+		            scanningTransitions.push_back(scanConning);
+		            scanningState->setTransitions(scanningTransitions);
 
-		            //);
+		            // TODO Still to be tested
+		            std::vector<std::shared_ptr<ITransition>> connectingTransitions;
+		            std::shared_ptr<ITransition> conScanning = std::make_shared<EventTransition>(
+		                    new GenHttpTcpConnectTimeoutAtkFactory(atkController),
+		                    scanningState,
+		                    atkController->timeoutTimer,
+		                    EventMatchType::Ref,
+		                    atkController->connectTimeout);
+		            std::shared_ptr<ITransition> conConnected = std::make_shared<PacketTransition>(
+		                    new ManageHttpTcpSocketAtkFactory(atkController),
+		                    connectedState,
+		                    "content.kind == 0");
+		            connectingTransitions.push_back(conScanning);
+		            connectingTransitions.push_back(conConnected);
+		            connectingState->setTransitions(connectingTransitions);
+
+		            std::vector<std::shared_ptr<ITransition>> disconnectingTransitions;
+		            std::shared_ptr<ITransition> disScanning = std::make_shared<PacketTransition>(
+                            new ManageHttpTcpSocketAtkFactory(atkController),
+                            scanningState,
+                            "content.kind == 2");
+		            disconnectingTransitions.push_back(disScanning);
+		            disconnectingState->setTransitions(disconnectingTransitions);
+
+		            OpFSM* fsm = new OpFSM(controller, scanningState, false);
+		            atkController->getControlFSM()->merge(fsm);
+		            break;
 		        }
 		    }
 
