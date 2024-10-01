@@ -158,8 +158,22 @@ void OpFSM::merge(IFSM* other) {
 			toDelete.insert(otherState);
 		}
 	}
-	// Delete the merged states
-	for(IState* delState : toDelete) { delete delState; }
+
+	// For each state and for each transition check
+	// that the arrival state is correctly referenced
+	std::map<std::string, IState*> checkStates = this->getStatesMap();
+	for(std::pair<std::string, IState*> checkPair : checkStates) {
+	    std::vector<std::shared_ptr<ITransition>> checkTransitions = checkPair.second->getTransitions();
+	    for(std::shared_ptr<ITransition> checkTrans : checkTransitions) {
+	        const char* checkStateName = checkTrans->getArrivalState()->getName();
+	        // If the arrival state of the current transition correspond to a state in
+	        // the CFSM but the reference is not the same, then we update it
+	        if(checkStates.find(checkStateName) != checkStates.end() &&
+	                checkStates[checkStateName] != checkTrans->getArrivalState()) {
+	            checkTrans->setArrivalState(checkStates[checkStateName]);
+	        }
+	    }
+	}
 
 	// Merge dormancy updater maps
 	std::map<cMessage*, std::map<std::shared_ptr<ITransition>, bool>> otherDormancyUpdater = other->getDormancyUpdater();
@@ -175,7 +189,29 @@ void OpFSM::merge(IFSM* other) {
 	    }
 	}
 
-	// TODO For each transition within the CFSM check that it is correctly referenced in the dormancyUpdater if present
+	// For each transition within the CFSM check that it is correctly referenced in the dormancyUpdater if present
+	std::set<IState*> newStates = this->getStates();
+	for(IState* state : newStates) {
+	    std::vector<std::shared_ptr<ITransition>> newTransitions = state->getTransitions();
+	    for(std::shared_ptr<ITransition> newTrans : newTransitions) {
+	        for(std::pair<cMessage*, std::map<std::shared_ptr<ITransition>, bool>> pair : dormancyUpdater) {
+	            for(std::pair<std::shared_ptr<ITransition>, bool> transDorPair : pair.second) {
+	                // Update dormancy reference If two transitions are semantically equal and have different references
+	                if(newTrans.get()->equals(transDorPair.first.get()) && newTrans != transDorPair.first) {
+	                    bool tmpDormancy = transDorPair.second;
+	                    pair.second.erase(transDorPair.first);
+	                    pair.second[newTrans] = tmpDormancy;
+	                }
+	            }
+	        }
+	    }
+	}
+
+	// Delete the merged states
+	for(IState* delState : toDelete) {
+	    EV << delState->getName() << "\n";
+	    delete delState;
+	}
 
 	// When the merge is completed schedule the new events
 	this->updateEventSchedulingAfterMerge(this->currentState);
