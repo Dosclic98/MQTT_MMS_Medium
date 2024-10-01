@@ -1,6 +1,6 @@
 <config>
 	<!-- IT Network IPs -->
-	<interface hosts="attacker.attackerOperator" address="192.168.0.x"/>
+	<interface hosts="workstation.attackerOperator" address="192.168.0.x"/>
 	<interface hosts="router1" towards="itSwitch" address="192.168.0.x"/>
 	
 	<!-- DMZ Network IPs -->
