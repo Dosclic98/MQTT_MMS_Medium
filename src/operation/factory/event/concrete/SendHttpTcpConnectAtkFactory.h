@@ -23,7 +23,7 @@ namespace inet {
 class HttpAttackerController;
 class L3Address;
 
-class SendHttpTcpConnectAtkFactory : EventOperationFactory {
+class SendHttpTcpConnectAtkFactory : public EventOperationFactory {
 public:
     std::vector<L3Address> addrSpaceVector;
     int nextAddrIdx = 0;
