@@ -20,10 +20,12 @@
 using namespace inet;
 
 bool PacketTransition::matchesTransition(Packet* packet) {
+    EV_INFO << "Matching packet transition for packet: " << packet->getName() << " to " << this->packetFilter.matches(packet) << "\n";
 	return this->packetFilter.matches(packet);
 }
 
 IState* PacketTransition::execute(Packet* packet) {
+    EV_INFO << "Executing transition for packet" << "\n";
 	// Call the builder method
 	if(matchesTransition(packet)) {
 		PacketOperationFactory* packetOperationFactory = static_cast<PacketOperationFactory*>(this->operationFactory);
