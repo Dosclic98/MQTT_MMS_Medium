@@ -21,6 +21,7 @@ simple HttpClientEvilOperator like IApp {
      parameters:
      	@class("inet::HttpClientEvilOperator");
      	
+     	@display("i=block/app");
      	string localAddress = default(""); // may be left empty ("")
         int localPort = default(-1); // port number to listen on
         int connectPort = default(443); // port number to connect to

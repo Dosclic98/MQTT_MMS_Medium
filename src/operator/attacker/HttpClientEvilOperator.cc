@@ -53,13 +53,16 @@ void HttpClientEvilOperator::handleTimer(cMessage *msg) {
 
 }
 
+// TODO Understand why updates from socket are not received
 void HttpClientEvilOperator::socketEstablished(TcpSocket *socket) {
+    EV << "Socket CONNECTED" << "\n";
     Packet* connectedSocketMsg = new Packet("Socket connected");
     connectedSocketMsg->setKind(MSGKIND_CONNECT);
     propagate(connectedSocketMsg);
 }
 
 void HttpClientEvilOperator::socketClosed(TcpSocket *socket) {
+    EV << "Socket CLOSED\n";
     Packet* closedSocketMsg = new Packet("Socket closed");
     closedSocketMsg->setKind(MSGKIND_CLOSE);
     propagate(closedSocketMsg);
