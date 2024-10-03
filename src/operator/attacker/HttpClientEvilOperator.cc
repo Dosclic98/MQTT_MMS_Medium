@@ -42,28 +42,31 @@ void HttpClientEvilOperator::initialize(int stage) {
 }
 
 void HttpClientEvilOperator::socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent) {
-
-}
-
-void HttpClientEvilOperator::handleMessageWhenUp(cMessage *msg) {
-
+    EV_INFO << "ARRIVED!" << "\n";
 }
 
 void HttpClientEvilOperator::handleTimer(cMessage *msg) {
 
 }
 
-// TODO Understand why updates from socket are not received
 void HttpClientEvilOperator::socketEstablished(TcpSocket *socket) {
-    EV << "Socket CONNECTED" << "\n";
-    Packet* connectedSocketMsg = new Packet("Socket connected");
+    EV_INFO << "Socket CONNECTED" << "\n";
+    // The data of this message is irrelevant
+    auto data = makeShared<ByteCountChunk>(B(1));
+    Packet* connectedSocketMsg = new Packet("Socket connected", data);
     connectedSocketMsg->setKind(MSGKIND_CONNECT);
     propagate(connectedSocketMsg);
 }
 
+void HttpClientEvilOperator::socketAvailable(TcpSocket* socket, TcpAvailableInfo *availableInfo) {
+    EV_INFO << "Socket AVAILABLE" << "\n";
+}
+
 void HttpClientEvilOperator::socketClosed(TcpSocket *socket) {
-    EV << "Socket CLOSED\n";
-    Packet* closedSocketMsg = new Packet("Socket closed");
+    EV_INFO << "Socket CLOSED" << "\n";
+    // The data of this message is irrelevant
+    auto data = makeShared<ByteCountChunk>(B(1));
+    Packet* closedSocketMsg = new Packet("Socket closed", data);
     closedSocketMsg->setKind(MSGKIND_CLOSE);
     propagate(closedSocketMsg);
 }

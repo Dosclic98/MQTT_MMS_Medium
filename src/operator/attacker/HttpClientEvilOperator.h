@@ -34,12 +34,10 @@ public:
     virtual void handleTcpConnection(int opId);
     virtual void handleTcpDisconnection(int opId);
 
-
     virtual ~HttpClientEvilOperator();
 
 protected:
     virtual void initialize(int stage) override;
-    virtual void handleMessageWhenUp(cMessage *msg) override;
     virtual void handleTimer(cMessage *msg) override;
     virtual void socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent) override;
     // Implement it sending a application level packet of type CONECTED
@@ -48,6 +46,7 @@ protected:
     virtual void socketClosed(TcpSocket *socket) override;
     virtual void socketPeerClosed(TcpSocket *socket_) override;
     virtual void socketFailure(TcpSocket* socket, int code) override;
+    virtual void socketAvailable(TcpSocket* socket, TcpAvailableInfo *availableInfo) override;
 
     // Close socket
     virtual void close() override;
