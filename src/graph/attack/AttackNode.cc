@@ -25,6 +25,8 @@
 #include "../../operation/factory/packet/concrete/ForwardMmsMessageToClientFactory.h"
 #include "../../operation/factory/event/concrete/SendTcpConnectAtkFactory.h"
 #include "../../operation/factory/event/concrete/SendHttpTcpConnectAtkFactory.h"
+#include "../../operation/factory/event/concrete/SendHttpTcpDisconnectAtkFactory.h"
+#include "../../operation/factory/event/concrete/PlaceholderHttpAtkFactory.h"
 #include "../../operation/factory/event/concrete/GenHttpTcpConnectTimeoutAtkFactory.h"
 #include "../../operation/factory/packet/concrete/ManageHttpTcpSocketAtkFactory.h"
 #include "../../operation/factory/event/concrete/SendTcpConnectFactory.h"
@@ -156,11 +158,23 @@ void AttackNode::executeStep() {
 		            std::vector<std::shared_ptr<ITransition>> scanningTransitions;
 		            std::shared_ptr<ITransition> scanConning = std::make_shared<EventTransition>(
 		                    new SendHttpTcpConnectAtkFactory(atkController),
-		                            connectingState,
-		                            atkController->connectionTimer,
-		                            EventMatchType::Ref,
-		                            SimTime(20, SIMTIME_MS));
+		                    connectingState,
+		                    atkController->connectionTimer,
+		                    EventMatchType::Ref,
+		                    SimTime(20, SIMTIME_MS));
+		            std::shared_ptr<ITransition> scanDone = std::make_shared<EventTransition>(
+		                    new PlaceholderHttpAtkFactory(atkController),
+		                    doneState,
+		                    atkController->ipsFinishedTimer,
+		                    EventMatchType::Ref,
+		                    SimTime(1, SIMTIME_MS),
+		                    nullptr,
+		                    this,
+		                    true);
+		            // Push scanning --> done transition into canary
+		            completionCanary.insert({scanDone.get(), false});
 		            scanningTransitions.push_back(scanConning);
+		            scanningTransitions.push_back(scanDone);
 		            scanningState->setTransitions(scanningTransitions);
 
 		            // TODO Still to be tested
@@ -174,20 +188,35 @@ void AttackNode::executeStep() {
 		            std::shared_ptr<ITransition> conConnected = std::make_shared<PacketTransition>(
 		                    new ManageHttpTcpSocketAtkFactory(atkController),
 		                    connectedState,
-		                    "content.messageKind == 1");
+		                    "kind == 1");
 		            connectingTransitions.push_back(conScanning);
 		            connectingTransitions.push_back(conConnected);
 		            connectingState->setTransitions(connectingTransitions);
+
+		            std::vector<std::shared_ptr<ITransition>> connectedTransitions;
+		            std::shared_ptr<ITransition> conDisc = std::make_shared<EventTransition>(
+		                    new SendHttpTcpDisconnectAtkFactory(atkController),
+		                    disconnectingState,
+		                    atkController->disconnectionTimer,
+		                    EventMatchType::Ref,
+		                    SimTime(20, SIMTIME_MS));
+		            connectedTransitions.push_back(conDisc);
+		            connectedState->setTransitions(connectedTransitions);
 
 		            std::vector<std::shared_ptr<ITransition>> disconnectingTransitions;
 		            std::shared_ptr<ITransition> disScanning = std::make_shared<PacketTransition>(
                             new ManageHttpTcpSocketAtkFactory(atkController),
                             scanningState,
-                            "content.messageKind == 3");
+                            "kind == 3");
 		            disconnectingTransitions.push_back(disScanning);
 		            disconnectingState->setTransitions(disconnectingTransitions);
 
+
 		            OpFSM* fsm = new OpFSM(controller, scanningState, false);
+		            // After all IPs get scanned we can disable the
+		            // and enable the scanDone scanConning transition
+		            fsm->addDormancyUpdate(atkController->ipsFinishedTimer, scanConning, true);
+		            fsm->addDormancyUpdate(atkController->ipsFinishedTimer, scanDone, false);
 		            atkController->getControlFSM()->merge(fsm);
 		            break;
 		        }
