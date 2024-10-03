@@ -174,7 +174,7 @@ void AttackNode::executeStep() {
 		            std::shared_ptr<ITransition> conConnected = std::make_shared<PacketTransition>(
 		                    new ManageHttpTcpSocketAtkFactory(atkController),
 		                    connectedState,
-		                    "content.kind == 0");
+		                    "content.messageKind == 1");
 		            connectingTransitions.push_back(conScanning);
 		            connectingTransitions.push_back(conConnected);
 		            connectingState->setTransitions(connectingTransitions);
@@ -183,7 +183,7 @@ void AttackNode::executeStep() {
 		            std::shared_ptr<ITransition> disScanning = std::make_shared<PacketTransition>(
                             new ManageHttpTcpSocketAtkFactory(atkController),
                             scanningState,
-                            "content.kind == 2");
+                            "content.messageKind == 3");
 		            disconnectingTransitions.push_back(disScanning);
 		            disconnectingState->setTransitions(disconnectingTransitions);
 
