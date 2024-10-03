@@ -23,16 +23,7 @@ using namespace inet;
 void SendHttpTcpConnectAtkFactory::build(omnetpp::cEvent* event) {
     HttpAttackerController* controller = check_and_cast<HttpAttackerController*>(this->controller);
 
-    // TODO Get next adddress to initialize the operation
-    if(nextAddrIdx >= addrSpaceVector.size()) {
-        throw std::invalid_argument("Trying to access an inexistent IP");
-    }
-    L3Address addr = addrSpaceVector[nextAddrIdx];
-    nextAddrIdx++;
-    if(nextAddrIdx >= addrSpaceVector.size()) {
-        // If there is no more next IP update dormancies
-        controller->getControlFSM()->updateDormancy(controller->ipsFinishedTimer);
-    }
+    L3Address& addr = controller->getNextIp();
 
     SendHttpTcpConnectAtk* atkOp = new SendHttpTcpConnectAtk(addr);
     controller->propagate(atkOp);
@@ -40,18 +31,6 @@ void SendHttpTcpConnectAtkFactory::build(omnetpp::cEvent* event) {
 
 SendHttpTcpConnectAtkFactory::SendHttpTcpConnectAtkFactory(HttpAttackerController* controller) {
     this->controller = controller;
-
-    // Initialize network address space vector
-    int maxNetSpace = controller->maxNetSpace;
-    std::string netIpPrefix = controller->netIpPrefix;
-
-    for(int i = 0; i < maxNetSpace; i++) {
-        std::string complAddr = netIpPrefix + std::string(".") + std::to_string(i);
-        Ipv4Address ipv4Addr = Ipv4Address(complAddr.c_str());
-        L3Address addr = L3Address(ipv4Addr);
-        addrSpaceVector.push_back(addr);
-    }
-    nextAddrIdx = 0;
 }
 
 SendHttpTcpConnectAtkFactory::~SendHttpTcpConnectAtkFactory() {

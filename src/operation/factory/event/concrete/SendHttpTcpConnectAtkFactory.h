@@ -21,14 +21,9 @@
 namespace inet {
 
 class HttpAttackerController;
-class L3Address;
 
 class SendHttpTcpConnectAtkFactory : public EventOperationFactory {
 public:
-    std::vector<L3Address> addrSpaceVector;
-    int nextAddrIdx = 0;
-
-
     virtual void build(omnetpp::cEvent* event) override;
 
     SendHttpTcpConnectAtkFactory(HttpAttackerController* controller);

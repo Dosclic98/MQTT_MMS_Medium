@@ -48,6 +48,15 @@ void HttpAttackerController::initialize() {
     netIpPrefix = par("netIpPrefix").stdstringValue();
     connectTimeout = par("connectTimeout");
 
+    // Initialize network address space vector
+    for(int i = 0; i < maxNetSpace; i++) {
+        std::string complAddr = netIpPrefix + std::string(".") + std::to_string(i);
+        Ipv4Address ipv4Addr = Ipv4Address(complAddr.c_str());
+        L3Address addr = L3Address(ipv4Addr);
+        addrSpaceVector.push_back(addr);
+    }
+    nextAddrIdx = 0;
+
     controllerStatus = false;
 
     this->fsmFactory = new HttpAttackerFSMFactory(this);
@@ -55,19 +64,34 @@ void HttpAttackerController::initialize() {
 }
 
 void HttpAttackerController::handleMessage(cMessage *msg) {
-    if(msg == connectionTimer || msg == timeoutTimer) {
+    if(msg == connectionTimer || msg == timeoutTimer || msg == disconnectionTimer || msg == ipsFinishedTimer) {
         this->controlFSM->next(msg);
     } else {
         throw cRuntimeError("Invalid timer msg: kind=%s", msg->str().c_str());
     }
 }
 
-void HttpAttackerController::scheduleNextTcpConnect() {
+L3Address& HttpAttackerController::getNextIp() {
+    // Get next adddress to initialize the send TCP connect operation
+    if(nextAddrIdx >= addrSpaceVector.size()) {
+        throw std::invalid_argument("Trying to access an inexistent IP");
+    }
+    L3Address& addr = addrSpaceVector[nextAddrIdx];
+    nextAddrIdx++;
+    if(nextAddrIdx >= addrSpaceVector.size()) {
+        // If there is no more next IP update dormancies
+        getControlFSM()->updateDormancy(ipsFinishedTimer);
+    }
+    return addr;
+}
 
+void HttpAttackerController::saveCurrentIp() {
+    L3Address& currAddr = addrSpaceVector[nextAddrIdx-1];
+    responsiveAddrVector.push_back(currAddr);
 }
 
 void HttpAttackerController::next(Packet* packet) {
-
+    this->controlFSM->next(packet);
 }
 
 void HttpAttackerController::propagate(IOperation* op) {
