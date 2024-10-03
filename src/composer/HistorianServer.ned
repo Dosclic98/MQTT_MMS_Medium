@@ -15,16 +15,26 @@
 
 package tx_medium_exp.composer;
 
+import tx_medium_exp.operator.server.HttpServerOperator;
+import tx_medium_exp.controller.server.HttpServerController;
+import inet.node.inet.StandardHost;
+
+
 module HistorianServer {
 	parameters:
         @display("i=device/server");
-        
     
     gates:
         inout gate;
         
-    // TODO Add controller and operator submodules    
+    submodules:
+        serverOperator: StandardHost {
+        	numApps = 1;
+        };
+        
+    	serverController: HttpServerController;   
     
-    connections allowunconnected:
+    connections:
+        serverOperator.ethg++ <--> gate;
         
 }

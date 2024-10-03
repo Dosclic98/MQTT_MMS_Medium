@@ -5,7 +5,7 @@
 	
 	<!-- DMZ Network IPs -->
 	<interface hosts="pkiServer" address="192.168.1.x"/>
-	<interface hosts="historianServer" address="192.168.1.x"/>
+	<interface hosts="historianServer.serverOperator" address="192.168.1.x"/>
 	<interface hosts="router{1-2}" towards="dmzSwitch" address="192.168.1.x"/>
 	
 	<!-- OT Network IPs -->
