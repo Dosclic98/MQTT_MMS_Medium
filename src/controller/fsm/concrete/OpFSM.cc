@@ -28,6 +28,7 @@ void OpFSM::setCurrentState(IState* currentState) {
 }
 
 IState* OpFSM::next(Packet* msg) {
+    EV_INFO << "Next on packet" << "\n";
 	IState* nextState = currentState->next(this, msg);
 	updateEventSchedulingAfterExecution(currentState, nextState);
 	this->currentState = nextState;
@@ -43,6 +44,7 @@ IState* OpFSM::next(cMessage* event) {
 
 void OpFSM::updateEventSchedulingAfterExecution(IState* currentState, IState* nextState) {
 	if(nextState != currentState) {
+	    EV_INFO << "Current state: " << nextState->getName() << "\n";
 		// Deschedule all the eventTransitions related to the currentState and
 		// schedule the ones associated to the nextState (rescheduling of events
 		// if the arrival state is the same as the current one is managed in the execute())
@@ -79,7 +81,6 @@ std::set<IState*> OpFSM::getStates() {
 			std::vector<std::shared_ptr<ITransition>> transitions = tmp->getTransitions();
 			for(auto& trans : transitions) {
 				IState* next = trans->getArrivalState();
-				EV << next->getName() << "\n";
 				if(visited.find(next) == visited.end()) {
 					visiting.push(next);
 				}
