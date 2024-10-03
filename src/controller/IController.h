@@ -27,9 +27,6 @@
 namespace inet {
 
 class IController {
-  private:
-	ControllerBinder* binder;
-
   protected:
 	simsignal_t cmdPubSig;
 	cListener* resListener;
