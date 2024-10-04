@@ -116,6 +116,15 @@ void HttpAttackerController::descheduleEvent(cMessage* event) {
     cancelEvent(event);
 }
 
+// TODO See how to integrate this
 void HttpAttackerController::enqueueNSchedule(IOperation* operation) {
 
 }
+
+HttpAttackerController::~HttpAttackerController() {
+    cancelAndDelete(connectionTimer);
+    cancelAndDelete(disconnectionTimer);
+    cancelAndDelete(timeoutTimer);
+    cancelAndDelete(ipsFinishedTimer);
+}
+

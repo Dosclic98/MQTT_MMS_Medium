@@ -42,6 +42,7 @@ public:
     virtual void enqueueNSchedule(IOperation* operation) override;
     virtual L3Address& getNextIp();
     virtual void saveCurrentIp();
+    virtual ~HttpAttackerController();
 
 protected:
     int maxNetSpace;

@@ -34,6 +34,7 @@ void ManageHttpTcpSocketAtkFactory::build(Packet* packet) {
     } else {
         throw std::invalid_argument("Invalid packet as factory input");
     }
+    delete packet;
 
     controller->enqueueNSchedule(packetOp);
 }
