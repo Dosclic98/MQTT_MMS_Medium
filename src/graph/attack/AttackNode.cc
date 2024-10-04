@@ -177,7 +177,6 @@ void AttackNode::executeStep() {
 		            scanningTransitions.push_back(scanDone);
 		            scanningState->setTransitions(scanningTransitions);
 
-		            // TODO Still to be tested
 		            std::vector<std::shared_ptr<ITransition>> connectingTransitions;
 		            std::shared_ptr<ITransition> conScanning = std::make_shared<EventTransition>(
 		                    new GenHttpTcpConnectTimeoutAtkFactory(atkController),
@@ -226,7 +225,60 @@ void AttackNode::executeStep() {
 		            break;
 		        }
 		        case AttackType::SCANVULN: {
+		            HttpAttackerController* atkController = static_cast<HttpAttackerController*>(controller);
+		            OpState* doneState = new OpState("DONE");
+		            OpState* startingState = new OpState("STARTING-VULN");
+		            OpState* connectingState = new OpState("CONNECTING-VULN");
+		            OpState* connectedState = new OpState("CONNECTED-VULN");
+		            OpState* waitForHttpRespState = new OpState("WAITFORHTTPRESP-VULN");
+		            OpState* failState = new OpState("FAIL-VULN");
+		            OpState* doneVulnState = new OpState("DONE-VULN");
 
+		            std::vector<std::shared_ptr<ITransition>> doneTransitions;
+		            std::shared_ptr<ITransition> scanDone = std::make_shared<EventTransition>(
+                            new PlaceholderHttpAtkFactory(atkController),
+                            startingState,
+                            atkController->startingTimer,
+                            EventMatchType::Ref,
+                            SimTime(1, SIMTIME_MS));
+		            doneTransitions.push_back(scanDone);
+		            doneState->setTransitions(doneTransitions);
+
+		            std::vector<std::shared_ptr<ITransition>> startingTransitions;
+		            std::shared_ptr<ITransition> startConning = std::make_shared<EventTransition>(
+		                    new SendHttpTcpConnectAtkFactory(atkController),
+                            connectingState,
+                            atkController->connectionTimer,
+                            EventMatchType::Ref,
+                            SimTime(20, SIMTIME_MS));
+		            startingTransitions.push_back(startConning);
+		            startingState->setTransitions(startingTransitions);
+
+		            std::vector<std::shared_ptr<ITransition>> connectingTransitions;
+		            std::shared_ptr<ITransition> conScanning = std::make_shared<EventTransition>(
+                            new GenHttpTcpConnectTimeoutAtkFactory(atkController),
+                            startingState,
+                            atkController->timeoutTimer,
+                            EventMatchType::Ref,
+                            atkController->connectTimeout);
+		            std::shared_ptr<ITransition> conStartingRst = std::make_shared<PacketTransition>(
+                            new ManageHttpTcpSocketAtkFactory(atkController),
+                            startingState,
+                            "kind == 3");
+		            std::shared_ptr<ITransition> conConnected = std::make_shared<PacketTransition>(
+                            new ManageHttpTcpSocketAtkFactory(atkController),
+                            connectedState,
+                            "kind == 1");
+		            connectingTransitions.push_back(conScanning);
+		            connectingTransitions.push_back(conStartingRst);
+		            connectingTransitions.push_back(conConnected);
+		            connectingState->setTransitions(connectingTransitions);
+
+
+
+		            OpFSM* fsm = new OpFSM(controller, doneState, false);
+                    atkController->getControlFSM()->merge(fsm);
+                    break;
 		        }
 		    }
 

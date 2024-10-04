@@ -40,7 +40,7 @@ class AttackGraph : public omnetpp::cModule, public IGraph {
 	NodeContent nodes[21] = {
 	        { "workStation_compromise", NodeType::BEGIN, AttackType::NOTSET, true, "uniform(2,4)", { }, { "DMZ_scanIP", "historianServer_remoteShellAND" } },
 	        { "DMZ_scanIP", NodeType::STEP, AttackType::SCANIP, false, nullptr, { "workstation.httpAttackerController" }, { "historian_scanVuln" } },
-	        { "historian_scanVuln", NodeType::STEP, AttackType::SCANVULN, false, nullptr, { }, { "historian_remoteSrvc" } },
+	        { "historian_scanVuln", NodeType::STEP, AttackType::SCANVULN, false, nullptr, { "workstation.httpAttackerController" }, { "historian_remoteSrvc" } },
 	        { "historian_remoteSrvc", NodeType::STEP, AttackType::REMOTESRVC, false, nullptr, { }, { "historianServer_shell" } },
 	        { "historianServer_shell", NodeType::STEP, AttackType::SHELL, false, nullptr, { }, { "historianServer_NodeAND", "historianServer_addSSHKey" } },
 	        { "historianServer_addSSHKey", NodeType::STEP, AttackType::ADDSSHKEY, false, nullptr, { }, { "historianServer_remoteShellAND", "historianServer_addSSHKey" } },
