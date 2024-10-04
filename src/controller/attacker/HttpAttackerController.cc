@@ -64,25 +64,45 @@ void HttpAttackerController::initialize() {
 }
 
 void HttpAttackerController::handleMessage(cMessage *msg) {
-    if(msg == connectionTimer || msg == timeoutTimer || msg == disconnectionTimer || msg == ipsFinishedTimer) {
+    if(msg == connectionTimer || msg == timeoutTimer ||
+            msg == disconnectionTimer || msg == ipsFinishedTimer ||
+            msg == startingTimer) {
         this->controlFSM->next(msg);
     } else {
-        throw cRuntimeError("Invalid timer msg: kind=%s", msg->str().c_str());
+        if(msg == thinkTimer) {
+            if(!operationQueue.isEmpty()) {
+                IOperation* op = check_and_cast<IOperation*>(operationQueue.pop());
+                propagate(op);
+                if(!operationQueue.isEmpty()) {
+                    simtime_t d = simTime() + SimTime(round(par("thinkTime").doubleValue()), SIMTIME_MS);
+                    scheduleAt(d, thinkTimer);
+                } else { controllerStatus = false; }
+            } else { controllerStatus = false; }
+        } else {
+            throw cRuntimeError("Invalid timer msg: kind=%s", msg->str().c_str());
+        }
     }
 }
 
+
 L3Address& HttpAttackerController::getNextIp() {
     // Get next adddress to initialize the send TCP connect operation
-    if(nextAddrIdx >= addrSpaceVector.size()) {
+    if(nextAddrIdx < addrSpaceVector.size()) {
+        L3Address& addr = addrSpaceVector[nextAddrIdx];
+        nextAddrIdx++;
+        if(nextAddrIdx >= addrSpaceVector.size()) {
+            // If there is no more next IP update dormancies
+            getControlFSM()->updateDormancy(ipsFinishedTimer);
+        }
+        return addr;
+    } else {
+        if(nextResAddrIdx < responsiveAddrVector.size()) {
+            L3Address& addr = responsiveAddrVector[nextResAddrIdx];
+            nextResAddrIdx++;
+            return addr;
+        }
         throw std::invalid_argument("Trying to access an inexistent IP");
     }
-    L3Address& addr = addrSpaceVector[nextAddrIdx];
-    nextAddrIdx++;
-    if(nextAddrIdx >= addrSpaceVector.size()) {
-        // If there is no more next IP update dormancies
-        getControlFSM()->updateDormancy(ipsFinishedTimer);
-    }
-    return addr;
 }
 
 void HttpAttackerController::saveCurrentIp() {
@@ -116,9 +136,15 @@ void HttpAttackerController::descheduleEvent(cMessage* event) {
     cancelEvent(event);
 }
 
-// TODO See how to integrate this
 void HttpAttackerController::enqueueNSchedule(IOperation* operation) {
-
+    if(!controllerStatus) {
+        operationQueue.insert(operation);
+        simtime_t d = simTime() + SimTime(round(par("thinkTime").doubleValue()), SIMTIME_MS);
+        scheduleAt(d, thinkTimer);
+        controllerStatus = true;
+    } else {
+        operationQueue.insert(operation);
+    }
 }
 
 HttpAttackerController::~HttpAttackerController() {
@@ -126,5 +152,7 @@ HttpAttackerController::~HttpAttackerController() {
     cancelAndDelete(disconnectionTimer);
     cancelAndDelete(timeoutTimer);
     cancelAndDelete(ipsFinishedTimer);
+    cancelAndDelete(startingTimer);
+    cancelAndDelete(thinkTimer);
 }
 

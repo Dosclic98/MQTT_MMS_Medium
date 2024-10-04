@@ -30,6 +30,9 @@ public:
     cMessage* disconnectionTimer = new cMessage("Disconnection Timer");
     cMessage* timeoutTimer = new cMessage("Timeout Timer");
     cMessage* ipsFinishedTimer = new cMessage("IPs finished Timer");
+    cMessage* startingTimer = new cMessage("Starting connection");
+
+    cMessage* thinkTimer = new cMessage("Think timer");
 
     virtual void initialize() override;
     virtual void handleMessage(cMessage *msg) override;
@@ -51,6 +54,7 @@ protected:
     std::vector<L3Address> addrSpaceVector;
     int nextAddrIdx = 0;
     std::vector<L3Address> responsiveAddrVector;
+    int nextResAddrIdx = 0;
 };
 
 } // namespace inet

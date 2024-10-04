@@ -26,6 +26,7 @@ simple HttpAttackerController {
 	    string netIpPrefix = "192.168.1";
      	int maxNetSpace = default(256);
      	double connectTimeout @unit(s) = default(1s);
+     	volatile double thinkTime @unit(ms) = default(1ms); // time gap between requests
     
     
 		@display("i=block/cogwheel");
