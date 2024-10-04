@@ -189,8 +189,13 @@ void AttackNode::executeStep() {
 		                    new ManageHttpTcpSocketAtkFactory(atkController),
 		                    connectedState,
 		                    "kind == 1");
+		            std::shared_ptr<ITransition> conScanningRst = std::make_shared<PacketTransition>(
+		                    new ManageHttpTcpSocketAtkFactory(atkController),
+		                    scanningState,
+		                    "kind == 3");
 		            connectingTransitions.push_back(conScanning);
 		            connectingTransitions.push_back(conConnected);
+		            connectingTransitions.push_back(conScanningRst);
 		            connectingState->setTransitions(connectingTransitions);
 
 		            std::vector<std::shared_ptr<ITransition>> connectedTransitions;
@@ -219,6 +224,9 @@ void AttackNode::executeStep() {
 		            fsm->addDormancyUpdate(atkController->ipsFinishedTimer, scanDone, false);
 		            atkController->getControlFSM()->merge(fsm);
 		            break;
+		        }
+		        case AttackType::SCANVULN: {
+
 		        }
 		    }
 
