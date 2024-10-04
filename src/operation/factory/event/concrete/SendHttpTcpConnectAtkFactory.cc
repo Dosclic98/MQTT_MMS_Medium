@@ -26,7 +26,7 @@ void SendHttpTcpConnectAtkFactory::build(omnetpp::cEvent* event) {
     L3Address& addr = controller->getNextIp();
 
     SendHttpTcpConnectAtk* atkOp = new SendHttpTcpConnectAtk(addr);
-    controller->propagate(atkOp);
+    controller->enqueueNSchedule(atkOp);
 }
 
 SendHttpTcpConnectAtkFactory::SendHttpTcpConnectAtkFactory(HttpAttackerController* controller) {

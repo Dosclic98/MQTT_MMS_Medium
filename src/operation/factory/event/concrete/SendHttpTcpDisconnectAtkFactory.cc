@@ -25,7 +25,7 @@ void SendHttpTcpDisconnectAtkFactory::build(omnetpp::cEvent* event) {
     // Store the current IP address to which the attacker was connected
     controller->saveCurrentIp();
     SendHttpTcpDisconnectAtk* atkOp = new SendHttpTcpDisconnectAtk();
-    controller->propagate(atkOp);
+    controller->enqueueNSchedule(atkOp);
 }
 
 

@@ -23,7 +23,7 @@ void GenHttpTcpConnectTimeoutAtkFactory::build(omnetpp::cEvent* event) {
     HttpAttackerController* controller = check_and_cast<HttpAttackerController*>(this->controller);
 
     GenHttpTcpConnectTimeoutAtk* op = new GenHttpTcpConnectTimeoutAtk();
-    controller->propagate(op);
+    controller->enqueueNSchedule(op);
 }
 
 GenHttpTcpConnectTimeoutAtkFactory::GenHttpTcpConnectTimeoutAtkFactory(HttpAttackerController* controller) {

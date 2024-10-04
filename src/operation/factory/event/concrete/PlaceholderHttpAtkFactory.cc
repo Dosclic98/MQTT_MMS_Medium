@@ -23,7 +23,7 @@ void PlaceholderHttpAtkFactory::build(omnetpp::cEvent* event) {
     HttpAttackerController* controller = check_and_cast<HttpAttackerController*>(this->controller);
 
     PlaceholderHttpAtk* atkOp = new PlaceholderHttpAtk();
-    controller->propagate(atkOp);
+    controller->enqueueNSchedule(atkOp);
 }
 
 PlaceholderHttpAtkFactory::PlaceholderHttpAtkFactory(HttpAttackerController* controller) {
