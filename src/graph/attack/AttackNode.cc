@@ -27,12 +27,14 @@
 #include "../../operation/factory/event/concrete/SendHttpTcpConnectAtkFactory.h"
 #include "../../operation/factory/event/concrete/SendHttpTcpDisconnectAtkFactory.h"
 #include "../../operation/factory/event/concrete/PlaceholderHttpAtkFactory.h"
+#include "../../operation/factory/event/concrete/SendHttpRequestFactory.h"
 #include "../../operation/factory/event/concrete/GenHttpTcpConnectTimeoutAtkFactory.h"
 #include "../../operation/factory/packet/concrete/ManageHttpTcpSocketAtkFactory.h"
 #include "../../operation/factory/event/concrete/SendTcpConnectFactory.h"
 #include "../../operation/factory/event/concrete/SendMmsDisconnectFactory.h"
 #include "../../operation/factory/event/concrete/SendMmsConnectFactory.h"
 #include "../../operation/factory/event/concrete/SendMmsRequestFactory.h"
+#include "../../utils/factories/http/HttpMessageFactory.h"
 
 using namespace inet;
 
@@ -144,6 +146,8 @@ void AttackNode::notifyCompletion() {
 }
 
 void AttackNode::executeStep() {
+    HttpMessageFactory httpFactory = HttpMessageFactory();
+
 	if(this->nodeType == NodeType::STEP) {
 		for(IController* controller : this->targetControllers) {
 		    switch(this->attackType) {
@@ -230,7 +234,7 @@ void AttackNode::executeStep() {
 		            OpState* startingState = new OpState("STARTING-VULN");
 		            OpState* connectingState = new OpState("CONNECTING-VULN");
 		            OpState* connectedState = new OpState("CONNECTED-VULN");
-		            OpState* waitForHttpRespState = new OpState("WAITFORHTTPRESP-VULN");
+		            OpState* waitHttpRespState = new OpState("WAITFORHTTPRESP-VULN");
 		            OpState* failState = new OpState("FAIL-VULN");
 		            OpState* doneVulnState = new OpState("DONE-VULN");
 
@@ -274,7 +278,41 @@ void AttackNode::executeStep() {
 		            connectingTransitions.push_back(conConnected);
 		            connectingState->setTransitions(connectingTransitions);
 
+		            std::vector<std::shared_ptr<ITransition>> connectedTransitions;
+		            std::shared_ptr<ITransition> conResWait = std::make_shared<EventTransition>(
+		                    new SendHttpRequestFactory(atkController, httpFactory.buildRequest("GET", "/api/login")),
+		                    waitHttpRespState,
+		                    atkController->sendRequestTimer,
+		                    EventMatchType::Ref,
+		                    SimTime(20, SIMTIME_MS));
+		            connectedTransitions.push_back(conResWait);
+		            connectedState->setTransitions(connectedTransitions);
 
+		            std::vector<std::shared_ptr<ITransition>> waitingTransitions;
+		            std::shared_ptr<ITransition> waitingDone = std::make_shared<PacketTransition>(
+		                    new PlaceholderHttpAtkFactory(atkController),
+		                    doneVulnState,
+		                    "content.result == 200",
+		                    this);
+		            std::shared_ptr<ITransition> waitingFail = std::make_shared<PacketTransition>(
+		                                        new PlaceholderHttpAtkFactory(atkController),
+		                                        failState,
+		                                        "content.result != 200");
+		            // Push waitingResponse --> done transition into canary
+		            completionCanary.insert({waitingDone.get(), false});
+		            waitingTransitions.push_back(waitingDone);
+		            waitingTransitions.push_back(waitingFail);
+		            waitHttpRespState->setTransitions(waitingTransitions);
+
+		            std::vector<std::shared_ptr<ITransition>> failTransitions;
+		            std::shared_ptr<ITransition> failScanning = std::make_shared<EventTransition>(
+		                    new SendHttpTcpDisconnectAtkFactory(atkController, false),
+		                    startingState,
+		                    atkController->timeoutTimer,
+		                    EventMatchType::Ref,
+		                    SimTime(0, SIMTIME_MS));
+		            failTransitions.push_back(failScanning);
+		            failState->setTransitions(failTransitions);
 
 		            OpFSM* fsm = new OpFSM(controller, doneState, false);
                     atkController->getControlFSM()->merge(fsm);
