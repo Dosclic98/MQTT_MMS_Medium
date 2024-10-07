@@ -21,7 +21,7 @@ namespace inet;
 
 class HttpBaseMessage extends FieldsChunk {
 	int protocol = 11; 				// 10 for http/1.0, 11 for http/1.1.
-	int contentLength;				// Length of the response body
+	int contentLength = 0;			// Length of the request/response body
 	string contentType="text/text";	// Content-type
 	string body="";					// The payload field
 }
