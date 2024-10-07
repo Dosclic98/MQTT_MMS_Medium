@@ -19,14 +19,16 @@ using namespace inet;
 
 IOperator* HttpCommonOperation::getOperatorOwner() {
     if(auto* oper = dynamic_cast<HttpClientEvilOperator*>(operatorOwner)) { return oper; }
+    else if(auto* oper = dynamic_cast<HttpServerOperator*>(operatorOwner)) { return oper; }
     // TODO Add here the HttpClientOperator cast when implemented
-    else throw std::invalid_argument("operatorOwner must be a subtype of HttpClientEvilOperator");
+    else throw std::invalid_argument("operatorOwner must be of type HttpClientEvilOperator or HttpServerOperator");
 }
 
 void HttpCommonOperation::setOperatorOwner(IOperator* operatorOwner) {
-    auto* oper = dynamic_cast<HttpClientEvilOperator*>(operatorOwner);
-    if(oper) {this->operatorOwner = operatorOwner;}
+
+    if(auto* oper = dynamic_cast<HttpClientEvilOperator*>(operatorOwner)) {this->operatorOwner = operatorOwner;}
+    else if(auto* oper = dynamic_cast<HttpServerOperator*>(operatorOwner)) {this->operatorOwner = operatorOwner;}
     // TODO Add here the HttpClientOperator cast when implemented
-    else { throw std::invalid_argument("operatorOwner must be a subtype of HttpClientEvilOperator"); }
+    else { throw std::invalid_argument("operatorOwner must be of type HttpClientEvilOperator or HttpServerOperator"); }
 }
 

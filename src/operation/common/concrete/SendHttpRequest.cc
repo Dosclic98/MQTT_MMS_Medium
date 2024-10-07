@@ -13,23 +13,26 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef OPERATION_COMMON_HTTPCOMMONOPERATION_H_
-#define OPERATION_COMMON_HTTPCOMMONOPERATION_H_
+#include "SendHttpRequest.h"
+#include "../../../message/http/HttpMessage_m.h"
 
-#include "../../operator/attacker/HttpClientEvilOperator.h"
-#include "../../operator/server/HttpServerOperator.h"
-#include "../IOperation.h"
+using namespace inet;
 
-namespace inet {
+SendHttpRequest::SendHttpRequest(const Ptr<HttpRequestMessage> reqMessage) : reqMessage(reqMessage) {
+    this->id = ++SendHttpRequest::idCounter;
+}
 
-class HttpCommonOperation : public IOperation {
-public:
-    virtual IOperator* getOperatorOwner() override;
-    virtual void setOperatorOwner(IOperator* operatorOwner) override;
+SendHttpRequest::~SendHttpRequest() {
+    // TODO Auto-generated destructor stub
+}
 
-    virtual ~HttpCommonOperation() = default;
-};
+void SendHttpRequest::execute() {
+    auto* oper = dynamic_cast<HttpClientEvilOperator*>(operatorOwner);
+    if(oper == nullptr) {
+        // TODO Add cast to HttpClientOperator
+    }
+    assert(oper != nullptr);
 
-}; // namespace inet
+    oper->sendHttpRequest(id, reqMessage);
+}
 
-#endif /* OPERATION_COMMON_HTTPCOMMONOPERATION_H_ */

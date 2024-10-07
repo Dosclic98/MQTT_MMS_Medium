@@ -13,23 +13,24 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef OPERATION_COMMON_HTTPCOMMONOPERATION_H_
-#define OPERATION_COMMON_HTTPCOMMONOPERATION_H_
+#ifndef OPERATION_COMMON_CONCRETE_SENDHTTPRESPONSE_H_
+#define OPERATION_COMMON_CONCRETE_SENDHTTPRESPONSE_H_
 
-#include "../../operator/attacker/HttpClientEvilOperator.h"
-#include "../../operator/server/HttpServerOperator.h"
-#include "../IOperation.h"
+#include "../HttpCommonOperation.h"
 
 namespace inet {
 
-class HttpCommonOperation : public IOperation {
+class SendHttpResponse : public HttpCommonOperation {
 public:
-    virtual IOperator* getOperatorOwner() override;
-    virtual void setOperatorOwner(IOperator* operatorOwner) override;
+    SendHttpResponse(const Ptr<HttpResponseMessage> resMessage);
+    virtual ~SendHttpResponse();
 
-    virtual ~HttpCommonOperation() = default;
+    virtual void execute() override;
+
+protected:
+    const Ptr<HttpResponseMessage> resMessage;
 };
 
 }; // namespace inet
 
-#endif /* OPERATION_COMMON_HTTPCOMMONOPERATION_H_ */
+#endif /* OPERATION_COMMON_CONCRETE_SENDHTTPRESPONSE_H_ */
