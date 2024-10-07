@@ -66,7 +66,7 @@ void HttpAttackerController::initialize() {
 void HttpAttackerController::handleMessage(cMessage *msg) {
     if(msg == connectionTimer || msg == timeoutTimer ||
             msg == disconnectionTimer || msg == ipsFinishedTimer ||
-            msg == startingTimer) {
+            msg == startingTimer || msg == sendRequestTimer) {
         this->controlFSM->next(msg);
     } else {
         if(msg == thinkTimer) {
@@ -153,6 +153,7 @@ HttpAttackerController::~HttpAttackerController() {
     cancelAndDelete(timeoutTimer);
     cancelAndDelete(ipsFinishedTimer);
     cancelAndDelete(startingTimer);
+    cancelAndDelete(sendRequestTimer);
     cancelAndDelete(thinkTimer);
 }
 
