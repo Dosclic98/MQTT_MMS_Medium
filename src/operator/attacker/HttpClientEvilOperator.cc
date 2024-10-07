@@ -16,6 +16,7 @@
 #include "HttpClientEvilOperator.h"
 #include "../../result/attacker/HttpAttackerResult.h"
 #include "../listener/FromSerOpListener.h"
+#include "../../message/http/HttpMessage_m.h"
 
 using namespace inet;
 
@@ -91,6 +92,15 @@ void HttpClientEvilOperator::sendTcpConnect(int opId, L3Address& address) {
     } else {
         propagate(new HttpAttackerResult(opId, ResultOutcome::FAIL));
     }
+}
+
+void HttpClientEvilOperator::sendHttpRequest(int opId, Ptr<HttpRequestMessage> request) {
+    Enter_Method("Sending HTTP request");
+    Packet* packet = new Packet("HTTP Request");
+    packet->insertAtBack(request);
+    sendPacket(packet);
+
+    propagate(new HttpAttackerResult(opId, ResultOutcome::SUCCESS));
 }
 
 void HttpClientEvilOperator::handleTcpConnection(int opId) {

@@ -22,6 +22,8 @@
 
 namespace inet {
 
+class HttpRequestMessage;
+
 class HttpClientEvilOperator : public TcpAppBase, public IOperator {
 public:
     // The IOperator methods
@@ -30,6 +32,7 @@ public:
 
     virtual void sendTcpConnect(int opId, L3Address& address);
     virtual void sendTcpDisconnect(int opId);
+    virtual void sendHttpRequest(int opId, Ptr<HttpRequestMessage> request);
     virtual void handleTcpConnectTimeout(int opId);
     virtual void handleTcpConnection(int opId);
     virtual void handleTcpDisconnection(int opId);

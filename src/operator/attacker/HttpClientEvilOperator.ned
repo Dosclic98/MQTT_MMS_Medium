@@ -28,6 +28,7 @@ simple HttpClientEvilOperator like IApp {
      	
      	@signal[httpAtkMsgSig]();
 		@signal[httpAtkResSig]();
+		@signal[packetSent](type=inet::Packet);
      gates:
         input socketIn @labels(TcpCommand/up);
         output socketOut @labels(TcpCommand/down);
