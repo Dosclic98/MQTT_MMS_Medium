@@ -43,7 +43,11 @@ void HttpClientEvilOperator::initialize(int stage) {
 }
 
 void HttpClientEvilOperator::socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent) {
-    EV_INFO << "ARRIVED!" << "\n";
+    EV_INFO << "Packet arrived!" << "\n";
+    EV_INFO << msg->getKind() << "\n";
+    if(msg->getKind() == TCP_I_DATA) {
+        propagate(msg);
+    }
 }
 
 void HttpClientEvilOperator::handleTimer(cMessage *msg) {
