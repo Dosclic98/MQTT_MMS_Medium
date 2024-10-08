@@ -13,24 +13,20 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#include "PlaceholderHttpAtkFactory.h"
-#include "../../../../controller/attacker/HttpAttackerController.h"
-#include "../../../attacker/concrete/PlaceholderHttpAtk.h"
+#include "PlaceholderPacketOperationFactory.h"
+#include "../../../common/concrete/PlaceholderOperation.h"
 
 using namespace inet;
 
-void PlaceholderHttpAtkFactory::build(omnetpp::cEvent* event) {
-    HttpAttackerController* controller = check_and_cast<HttpAttackerController*>(this->controller);
-
-    PlaceholderHttpAtk* atkOp = new PlaceholderHttpAtk();
-    controller->enqueueNSchedule(atkOp);
-}
-
-PlaceholderHttpAtkFactory::PlaceholderHttpAtkFactory(HttpAttackerController* controller) {
+PlaceholderPacketOperationFactory::PlaceholderPacketOperationFactory(IController* controller) {
     this->controller = controller;
 }
 
-PlaceholderHttpAtkFactory::~PlaceholderHttpAtkFactory() {
+PlaceholderPacketOperationFactory::~PlaceholderPacketOperationFactory() {
     // TODO Auto-generated destructor stub
 }
 
+void PlaceholderPacketOperationFactory::build(Packet* packet) {
+    PlaceholderOperation* atkOp = new PlaceholderOperation();
+    controller->enqueueNSchedule(atkOp);
+}

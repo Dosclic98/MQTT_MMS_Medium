@@ -13,19 +13,22 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#include "PlaceholderHttpAtk.h"
+#include "PlaceholderEventOperationFactory.h"
+#include "../../../../controller/attacker/HttpAttackerController.h"
+#include "../../../common/concrete/PlaceholderOperation.h"
 
 using namespace inet;
 
-void PlaceholderHttpAtk::execute() {
-    // It does nothing
+void PlaceholderEventOperationFactory::build(omnetpp::cEvent* event) {
+    PlaceholderOperation* atkOp = new PlaceholderOperation();
+    controller->enqueueNSchedule(atkOp);
 }
 
-PlaceholderHttpAtk::PlaceholderHttpAtk() {
-    this->id = ++PlaceholderHttpAtk::idCounter;
+PlaceholderEventOperationFactory::PlaceholderEventOperationFactory(IController* controller) {
+    this->controller = controller;
 }
 
-PlaceholderHttpAtk::~PlaceholderHttpAtk() {
+PlaceholderEventOperationFactory::~PlaceholderEventOperationFactory() {
     // TODO Auto-generated destructor stub
 }
 

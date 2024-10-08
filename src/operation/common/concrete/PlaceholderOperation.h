@@ -13,23 +13,21 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef OPERATION_FACTORY_EVENT_CONCRETE_PLACEHOLDERHTTPATKFACTORY_H_
-#define OPERATION_FACTORY_EVENT_CONCRETE_PLACEHOLDERHTTPATKFACTORY_H_
+#ifndef OPERATION_ATTACKER_CONCRETE_PLACEHOLDEROPERATION_H_
+#define OPERATION_ATTACKER_CONCRETE_PLACEHOLDEROPERATION_H_
 
-#include "../EventOperationFactory.h"
+#include "../HttpCommonOperation.h"
 
 namespace inet {
 
-class HttpAttackerController;
-
-class PlaceholderHttpAtkFactory : public EventOperationFactory {
+class PlaceholderOperation : public HttpCommonOperation {
 public:
-    virtual void build(omnetpp::cEvent* event) override;
+    PlaceholderOperation();
+    virtual ~PlaceholderOperation();
 
-    PlaceholderHttpAtkFactory(HttpAttackerController* controller);
-    virtual ~PlaceholderHttpAtkFactory();
+    virtual void execute() override;
 };
 
 }; // namespace inet
 
-#endif /* OPERATION_FACTORY_EVENT_CONCRETE_PLACEHOLDERHTTPATKFACTORY_H_ */
+#endif /* OPERATION_ATTACKER_CONCRETE_PLACEHOLDEROPERATION_H_ */
