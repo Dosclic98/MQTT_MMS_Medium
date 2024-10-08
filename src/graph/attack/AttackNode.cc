@@ -79,8 +79,11 @@ void AttackNode::handleMessage(omnetpp::cMessage *msg) {
     			if(this->isActive()) {
     			    stepStart = simTime();
     				this->executeStep();
-    				// In the following case the canary is empty so just schedule a completion message
-    				if(this->getNodeType() == NodeType::AND || this->getNodeType() == NodeType::OR) {
+    				// If the node do not posess a CFSM (no target controller and empty canary)
+    				// just schedule the completion event for the step
+    				if(this->getNodeType() == NodeType::AND || this->getNodeType() == NodeType::OR ||
+    				        (this->getNodeType() == NodeType::STEP && this->targetControllers.empty() &&
+    				                this->completionCanary.empty())) {
     					scheduleCompletionDelay();
     				}
     			}
