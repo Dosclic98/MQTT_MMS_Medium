@@ -34,10 +34,8 @@ protected:
     virtual void handleMessage(cMessage *msg) override;
     virtual void sendBack(cMessage *msg) override;
 
-    // TODO We will see how to implement this
-    virtual void sendPacketDeparture(int connId, HttpResponseMessage& resMessage);
 public:
-    virtual void handleDeparture(int opId, Packet* packet);
+    virtual void sendHttpResponse(int opId, Packet* packet);
 
     virtual void propagate(IResult* res) override;
     virtual void propagate(Packet* msg) override;

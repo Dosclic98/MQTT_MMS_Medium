@@ -49,47 +49,15 @@ void HttpServerOperator::initialize(int stage) {
     }
 }
 
-void HttpServerOperator::sendPacketDeparture(int connId, HttpResponseMessage& resMessage) {
-    Packet *outPacket = new Packet("Generic Data", TCP_C_SEND);
-    outPacket->addTag<SocketReq>()->setSocketId(connId);
-    const auto& payload = makeShared<MmsMessage>();
-
-    //payload->setOriginId(originId);
-    //payload->setMessageKind(messageKind);
-    //payload->setReqResKind(reqResKind);
-    //payload->setChunkLength(requestedBytes);
-    //payload->setExpectedReplyLength(replyLength);
-    //payload->addTag<CreationTimeTag>()->setCreationTime(simTime());
-    //payload->setEvilServerConnId(evilConnId);
-    //payload->setData(data);
-    //payload->setAtkStatus(atkStatus);
-
-    outPacket->insertAtBack(payload);
-    sendOrSchedule(outPacket, SimTime(round(par("replyDelay").doubleValue()), SIMTIME_MS));
-}
-
 void HttpServerOperator::sendBack(cMessage *msg) {
     TcpGenericServerApp::sendBack(msg);
 }
 
-void HttpServerOperator::handleDeparture(int opId, Packet* packet) {
+void HttpServerOperator::sendHttpResponse(int opId, Packet* packet) {
     Enter_Method("Sending HTTP response");
-    int connId = packet->getTag<SocketInd>()->getSocketId();
-    ChunkQueue &queue = socketQueue[connId];
-    auto chunk = packet->peekDataAt(B(0), packet->getTotalLength());
-    queue.push(chunk);
-    emit(packetReceivedSignal, packet);
-
-    while (queue.has<HttpResponseMessage>(b(-1))) {
-        const auto& appmsg = queue.pop<HttpResponseMessage>(b(-1));
-        msgsRcvd++;
-        bytesRcvd += B(appmsg->getChunkLength()).get();
-
-        // TODO See what's done in the MmsServerOperator
-    }
-    // Take property before deletion
     take(packet);
-    delete packet;
+    sendOrSchedule(packet, SimTime(round(par("replyDelay").doubleValue()), SIMTIME_MS));
+    propagate(new HttpServerResult(opId, ResultOutcome::SUCCESS));
 }
 
 void HttpServerOperator::handleMessage(cMessage *msg) {
@@ -107,11 +75,13 @@ void HttpServerOperator::handleMessage(cMessage *msg) {
         sendOrSchedule(request, SimTime(par("replyDelay").doubleValue(), SIMTIME_MS));
     }
     else if (msg->getKind() == TCP_I_DATA || msg->getKind() == TCP_I_URGENT_DATA) {
+        emit(packetReceivedSignal, check_and_cast<Packet*>(msg));
+        msgsRcvd++;
         propagate(check_and_cast<Packet*>(msg));
     }
-    else if (msg->getKind() == TCP_I_AVAILABLE)
+    else if (msg->getKind() == TCP_I_AVAILABLE) {
         socket.processMessage(msg);
-    else {
+    } else {
         // some indication -- ignore
         EV_WARN << "drop msg: " << msg->getName() << ", kind:" << msg->getKind() << "(" << cEnum::get("inet::TcpStatusInd")->getStringFor(msg->getKind()) << ")\n";
         delete msg;
