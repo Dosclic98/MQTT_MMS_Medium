@@ -18,6 +18,8 @@
 #include "../../transition/concrete/EventTransition.h"
 #include "../../transition/concrete/PacketTransition.h"
 #include "../../../server/HttpServerController.h"
+#include "../../../../operation/factory/packet/concrete/SendHttpResponseFactory.h"
+#include "../../concrete/OpFSM.h"
 
 using namespace inet;
 
@@ -34,6 +36,20 @@ IFSM* HttpServerFSMFactory::build() {
     OpState* operativeState = new OpState("OPERATIVE");
 
     std::vector<std::shared_ptr<ITransition>> operativeTransitions;
-    //std::shared_ptr<ITransition> operativeOk = std::make_shared<PacketTransition>();
+    std::shared_ptr<ITransition> operativeOk = std::make_shared<PacketTransition>(
+            new SendHttpResponseFactory(controller, 200),
+            operativeState,
+            "content.method == 'GET' && content.targetUrl == '/api/login'");
+    std::shared_ptr<ITransition> operativeError = std::make_shared<PacketTransition>(
+            new SendHttpResponseFactory(controller, 400),
+            operativeState,
+            "content.method != 'GET' || content.targetUrl != '/api/login'");
+    operativeTransitions.push_back(operativeOk);
+    operativeTransitions.push_back(operativeError);
+    operativeState->setTransitions(operativeTransitions);
+
+    OpFSM* fsm = new OpFSM(controller, operativeState);
+
+    return fsm;
 }
 

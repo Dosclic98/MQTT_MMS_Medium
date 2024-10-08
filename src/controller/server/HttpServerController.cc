@@ -16,6 +16,7 @@
 #include "HttpServerController.h"
 #include "../listener/MsgListener.h"
 #include "../listener/ResListener.h"
+#include "../fsm/factory/concrete/HttpServerFSMFactory.h"
 
 using namespace inet;
 
@@ -41,8 +42,8 @@ void HttpServerController::initialize() {
     controllerStatus = false;
 
     // TODO implement FSM factory
-    //this->fsmFactory = new MmsServerFSMFactory(this);
-    //this->controlFSM = this->fsmFactory->build();
+    this->fsmFactory = new HttpServerFSMFactory(this);
+    this->controlFSM = this->fsmFactory->build();
 }
 
 void HttpServerController::scheduleEvent(cMessage* event, simtime_t delay) {
