@@ -37,8 +37,27 @@ const Ptr<HttpRequestMessage> HttpMessageFactory::buildRequest(const char* metho
     reqMessage->setBody(body);
     // Compute chunk length based on the sum of the lengths of each field
     reqMessage->setChunkLength(B(sizeof(method) + sizeof(targetUrl) + sizeof(keepAlive) +
-                                sizeof(protocol) + sizeof(targetUrl) +  sizeof(contentType) +
+                                sizeof(protocol) +  sizeof(contentType) +
                                 sizeof(contentLength) + sizeof(body) + 16));
     reqMessage->addTag<CreationTimeTag>()->setCreationTime(simTime());
     return reqMessage;
+}
+
+const Ptr<HttpResponseMessage> HttpMessageFactory::buildResponse(int result, const char* originatorUrl,
+                                                                    int protocol, const char* contentType,
+                                                                    int contentLength, const char* body) {
+    const Ptr<HttpResponseMessage> resMessage = makeShared<HttpResponseMessage>();
+    resMessage->setResult(result);
+    resMessage->setOriginatorUrl(originatorUrl);
+    resMessage->setProtocol(protocol);
+    resMessage->setContentType(contentType);
+    resMessage->setContentLength(contentLength);
+    resMessage->setBody(body);
+    // Compute chunk length based on the sum of the lengths of each field
+    resMessage->setChunkLength(B(sizeof(result) + sizeof(originatorUrl) +
+                                sizeof(protocol) +  sizeof(contentType) +
+                                sizeof(contentLength) + sizeof(body) + 16));
+    resMessage->addTag<CreationTimeTag>()->setCreationTime(simTime());
+    return resMessage;
+
 }

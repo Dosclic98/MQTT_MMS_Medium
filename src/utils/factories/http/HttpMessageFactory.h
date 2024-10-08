@@ -29,6 +29,9 @@ public:
     virtual const Ptr<HttpRequestMessage> buildRequest(const char* method, const char* targetUrl, bool keepAlive = true,
                                                         int protocol = 11, const char* contentType="text/text",
                                                         int contentLength = 0, const char* body="");
+    virtual const Ptr<HttpResponseMessage> buildResponse(int result, const char* originatorUrl,
+                                                             int protocol = 11, const char* contentType="text/text",
+                                                             int contentLength = 0, const char* body="");
 };
 
 }; // namespace inet
