@@ -13,21 +13,21 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#include "SendHttpTcpDisconnectAtk.h"
+#ifndef OPERATION_ATTACKER_CONCRETE_GENHTTPTCPCONNECTTIMEOUT_H_
+#define OPERATION_ATTACKER_CONCRETE_GENHTTPTCPCONNECTTIMEOUT_H_
 
-using namespace inet;
+#include "../HttpCommonOperation.h"
 
-void SendHttpTcpDisconnectAtk::execute() {
-    HttpClientEvilOperator* oper = check_and_cast<HttpClientEvilOperator*>(operatorOwner);
+namespace inet {
 
-    oper->sendTcpDisconnect(this->id);
-}
+class GenHttpTcpConnectTimeout : public HttpCommonOperation {
+public:
+    GenHttpTcpConnectTimeout();
+    virtual ~GenHttpTcpConnectTimeout();
 
-SendHttpTcpDisconnectAtk::SendHttpTcpDisconnectAtk() {
-    this->id = ++SendHttpTcpDisconnectAtk::idCounter;
-}
+    virtual void execute() override;
+};
 
-SendHttpTcpDisconnectAtk::~SendHttpTcpDisconnectAtk() {
-    // TODO Auto-generated destructor stub
-}
+}; // namespace inet
 
+#endif /* OPERATION_ATTACKER_CONCRETE_GENHTTPTCPCONNECTTIMEOUT_H_ */

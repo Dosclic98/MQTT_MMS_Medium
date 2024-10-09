@@ -13,21 +13,23 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef OPERATION_ATTACKER_CONCRETE_SENDHTTPTCPDISCONNECTATK_H_
-#define OPERATION_ATTACKER_CONCRETE_SENDHTTPTCPDISCONNECTATK_H_
+#include "SendHttpTcpDisconnect.h"
 
-#include "../HttpAttackerOperation.h"
+using namespace inet;
 
-namespace inet {
+void SendHttpTcpDisconnect::execute() {
+    auto* operat = dynamic_cast<HttpClientOperator*>(this->operatorOwner);
+    if(!operat) { operat = dynamic_cast<HttpClientEvilOperator*>(this->operatorOwner); }
+    if(!operat) { throw std::invalid_argument("operatorOwner must be of type HttpClientOperator or HttpClientEvilOperator"); }
 
-class SendHttpTcpDisconnectAtk : public HttpAttackerOperation {
-public:
-    SendHttpTcpDisconnectAtk();
-    virtual ~SendHttpTcpDisconnectAtk();
+    operat->sendTcpDisconnect(this->id);
+}
 
-    virtual void execute() override;
-};
+SendHttpTcpDisconnect::SendHttpTcpDisconnect() {
+    this->id = ++SendHttpTcpDisconnect::idCounter;
+}
 
-}; // namespace inet
+SendHttpTcpDisconnect::~SendHttpTcpDisconnect() {
+    // TODO Auto-generated destructor stub
+}
 
-#endif /* OPERATION_ATTACKER_CONCRETE_SENDHTTPTCPDISCONNECTATK_H_ */

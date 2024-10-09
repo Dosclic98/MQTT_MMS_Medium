@@ -13,26 +13,31 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#include "ManageHttpTcpSocketOpenCloseAtk.h"
+#include "SendHttpTcpConnect.h"
+
+#include "inet/networklayer/common/L3Address.h"
 
 using namespace inet;
 
-void ManageHttpTcpSocketOpenCloseAtk::execute() {
-    HttpClientEvilOperator* operat = check_and_cast<HttpClientEvilOperator*>(this->operatorOwner);
+void SendHttpTcpConnect::execute() {
+    auto* operat = dynamic_cast<HttpClientOperator*>(this->operatorOwner);
+    if(!operat) { operat = dynamic_cast<HttpClientEvilOperator*>(this->operatorOwner); }
+    if(!operat) { throw std::invalid_argument("operatorOwner must be of type HttpClientOperator or HttpClientEvilOperator"); }
 
-    if(this->open) {
-        operat->handleTcpConnection(this->id);
+
+    if(!this->addr.isUnspecified()) {
+        operat->sendTcpConnect(this->id, this->addr);
     } else {
-        operat->handleTcpDisconnection(this->id);
+        throw std::invalid_argument("Cannot execute SendHttpTcpConnectAtk operation on nullptr address");
     }
+
 }
 
-ManageHttpTcpSocketOpenCloseAtk::ManageHttpTcpSocketOpenCloseAtk(bool open) {
-    this->id = ++ManageHttpTcpSocketOpenCloseAtk::idCounter;
-    this->open = open;
+SendHttpTcpConnect::SendHttpTcpConnect(L3Address& addr) : addr(addr){
+    this->id = ++SendHttpTcpConnect::idCounter;
 }
 
-ManageHttpTcpSocketOpenCloseAtk::~ManageHttpTcpSocketOpenCloseAtk() {
+SendHttpTcpConnect::~SendHttpTcpConnect() {
     // TODO Auto-generated destructor stub
 }
 

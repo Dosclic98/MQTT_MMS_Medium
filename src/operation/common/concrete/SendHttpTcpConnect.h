@@ -13,21 +13,26 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#include "GenHttpTcpConnectTimeoutAtk.h"
+#ifndef OPERATION_ATTACKER_CONCRETE_SENDHTTPTCPCONNECT_H_
+#define OPERATION_ATTACKER_CONCRETE_SENDHTTPTCPCONNECT_H_
 
-using namespace inet;
+#include "../HttpCommonOperation.h"
 
-void GenHttpTcpConnectTimeoutAtk::execute() {
-    HttpClientEvilOperator* operat = check_and_cast<HttpClientEvilOperator*>(this->operatorOwner);
+namespace inet {
 
-    operat->handleTcpConnectTimeout(this->id);
-}
+class L3Address;
 
-GenHttpTcpConnectTimeoutAtk::GenHttpTcpConnectTimeoutAtk() {
-    this->id = ++GenHttpTcpConnectTimeoutAtk::idCounter;
-}
+class SendHttpTcpConnect : public HttpCommonOperation {
+public:
+    SendHttpTcpConnect(L3Address& addr);
+    virtual ~SendHttpTcpConnect();
 
-GenHttpTcpConnectTimeoutAtk::~GenHttpTcpConnectTimeoutAtk() {
-    // TODO Auto-generated destructor stub
-}
+    virtual void execute() override;
 
+protected:
+    L3Address& addr;
+};
+
+}; // namespace inet
+
+#endif /* OPERATION_ATTACKER_CONCRETE_SENDHTTPTCPCONNECT_H_ */

@@ -13,24 +13,23 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef OPERATION_ATTACKER_CONCRETE_MANAGEHTTPTCPSOCKETOPENCLOSEATK_H_
-#define OPERATION_ATTACKER_CONCRETE_MANAGEHTTPTCPSOCKETOPENCLOSEATK_H_
+#include "GenHttpTcpConnectTimeout.h"
 
-#include "../HttpAttackerOperation.h"
+using namespace inet;
 
-namespace inet {
+void GenHttpTcpConnectTimeout::execute() {
+    auto* operat = dynamic_cast<HttpClientOperator*>(this->operatorOwner);
+    if(!operat) { operat = dynamic_cast<HttpClientEvilOperator*>(this->operatorOwner); }
+    if(!operat) { throw std::invalid_argument("operatorOwner must be of type HttpClientOperator or HttpClientEvilOperator"); }
 
-class ManageHttpTcpSocketOpenCloseAtk : public HttpAttackerOperation {
-public:
-    virtual void execute() override;
+    operat->handleTcpConnectTimeout(this->id);
+}
 
-    ManageHttpTcpSocketOpenCloseAtk(bool open);
-    virtual ~ManageHttpTcpSocketOpenCloseAtk();
+GenHttpTcpConnectTimeout::GenHttpTcpConnectTimeout() {
+    this->id = ++GenHttpTcpConnectTimeout::idCounter;
+}
 
-protected:
-    bool open;
-};
+GenHttpTcpConnectTimeout::~GenHttpTcpConnectTimeout() {
+    // TODO Auto-generated destructor stub
+}
 
-}; // namespace inet
-
-#endif /* OPERATION_ATTACKER_CONCRETE_MANAGEHTTPTCPSOCKETOPENCLOSEATK_H_ */

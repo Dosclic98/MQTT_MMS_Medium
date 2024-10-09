@@ -13,21 +13,21 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef OPERATION_ATTACKER_CONCRETE_GENHTTPTCPCONNECTTIMEOUTATK_H_
-#define OPERATION_ATTACKER_CONCRETE_GENHTTPTCPCONNECTTIMEOUTATK_H_
+#ifndef OPERATION_ATTACKER_CONCRETE_SENDHTTPTCPDISCONNECT_H_
+#define OPERATION_ATTACKER_CONCRETE_SENDHTTPTCPDISCONNECT_H_
 
-#include "../HttpAttackerOperation.h"
+#include "../HttpCommonOperation.h"
 
 namespace inet {
 
-class GenHttpTcpConnectTimeoutAtk : public HttpAttackerOperation {
+class SendHttpTcpDisconnect : public HttpCommonOperation {
 public:
-    GenHttpTcpConnectTimeoutAtk();
-    virtual ~GenHttpTcpConnectTimeoutAtk();
+    SendHttpTcpDisconnect();
+    virtual ~SendHttpTcpDisconnect();
 
     virtual void execute() override;
 };
 
 }; // namespace inet
 
-#endif /* OPERATION_ATTACKER_CONCRETE_GENHTTPTCPCONNECTTIMEOUTATK_H_ */
+#endif /* OPERATION_ATTACKER_CONCRETE_SENDHTTPTCPDISCONNECT_H_ */

@@ -13,26 +13,24 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef OPERATION_ATTACKER_CONCRETE_SENDHTTPTCPCONNECTATK_H_
-#define OPERATION_ATTACKER_CONCRETE_SENDHTTPTCPCONNECTATK_H_
+#ifndef OPERATION_ATTACKER_CONCRETE_MANAGEHTTPTCPSOCKETOPENCLOSE_H_
+#define OPERATION_ATTACKER_CONCRETE_MANAGEHTTPTCPSOCKETOPENCLOSE_H_
 
-#include "../HttpAttackerOperation.h"
+#include "../HttpCommonOperation.h"
 
 namespace inet {
 
-class L3Address;
-
-class SendHttpTcpConnectAtk : public HttpAttackerOperation {
+class ManageHttpTcpSocketOpenClose : public HttpCommonOperation {
 public:
-    SendHttpTcpConnectAtk(L3Address& addr);
-    virtual ~SendHttpTcpConnectAtk();
-
     virtual void execute() override;
 
+    ManageHttpTcpSocketOpenClose(bool open);
+    virtual ~ManageHttpTcpSocketOpenClose();
+
 protected:
-    L3Address& addr;
+    bool open;
 };
 
 }; // namespace inet
 
-#endif /* OPERATION_ATTACKER_CONCRETE_SENDHTTPTCPCONNECTATK_H_ */
+#endif /* OPERATION_ATTACKER_CONCRETE_MANAGEHTTPTCPSOCKETOPENCLOSE_H_ */
