@@ -17,6 +17,7 @@ package tx_medium_exp.composer;
 
 import tx_medium_exp.operator.server.HttpServerOperator;
 import tx_medium_exp.controller.server.HttpServerController;
+import tx_medium_exp.controller.client.HttpClientController;
 import inet.node.inet.StandardHost;
 
 
@@ -28,13 +29,14 @@ module HistorianServer {
         inout gate;
         
     submodules:
-        serverOperator: StandardHost {
+        historianHostOperator: StandardHost {
         	numApps = 1;
         };
         
-    	serverController: HttpServerController;   
-    
+    	httpServerController: HttpServerController;   
+    	httpClientController: HttpClientController;
+    	
     connections:
-        serverOperator.ethg++ <--> gate;
+        historianHostOperator.ethg++ <--> gate;
         
 }

@@ -17,6 +17,7 @@ package tx_medium_exp.composer;
 
 import tx_medium_exp.operator.client.MmsClientOperator;
 import tx_medium_exp.controller.client.MmsClientController;
+import tx_medium_exp.controller.server.HttpServerController;
 import inet.node.inet.StandardHost;
 
 module StationComputer {
@@ -28,12 +29,13 @@ module StationComputer {
         inout gate;    
         
     submodules:
-        mmsClientOperator: StandardHost {
-        	numApps = parent.numMmsServers;
+        stationHostOperator: StandardHost {
+        	numApps = parent.numMmsServers + 1;
         };
     	mmsClientController[numMmsServers]: MmsClientController;   
-    
+    	httpServerController: HttpServerController;
+    	
     connections:
-        mmsClientOperator.ethg++ <--> gate; 
+        stationHostOperator.ethg++ <--> gate; 
    	    
 }
