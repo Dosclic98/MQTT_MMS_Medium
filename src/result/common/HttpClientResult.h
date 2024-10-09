@@ -13,22 +13,22 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef RESULT_ATTACKER_HTTPATTACKERRESULT_H_
-#define RESULT_ATTACKER_HTTPATTACKERRESULT_H_
+#ifndef RESULT_COMMON_HTTPCLIENTRESULT_H_
+#define RESULT_COMMON_HTTPCLIENTRESULT_H_
 
 #include "../IResult.h"
 
 namespace inet {
 
-class HttpAttackerResult : public IResult {
+class HttpClientResult : public IResult {
 public:
-	HttpAttackerResult(int opId, ResultOutcome result);
-	virtual ~HttpAttackerResult();
+    HttpClientResult(int opId, ResultOutcome result);
+    virtual ~HttpClientResult();
 
-	virtual IController* getControllerOwner() override;
-	virtual void setControllerOwner(IController* controllerOwner) override;
+    virtual IController* getControllerOwner() override;
+    virtual void setControllerOwner(IController* controllerOwner) override;
 };
 
-} // namespace inet
+}; // namespace inet
 
-#endif /* RESULT_ATTACKER_HTTPATTACKERRESULT_H_ */
+#endif /* RESULT_COMMON_HTTPCLIENTRESULT_H_ */
