@@ -36,8 +36,8 @@ void HttpServerController::initialize() {
     resListener = new ResListener(this);
     msgListener = new MsgListener(this);
     // Subscribe listeners on the right module and signal
-    getParentModule()->getParentModule()->subscribe(strSerResSig, resListener);
-    getParentModule()->getParentModule()->subscribe(strSerMsgSig, msgListener);
+    getParentModule()->subscribe(strSerResSig, resListener);
+    getParentModule()->subscribe(strSerMsgSig, msgListener);
 
     controllerStatus = false;
 
