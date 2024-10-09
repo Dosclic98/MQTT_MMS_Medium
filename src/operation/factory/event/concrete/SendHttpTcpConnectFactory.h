@@ -13,23 +13,21 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef OPERATION_FACTORY_EVENT_CONCRETE_SENDHTTPTCPCONNECTATKFACTORY_H_
-#define OPERATION_FACTORY_EVENT_CONCRETE_SENDHTTPTCPCONNECTATKFACTORY_H_
+#ifndef OPERATION_FACTORY_EVENT_CONCRETE_SENDHTTPTCPCONNECTFACTORY_H_
+#define OPERATION_FACTORY_EVENT_CONCRETE_SENDHTTPTCPCONNECTFACTORY_H_
 
 #include "../EventOperationFactory.h"
 
 namespace inet {
 
-class HttpAttackerController;
-
-class SendHttpTcpConnectAtkFactory : public EventOperationFactory {
+class SendHttpTcpConnectFactory : public EventOperationFactory {
 public:
     virtual void build(omnetpp::cEvent* event) override;
 
-    SendHttpTcpConnectAtkFactory(HttpAttackerController* controller);
-    virtual ~SendHttpTcpConnectAtkFactory();
+    SendHttpTcpConnectFactory(IController* controller);
+    virtual ~SendHttpTcpConnectFactory();
 };
 
 }; // namespace inet
 
-#endif /* OPERATION_FACTORY_EVENT_CONCRETE_SENDHTTPTCPCONNECTATKFACTORY_H_ */
+#endif /* OPERATION_FACTORY_EVENT_CONCRETE_SENDHTTPTCPCONNECTFACTORY_H_ */

@@ -25,7 +25,7 @@ class ManageHttpTcpSocketAtkFactory : public PacketOperationFactory {
 public:
     virtual void build(Packet* packet) override;
 
-    ManageHttpTcpSocketAtkFactory(HttpAttackerController* controller);
+    ManageHttpTcpSocketAtkFactory(IController* controller);
     virtual ~ManageHttpTcpSocketAtkFactory();
 };
 

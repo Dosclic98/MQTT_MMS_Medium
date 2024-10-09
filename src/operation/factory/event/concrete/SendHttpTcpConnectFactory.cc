@@ -13,27 +13,34 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#include "SendHttpTcpConnectAtkFactory.h"
+#include "SendHttpTcpConnectFactory.h"
+
 #include "../../../../controller/attacker/HttpAttackerController.h"
-#include "../../../attacker/concrete/SendHttpTcpConnectAtk.h"
+#include "../../../common/concrete/SendHttpTcpConnect.h"
 #include "inet/networklayer/common/L3Address.h"
 
 using namespace inet;
 
-void SendHttpTcpConnectAtkFactory::build(omnetpp::cEvent* event) {
-    HttpAttackerController* controller = check_and_cast<HttpAttackerController*>(this->controller);
+void SendHttpTcpConnectFactory::build(omnetpp::cEvent* event) {
+    auto* controller = dynamic_cast<HttpAttackerController*>(this->controller);
+    if(!controller && !(controller = dynamic_cast<HttpAttackerController*>(this->controller))) {
+        throw std::invalid_argument("controller must be of type HttpAttackerController or HttpClientController");
+    }
 
     L3Address& addr = controller->getNextIp();
 
-    SendHttpTcpConnectAtk* atkOp = new SendHttpTcpConnectAtk(addr);
+    SendHttpTcpConnect* atkOp = new SendHttpTcpConnect(addr);
     controller->enqueueNSchedule(atkOp);
 }
 
-SendHttpTcpConnectAtkFactory::SendHttpTcpConnectAtkFactory(HttpAttackerController* controller) {
+SendHttpTcpConnectFactory::SendHttpTcpConnectFactory(IController* controller) {
+    if(!dynamic_cast<HttpAttackerController*>(controller) && !dynamic_cast<HttpClientController*>(controller)) {
+        throw std::invalid_argument("controller must be of type HttpAttackerController or HttpClientController");
+    }
     this->controller = controller;
 }
 
-SendHttpTcpConnectAtkFactory::~SendHttpTcpConnectAtkFactory() {
+SendHttpTcpConnectFactory::~SendHttpTcpConnectFactory() {
     // TODO Auto-generated destructor stub
 }
 

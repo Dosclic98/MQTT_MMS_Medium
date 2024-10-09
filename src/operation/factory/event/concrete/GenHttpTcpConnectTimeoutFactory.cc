@@ -13,24 +13,26 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#include "GenHttpTcpConnectTimeoutAtkFactory.h"
+#include "GenHttpTcpConnectTimeoutFactory.h"
+
 #include "../../../../controller/attacker/HttpAttackerController.h"
-#include "../../../attacker/concrete/GenHttpTcpConnectTimeoutAtk.h"
+#include "../../../common/concrete/GenHttpTcpConnectTimeout.h"
 
 using namespace inet;
 
-void GenHttpTcpConnectTimeoutAtkFactory::build(omnetpp::cEvent* event) {
-    HttpAttackerController* controller = check_and_cast<HttpAttackerController*>(this->controller);
-
-    GenHttpTcpConnectTimeoutAtk* op = new GenHttpTcpConnectTimeoutAtk();
+void GenHttpTcpConnectTimeoutFactory::build(omnetpp::cEvent* event) {
+    GenHttpTcpConnectTimeout* op = new GenHttpTcpConnectTimeout();
     controller->enqueueNSchedule(op);
 }
 
-GenHttpTcpConnectTimeoutAtkFactory::GenHttpTcpConnectTimeoutAtkFactory(HttpAttackerController* controller) {
+GenHttpTcpConnectTimeoutFactory::GenHttpTcpConnectTimeoutFactory(IController* controller) {
+    if(!dynamic_cast<HttpAttackerController*>(controller) && !dynamic_cast<HttpClientController*>(controller)) {
+        throw std::invalid_argument("controller must be of type HttpAttackerController or HttpClientController");
+    }
     this->controller = controller;
 }
 
-GenHttpTcpConnectTimeoutAtkFactory::~GenHttpTcpConnectTimeoutAtkFactory() {
+GenHttpTcpConnectTimeoutFactory::~GenHttpTcpConnectTimeoutFactory() {
     // TODO Auto-generated destructor stub
 }
 

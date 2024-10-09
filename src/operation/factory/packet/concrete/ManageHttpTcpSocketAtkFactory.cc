@@ -14,8 +14,7 @@
 // 
 
 #include "ManageHttpTcpSocketAtkFactory.h"
-
-#include "../../../attacker/concrete/ManageHttpTcpSocketOpenCloseAtk.h"
+#include "../../../common/concrete/ManageHttpTcpSocketOpenClose.h"
 
 #define MSGKIND_CONNECT    1
 #define MSGKIND_SEND       2
@@ -24,13 +23,14 @@
 using namespace inet;
 
 void ManageHttpTcpSocketAtkFactory::build(Packet* packet) {
-    HttpAttackerOperation* packetOp;
+    HttpCommonOperation* packetOp;
+
     if(packet->getKind() == MSGKIND_CONNECT) {
         // Create a ManageHttpTcpSocketOpenAtk operation
-        packetOp = new ManageHttpTcpSocketOpenCloseAtk(true);
+        packetOp = new ManageHttpTcpSocketOpenClose(true);
     } else if(packet->getKind() == MSGKIND_CLOSE) {
         // Create a ManageHttpTcpSocketCloseAtk operation
-        packetOp = new ManageHttpTcpSocketOpenCloseAtk(false);
+        packetOp = new ManageHttpTcpSocketOpenClose(false);
     } else {
         throw std::invalid_argument("Invalid packet as factory input");
     }
@@ -39,7 +39,10 @@ void ManageHttpTcpSocketAtkFactory::build(Packet* packet) {
     controller->enqueueNSchedule(packetOp);
 }
 
-ManageHttpTcpSocketAtkFactory::ManageHttpTcpSocketAtkFactory(HttpAttackerController* controller) {
+ManageHttpTcpSocketAtkFactory::ManageHttpTcpSocketAtkFactory(IController* controller) {
+    if(!dynamic_cast<HttpAttackerController*>(controller) && !dynamic_cast<HttpClientController*>(controller)) {
+        throw std::invalid_argument("controller must be of type HttpAttackerController or HttpClientController");
+    }
     this->controller = controller;
 }
 

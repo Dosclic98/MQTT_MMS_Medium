@@ -13,24 +13,22 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef OPERATION_FACTORY_EVENT_CONCRETE_GENHTTPTCPCONNECTTIMEOUTATKFACTORY_H_
-#define OPERATION_FACTORY_EVENT_CONCRETE_GENHTTPTCPCONNECTTIMEOUTATKFACTORY_H_
+#ifndef OPERATION_FACTORY_EVENT_CONCRETE_GENHTTPTCPCONNECTTIMEOUTFACTORY_H_
+#define OPERATION_FACTORY_EVENT_CONCRETE_GENHTTPTCPCONNECTTIMEOUTFACTORY_H_
 
 #include "../EventOperationFactory.h"
 
 namespace inet {
 
-class HttpAttackerController;
-
-class GenHttpTcpConnectTimeoutAtkFactory : public EventOperationFactory {
+class GenHttpTcpConnectTimeoutFactory : public EventOperationFactory {
 public:
 
     virtual void build(omnetpp::cEvent* event) override;
 
-    GenHttpTcpConnectTimeoutAtkFactory(HttpAttackerController* controller);
-    virtual ~GenHttpTcpConnectTimeoutAtkFactory();
+    GenHttpTcpConnectTimeoutFactory(IController* controller);
+    virtual ~GenHttpTcpConnectTimeoutFactory();
 };
 
 }; // namespace inet
 
-#endif /* OPERATION_FACTORY_EVENT_CONCRETE_GENHTTPTCPCONNECTTIMEOUTATKFACTORY_H_ */
+#endif /* OPERATION_FACTORY_EVENT_CONCRETE_GENHTTPTCPCONNECTTIMEOUTFACTORY_H_ */

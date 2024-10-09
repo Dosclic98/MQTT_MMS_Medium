@@ -13,30 +13,36 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#include "SendHttpTcpDisconnectAtkFactory.h"
+#include "SendHttpTcpDisconnectFactory.h"
+
 #include "../../../../controller/attacker/HttpAttackerController.h"
-#include "../../../attacker/concrete/SendHttpTcpDisconnectAtk.h"
+#include "../../../common/concrete/SendHttpTcpDisconnect.h"
 
 using namespace inet;
 
-void SendHttpTcpDisconnectAtkFactory::build(omnetpp::cEvent* event) {
-    HttpAttackerController* controller = check_and_cast<HttpAttackerController*>(this->controller);
-
+void SendHttpTcpDisconnectFactory::build(omnetpp::cEvent* event) {
+    auto* controller = dynamic_cast<HttpAttackerController*>(this->controller);
+    if(!controller && !(controller = dynamic_cast<HttpAttackerController*>(this->controller))) {
+        throw std::invalid_argument("controller must be of type HttpAttackerController or HttpClientController");
+    }
     // Store the current IP address to which the attacker was connected
     if(this->store) {
         controller->saveCurrentIp();
     }
-    SendHttpTcpDisconnectAtk* atkOp = new SendHttpTcpDisconnectAtk();
+    SendHttpTcpDisconnect* atkOp = new SendHttpTcpDisconnect();
     controller->enqueueNSchedule(atkOp);
 }
 
 
-SendHttpTcpDisconnectAtkFactory::SendHttpTcpDisconnectAtkFactory(HttpAttackerController* controller, bool store) {
+SendHttpTcpDisconnectFactory::SendHttpTcpDisconnectFactory(HttpAttackerController* controller, bool store) {
+    if(!dynamic_cast<HttpAttackerController*>(controller) && !dynamic_cast<HttpClientController*>(controller)) {
+        throw std::invalid_argument("controller must be of type HttpAttackerController or HttpClientController");
+    }
     this->controller = controller;
     this->store = store;
 }
 
-SendHttpTcpDisconnectAtkFactory::~SendHttpTcpDisconnectAtkFactory() {
+SendHttpTcpDisconnectFactory::~SendHttpTcpDisconnectFactory() {
     // TODO Auto-generated destructor stub
 }
 
