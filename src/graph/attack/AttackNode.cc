@@ -21,14 +21,14 @@
 #include "../../controller/fsm/state/concrete/OpState.h"
 #include "../../controller/fsm/transition/concrete/EventTransition.h"
 #include "../../controller/fsm/transition/concrete/PacketTransition.h"
+#include "../../operation/factory/event/concrete/GenHttpTcpConnectTimeoutFactory.h"
 #include "../../operation/factory/packet/concrete/ForwardMmsMessageToServerFactory.h"
 #include "../../operation/factory/packet/concrete/ForwardMmsMessageToClientFactory.h"
 #include "../../operation/factory/event/concrete/SendTcpConnectAtkFactory.h"
-#include "../../operation/factory/event/concrete/SendHttpTcpConnectAtkFactory.h"
-#include "../../operation/factory/event/concrete/SendHttpTcpDisconnectAtkFactory.h"
 #include "../../operation/factory/event/concrete/SendHttpRequestFactory.h"
-#include "../../operation/factory/event/concrete/GenHttpTcpConnectTimeoutAtkFactory.h"
 #include "../../operation/factory/event/concrete/PlaceholderEventOperationFactory.h"
+#include "../../operation/factory/event/concrete/SendHttpTcpConnectFactory.h"
+#include "../../operation/factory/event/concrete/SendHttpTcpDisconnectFactory.h"
 #include "../../operation/factory/packet/concrete/PlaceholderPacketOperationFactory.h"
 #include "../../operation/factory/packet/concrete/ManageHttpTcpSocketAtkFactory.h"
 #include "../../operation/factory/event/concrete/SendTcpConnectFactory.h"
@@ -165,7 +165,7 @@ void AttackNode::executeStep() {
 
 		            std::vector<std::shared_ptr<ITransition>> scanningTransitions;
 		            std::shared_ptr<ITransition> scanConning = std::make_shared<EventTransition>(
-		                    new SendHttpTcpConnectAtkFactory(atkController),
+		                    new SendHttpTcpConnectFactory(atkController),
 		                    connectingState,
 		                    atkController->connectionTimer,
 		                    EventMatchType::Ref,
@@ -187,7 +187,7 @@ void AttackNode::executeStep() {
 
 		            std::vector<std::shared_ptr<ITransition>> connectingTransitions;
 		            std::shared_ptr<ITransition> conScanning = std::make_shared<EventTransition>(
-		                    new GenHttpTcpConnectTimeoutAtkFactory(atkController),
+		                    new GenHttpTcpConnectTimeoutFactory(atkController),
 		                    scanningState,
 		                    atkController->timeoutTimer,
 		                    EventMatchType::Ref,
@@ -207,7 +207,7 @@ void AttackNode::executeStep() {
 
 		            std::vector<std::shared_ptr<ITransition>> connectedTransitions;
 		            std::shared_ptr<ITransition> conDisc = std::make_shared<EventTransition>(
-		                    new SendHttpTcpDisconnectAtkFactory(atkController),
+		                    new SendHttpTcpDisconnectFactory(atkController),
 		                    disconnectingState,
 		                    atkController->disconnectionTimer,
 		                    EventMatchType::Ref,
@@ -254,7 +254,7 @@ void AttackNode::executeStep() {
 
 		            std::vector<std::shared_ptr<ITransition>> startingTransitions;
 		            std::shared_ptr<ITransition> startConning = std::make_shared<EventTransition>(
-		                    new SendHttpTcpConnectAtkFactory(atkController),
+		                    new SendHttpTcpConnectFactory(atkController),
                             connectingState,
                             atkController->connectionTimer,
                             EventMatchType::Ref,
@@ -264,7 +264,7 @@ void AttackNode::executeStep() {
 
 		            std::vector<std::shared_ptr<ITransition>> connectingTransitions;
 		            std::shared_ptr<ITransition> conScanning = std::make_shared<EventTransition>(
-                            new GenHttpTcpConnectTimeoutAtkFactory(atkController),
+                            new GenHttpTcpConnectTimeoutFactory(atkController),
                             startingState,
                             atkController->timeoutTimer,
                             EventMatchType::Ref,
@@ -310,7 +310,7 @@ void AttackNode::executeStep() {
 
 		            std::vector<std::shared_ptr<ITransition>> failTransitions;
 		            std::shared_ptr<ITransition> failScanning = std::make_shared<EventTransition>(
-		                    new SendHttpTcpDisconnectAtkFactory(atkController, false),
+		                    new SendHttpTcpDisconnectFactory(atkController, false),
 		                    startingState,
 		                    atkController->timeoutTimer,
 		                    EventMatchType::Ref,
