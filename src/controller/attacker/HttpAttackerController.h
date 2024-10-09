@@ -17,35 +17,20 @@
 #define __MQTT_MMS_MEDIUM_HTTPATTACKERCONTROLLER_H_
 
 #include <omnetpp.h>
-#include "../IController.h"
-#include "inet/networklayer/common/L3Address.h"
+#include "../client/HttpClientController.h"
 
 namespace inet {
-class HttpAttackerController : public cSimpleModule, public IController {
+class HttpAttackerController : public HttpClientController {
 public:
-    simtime_t connectTimeout;
-
-
-    cMessage* connectionTimer = new cMessage("Connection Timer");
-    cMessage* disconnectionTimer = new cMessage("Disconnection Timer");
-    cMessage* timeoutTimer = new cMessage("Timeout Timer");
     cMessage* ipsFinishedTimer = new cMessage("IPs finished Timer");
     cMessage* startingTimer = new cMessage("Starting connection");
-    cMessage* sendRequestTimer = new cMessage("HTTP Request Timer");
 
-    cMessage* thinkTimer = new cMessage("Think timer");
 
     virtual void initialize() override;
     virtual void handleMessage(cMessage *msg) override;
 
-    virtual void next(Packet* msg = nullptr) override;
-    virtual void propagate(IOperation* op) override;
-    virtual void evalRes(IResult* res) override;
-    virtual void scheduleEvent(cMessage* event, simtime_t delay) override;
-    virtual void descheduleEvent(cMessage* event) override;
-    virtual void enqueueNSchedule(IOperation* operation) override;
-    virtual L3Address& getNextIp();
-    virtual void saveCurrentIp();
+    virtual L3Address& getNextIp() override;
+    virtual void saveCurrentIp() override;
     virtual ~HttpAttackerController();
 
 protected:

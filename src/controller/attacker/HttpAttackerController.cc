@@ -21,10 +21,6 @@
 
 using namespace inet;
 
-#define MSGKIND_CONNECT    1
-#define MSGKIND_SEND       2
-#define MSGKIND_CLOSE      3
-
 Define_Module(HttpAttackerController);
 
 void HttpAttackerController::initialize() {
@@ -40,8 +36,8 @@ void HttpAttackerController::initialize() {
     resListener = new ResListener(this);
     msgListener = new MsgListener(this);
     // Subscribe listeners on the right module and signal
-    getParentModule()->getParentModule()->subscribe(strResSubSig, resListener);
-    getParentModule()->getParentModule()->subscribe(strMsgSubSig, msgListener);
+    getParentModule()->subscribe(strResSubSig, resListener);
+    getParentModule()->subscribe(strMsgSubSig, msgListener);
 
     // Initialize network address space vector
     maxNetSpace = par("maxNetSpace").intValue();
@@ -64,23 +60,10 @@ void HttpAttackerController::initialize() {
 }
 
 void HttpAttackerController::handleMessage(cMessage *msg) {
-    if(msg == connectionTimer || msg == timeoutTimer ||
-            msg == disconnectionTimer || msg == ipsFinishedTimer ||
-            msg == startingTimer || msg == sendRequestTimer) {
+    if(msg == ipsFinishedTimer || msg == startingTimer) {
         this->controlFSM->next(msg);
     } else {
-        if(msg == thinkTimer) {
-            if(!operationQueue.isEmpty()) {
-                IOperation* op = check_and_cast<IOperation*>(operationQueue.pop());
-                propagate(op);
-                if(!operationQueue.isEmpty()) {
-                    simtime_t d = simTime() + SimTime(round(par("thinkTime").doubleValue()), SIMTIME_MS);
-                    scheduleAt(d, thinkTimer);
-                } else { controllerStatus = false; }
-            } else { controllerStatus = false; }
-        } else {
-            throw cRuntimeError("Invalid timer msg: kind=%s", msg->str().c_str());
-        }
+        HttpClientController::handleMessage(msg);
     }
 }
 
@@ -110,50 +93,8 @@ void HttpAttackerController::saveCurrentIp() {
     responsiveAddrVector.push_back(currAddr);
 }
 
-void HttpAttackerController::next(Packet* packet) {
-    this->controlFSM->next(packet);
-}
-
-void HttpAttackerController::propagate(IOperation* op) {
-    emit(this->cmdPubSig, op);
-}
-
-void HttpAttackerController::evalRes(IResult* res) {
-
-}
-
-void HttpAttackerController::scheduleEvent(cMessage* event, simtime_t delay) {
-    Enter_Method("Possible scheduling by Attack graph");
-    take(event);
-    cancelEvent(event);
-    // Schedule event after delay from now
-    simtime_t sTime = simTime() + delay;
-    scheduleAt(sTime, event);
-}
-
-void HttpAttackerController::descheduleEvent(cMessage* event) {
-    Enter_Method("Possible descheduling by Attack graph");
-    cancelEvent(event);
-}
-
-void HttpAttackerController::enqueueNSchedule(IOperation* operation) {
-    if(!controllerStatus) {
-        operationQueue.insert(operation);
-        simtime_t d = simTime() + SimTime(round(par("thinkTime").doubleValue()), SIMTIME_MS);
-        scheduleAt(d, thinkTimer);
-        controllerStatus = true;
-    } else {
-        operationQueue.insert(operation);
-    }
-}
-
 HttpAttackerController::~HttpAttackerController() {
-    cancelAndDelete(connectionTimer);
-    cancelAndDelete(disconnectionTimer);
-    cancelAndDelete(timeoutTimer);
     cancelAndDelete(ipsFinishedTimer);
     cancelAndDelete(startingTimer);
-    cancelAndDelete(sendRequestTimer);
-    cancelAndDelete(thinkTimer);
 }
 

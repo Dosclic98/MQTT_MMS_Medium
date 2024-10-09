@@ -15,21 +15,17 @@
 
 package tx_medium_exp.controller.attacker;
 
-//
-// TODO auto-generated module
-//
-simple HttpAttackerController {
+import tx_medium_exp.controller.client.HttpClientController;
+
+
+simple HttpAttackerController extends HttpClientController {
     
     parameters:
 		@class("inet::HttpAttackerController");
 	
 	    string netIpPrefix = "192.168.1";
      	int maxNetSpace = default(256);
-     	double connectTimeout @unit(s) = default(1s);
-     	volatile double thinkTime @unit(ms) = default(1ms); // time gap between requests
     
-    
-		@display("i=block/cogwheel");
 		
 		@signal[httpAtkCmdSig]();
 		@signal[httpAtkMsgSig]();
