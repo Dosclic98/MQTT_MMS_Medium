@@ -14,15 +14,9 @@
 // 
 
 #include "HttpClientEvilOperator.h"
-#include "../../result/attacker/HttpAttackerResult.h"
 #include "../listener/FromSerOpListener.h"
-#include "../../message/http/HttpMessage_m.h"
 
 using namespace inet;
-
-#define MSGKIND_CONNECT    1
-#define MSGKIND_SEND       2
-#define MSGKIND_CLOSE      3
 
 Define_Module(HttpClientEvilOperator);
 
@@ -40,130 +34,4 @@ void HttpClientEvilOperator::initialize(int stage) {
         // Go up of two levels in the modules hierarchy (the first is the host module)
         getParentModule()->getParentModule()->subscribe(strCliCmdSig, cmdListener);
     }
-}
-
-void HttpClientEvilOperator::socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent) {
-    EV_INFO << "Packet arrived!" << "\n";
-    EV_INFO << msg->getKind() << "\n";
-    if(msg->getKind() == TCP_I_DATA) {
-        propagate(msg);
-    }
-}
-
-void HttpClientEvilOperator::handleTimer(cMessage *msg) {
-
-}
-
-void HttpClientEvilOperator::socketEstablished(TcpSocket *socket) {
-    EV_INFO << "Socket CONNECTED" << "\n";
-    // The data of this message is irrelevant
-    auto data = makeShared<ByteCountChunk>(B(1));
-    Packet* connectedSocketMsg = new Packet("Socket connected", data);
-    connectedSocketMsg->setKind(MSGKIND_CONNECT);
-    propagate(connectedSocketMsg);
-}
-
-void HttpClientEvilOperator::socketAvailable(TcpSocket* socket, TcpAvailableInfo *availableInfo) {
-    EV_INFO << "Socket AVAILABLE" << "\n";
-}
-
-void HttpClientEvilOperator::socketClosed(TcpSocket *socket) {
-    EV_INFO << "Socket CLOSED" << "\n";
-    // The data of this message is irrelevant
-    auto data = makeShared<ByteCountChunk>(B(1));
-    Packet* closedSocketMsg = new Packet("Socket closed", data);
-    closedSocketMsg->setKind(MSGKIND_CLOSE);
-    propagate(closedSocketMsg);
-}
-
-void HttpClientEvilOperator::sendTcpConnect(int opId, L3Address& address) {
-    Enter_Method("Initializing TCP connection");
-
-    if(!address.isUnspecified()) {
-        // we need a new connId if this is not the first connection
-        socket.renewSocket();
-
-        const char *localAddress = par("localAddress");
-        int localPort = par("localPort");
-        socket.bind(*localAddress ? L3AddressResolver().resolve(localAddress) : L3Address(), localPort);
-
-        int connectPort = par("connectPort");
-        socket.connect(address, connectPort);
-
-        // Propagate operation result
-        propagate(new HttpAttackerResult(opId, ResultOutcome::SUCCESS));
-
-    } else {
-        propagate(new HttpAttackerResult(opId, ResultOutcome::FAIL));
-    }
-}
-
-void HttpClientEvilOperator::sendHttpRequest(int opId, Ptr<HttpRequestMessage> request) {
-    Enter_Method("Sending HTTP request");
-    Packet* packet = new Packet("HTTP Request");
-    packet->insertAtBack(request);
-    sendPacket(packet);
-
-    propagate(new HttpAttackerResult(opId, ResultOutcome::SUCCESS));
-}
-
-void HttpClientEvilOperator::handleTcpConnection(int opId) {
-    // Nothing to be done other than propagating the operation result
-    Enter_Method("Managing connected TCP Socket");
-    propagate(new HttpAttackerResult(opId, ResultOutcome::SUCCESS));
-}
-
-void HttpClientEvilOperator::handleTcpDisconnection(int opId) {
-    // Nothing to be done other than propagating the operation result
-    Enter_Method("Managing disconnected TCP Socket");
-    propagate(new HttpAttackerResult(opId, ResultOutcome::SUCCESS));
-}
-
-void HttpClientEvilOperator::handleTcpConnectTimeout(int opId) {
-    Enter_Method("Closing dangling TCP Connection");
-    close();
-    propagate(new HttpAttackerResult(opId, ResultOutcome::SUCCESS));
-}
-
-void HttpClientEvilOperator::sendTcpDisconnect(int opId) {
-    Enter_Method("Closing TCP Connection");
-    close();
-    propagate(new HttpAttackerResult(opId, ResultOutcome::SUCCESS));
-}
-
-void HttpClientEvilOperator::socketPeerClosed(TcpSocket *socket_) {
-    ASSERT(socket_ == &socket);
-    // close the connection (if not already closed)
-    if (socket.getState() == TcpSocket::PEER_CLOSED) {
-        EV_INFO << "Remote TCP closed, closing here as well\n";
-        close();
-
-        Packet* closedSocketMsg = new Packet("Socket closed");
-        closedSocketMsg->setKind(MSGKIND_CLOSE);
-        propagate(closedSocketMsg);
-    }
-}
-
-// TODO Understand better when this function is called
-void HttpClientEvilOperator::socketFailure(TcpSocket* socket, int code) {
-    // subclasses may override this function, and add code try to reconnect after a delay.
-    EV_WARN << "connection broken\n";
-
-}
-
-void HttpClientEvilOperator::close() {
-    EV_INFO << "Issuing CLOSE command\n";
-    socket.close();
-}
-
-HttpClientEvilOperator::~HttpClientEvilOperator() {
-
-}
-
-void HttpClientEvilOperator::propagate(IResult* res) {
-    emit(this->resPubSig, res);
-}
-
-void HttpClientEvilOperator::propagate(Packet* msg) {
-    emit(this->msgPubSig, msg);
 }

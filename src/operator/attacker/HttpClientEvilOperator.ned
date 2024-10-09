@@ -15,21 +15,13 @@
 
 package tx_medium_exp.operator.attacker;
 
-import inet.applications.contract.IApp;
+import tx_medium_exp.operator.client.HttpClientOperator;
 
-simple HttpClientEvilOperator like IApp {
+simple HttpClientEvilOperator extends HttpClientOperator {
      parameters:
      	@class("inet::HttpClientEvilOperator");
-     	
-     	@display("i=block/app");
-     	string localAddress = default(""); // may be left empty ("")
-        int localPort = default(-1); // port number to listen on
-        int connectPort = default(443); // port number to connect to
      	
      	@signal[httpAtkMsgSig]();
 		@signal[httpAtkResSig]();
 		@signal[packetSent](type=inet::Packet);
-     gates:
-        input socketIn @labels(TcpCommand/up);
-        output socketOut @labels(TcpCommand/down);
 }

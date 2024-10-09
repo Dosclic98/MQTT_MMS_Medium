@@ -17,48 +17,18 @@
 #define __MQTT_MMS_MEDIUM_HTTPCLIENTEVILOPERATOR_H_
 
 #include <omnetpp.h>
-#include "inet/applications/tcpapp/TcpAppBase.h"
-#include "../IOperator.h"
+#include "../client/HttpClientOperator.h"
 
 namespace inet {
 
 class HttpRequestMessage;
 
-class HttpClientEvilOperator : public TcpAppBase, public IOperator {
+class HttpClientEvilOperator : public HttpClientOperator {
 public:
-    // The IOperator methods
-    virtual void propagate(IResult* res) override;
-    virtual void propagate(Packet* msg = nullptr) override;
-
-    virtual void sendTcpConnect(int opId, L3Address& address);
-    virtual void sendTcpDisconnect(int opId);
-    virtual void sendHttpRequest(int opId, Ptr<HttpRequestMessage> request);
-    virtual void handleTcpConnectTimeout(int opId);
-    virtual void handleTcpConnection(int opId);
-    virtual void handleTcpDisconnection(int opId);
-
-    virtual ~HttpClientEvilOperator();
+    virtual ~HttpClientEvilOperator() {};
 
 protected:
-    virtual void initialize(int stage) override;
-    virtual void handleTimer(cMessage *msg) override;
-    virtual void socketDataArrived(TcpSocket *socket, Packet *msg, bool urgent) override;
-    // Implement it sending a application level packet of type CONECTED
-    virtual void socketEstablished(TcpSocket *socket) override;
-    // Implement it sending a application level packet of type CLOSED
-    virtual void socketClosed(TcpSocket *socket) override;
-    virtual void socketPeerClosed(TcpSocket *socket_) override;
-    virtual void socketFailure(TcpSocket* socket, int code) override;
-    virtual void socketAvailable(TcpSocket* socket, TcpAvailableInfo *availableInfo) override;
-
-    // Close socket
-    virtual void close() override;
-
-    // Not necessary to handle start and stop operations by default
-    virtual void handleStartOperation(LifecycleOperation *operation) override {}
-    virtual void handleStopOperation(LifecycleOperation *operation) override {}
-    virtual void handleCrashOperation(LifecycleOperation *operation) override {}
-};
+    virtual void initialize(int stage) override;};
 
 }; // namespace inet
 
