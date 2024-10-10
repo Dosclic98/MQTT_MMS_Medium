@@ -14,9 +14,10 @@
 // 
 
 #include "HttpServerController.h"
+
+#include "../fsm/factory/concrete/HttpServerHistorianFSMFactory.h"
 #include "../listener/MsgListener.h"
 #include "../listener/ResListener.h"
-#include "../fsm/factory/concrete/HttpServerFSMFactory.h"
 
 using namespace inet;
 
@@ -42,7 +43,7 @@ void HttpServerController::initialize() {
     controllerStatus = false;
 
     // TODO implement FSM factory
-    this->fsmFactory = new HttpServerFSMFactory(this);
+    this->fsmFactory = new HttpServerHistorianFSMFactory(this);
     this->controlFSM = this->fsmFactory->build();
 }
 

@@ -13,8 +13,8 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef CONTROLLER_FSM_FACTORY_CONCRETE_HTTPSERVERFSMFACTORY_H_
-#define CONTROLLER_FSM_FACTORY_CONCRETE_HTTPSERVERFSMFACTORY_H_
+#ifndef CONTROLLER_FSM_FACTORY_CONCRETE_HTTPSERVERHISTORIANFSMFACTORY_H_
+#define CONTROLLER_FSM_FACTORY_CONCRETE_HTTPSERVERHISTORIANFSMFACTORY_H_
 
 #include "../IFSMFactory.h"
 
@@ -22,13 +22,13 @@ namespace inet {
 
 class HttpServerController;
 
-class HttpServerFSMFactory : public IFSMFactory {
+class HttpServerHistorianFSMFactory : public IFSMFactory {
 public:
     virtual IFSM* build() override;
-    HttpServerFSMFactory(HttpServerController* controller);
-    virtual ~HttpServerFSMFactory();
+    HttpServerHistorianFSMFactory(HttpServerController* controller);
+    virtual ~HttpServerHistorianFSMFactory();
 };
 
 }; // namespace inet
 
-#endif /* CONTROLLER_FSM_FACTORY_CONCRETE_HTTPSERVERFSMFACTORY_H_ */
+#endif /* CONTROLLER_FSM_FACTORY_CONCRETE_HTTPSERVERHISTORIANFSMFACTORY_H_ */

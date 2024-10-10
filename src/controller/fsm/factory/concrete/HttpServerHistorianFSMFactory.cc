@@ -13,7 +13,8 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#include "HttpServerFSMFactory.h"
+#include "HttpServerHistorianFSMFactory.h"
+
 #include "../../state/concrete/OpState.h"
 #include "../../transition/concrete/EventTransition.h"
 #include "../../transition/concrete/PacketTransition.h"
@@ -23,15 +24,15 @@
 
 using namespace inet;
 
-HttpServerFSMFactory::HttpServerFSMFactory(HttpServerController* controller) {
+HttpServerHistorianFSMFactory::HttpServerHistorianFSMFactory(HttpServerController* controller) {
     this->controller = controller;
 }
 
-HttpServerFSMFactory::~HttpServerFSMFactory() {
+HttpServerHistorianFSMFactory::~HttpServerHistorianFSMFactory() {
     // TODO Auto-generated destructor stub
 }
 
-IFSM* HttpServerFSMFactory::build() {
+IFSM* HttpServerHistorianFSMFactory::build() {
     HttpServerController* controller = static_cast<HttpServerController*>(this->controller);
     OpState* operativeState = new OpState("OPERATIVE");
 
@@ -39,11 +40,11 @@ IFSM* HttpServerFSMFactory::build() {
     std::shared_ptr<ITransition> operativeOk = std::make_shared<PacketTransition>(
             new SendHttpResponseFactory(controller, 200),
             operativeState,
-            "content.method == 'GET' && content.targetUrl == '/api/login'");
+            "content.method == 'GET' && content.targetUrl == '/api/info'");
     std::shared_ptr<ITransition> operativeError = std::make_shared<PacketTransition>(
             new SendHttpResponseFactory(controller, 400),
             operativeState,
-            "content.method != 'GET' || content.targetUrl != '/api/login'");
+            "content.method != 'GET' || content.targetUrl != '/api/info'");
     operativeTransitions.push_back(operativeOk);
     operativeTransitions.push_back(operativeError);
     operativeState->setTransitions(operativeTransitions);

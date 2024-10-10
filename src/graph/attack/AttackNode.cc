@@ -284,7 +284,7 @@ void AttackNode::executeStep() {
 
 		            std::vector<std::shared_ptr<ITransition>> connectedTransitions;
 		            std::shared_ptr<ITransition> conResWait = std::make_shared<EventTransition>(
-		                    new SendHttpRequestFactory(atkController, httpFactory.buildRequest("GET", "/api/login")),
+		                    new SendHttpRequestFactory(atkController, httpFactory.buildRequest("GET", "/api/info")),
 		                    waitHttpRespState,
 		                    atkController->sendRequestTimer,
 		                    EventMatchType::Ref,
