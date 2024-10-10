@@ -23,7 +23,6 @@ namespace inet {
 class HttpAttackerController : public HttpClientController {
 public:
     cMessage* ipsFinishedTimer = new cMessage("IPs finished Timer");
-    cMessage* startingTimer = new cMessage("Starting connection");
 
 
     virtual void initialize() override;

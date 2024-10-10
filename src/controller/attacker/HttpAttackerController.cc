@@ -60,7 +60,7 @@ void HttpAttackerController::initialize() {
 }
 
 void HttpAttackerController::handleMessage(cMessage *msg) {
-    if(msg == ipsFinishedTimer || msg == startingTimer) {
+    if(msg == ipsFinishedTimer) {
         this->controlFSM->next(msg);
     } else {
         HttpClientController::handleMessage(msg);
@@ -95,6 +95,5 @@ void HttpAttackerController::saveCurrentIp() {
 
 HttpAttackerController::~HttpAttackerController() {
     cancelAndDelete(ipsFinishedTimer);
-    cancelAndDelete(startingTimer);
 }
 
