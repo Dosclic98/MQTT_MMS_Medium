@@ -13,22 +13,22 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef OPERATION_FACTORY_PACKET_CONCRETE_MANAGEHTTPTCPSOCKETATKFACTORY_H_
-#define OPERATION_FACTORY_PACKET_CONCRETE_MANAGEHTTPTCPSOCKETATKFACTORY_H_
+#ifndef OPERATION_FACTORY_PACKET_CONCRETE_MANAGEHTTPTCPSOCKETFACTORY_H_
+#define OPERATION_FACTORY_PACKET_CONCRETE_MANAGEHTTPTCPSOCKETFACTORY_H_
 
 #include "../PacketOperationFactory.h"
 #include "../../../../controller/attacker/HttpAttackerController.h"
 
 namespace inet {
 
-class ManageHttpTcpSocketAtkFactory : public PacketOperationFactory {
+class ManageHttpTcpSocketFactory : public PacketOperationFactory {
 public:
     virtual void build(Packet* packet) override;
 
-    ManageHttpTcpSocketAtkFactory(IController* controller);
-    virtual ~ManageHttpTcpSocketAtkFactory();
+    ManageHttpTcpSocketFactory(IController* controller);
+    virtual ~ManageHttpTcpSocketFactory();
 };
 
 }; // namespace inet
 
-#endif /* OPERATION_FACTORY_PACKET_CONCRETE_MANAGEHTTPTCPSOCKETATKFACTORY_H_ */
+#endif /* OPERATION_FACTORY_PACKET_CONCRETE_MANAGEHTTPTCPSOCKETFACTORY_H_ */

@@ -13,7 +13,8 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#include "ManageHttpTcpSocketAtkFactory.h"
+#include "ManageHttpTcpSocketFactory.h"
+
 #include "../../../common/concrete/ManageHttpTcpSocketOpenClose.h"
 
 #define MSGKIND_CONNECT    1
@@ -22,7 +23,7 @@
 
 using namespace inet;
 
-void ManageHttpTcpSocketAtkFactory::build(Packet* packet) {
+void ManageHttpTcpSocketFactory::build(Packet* packet) {
     HttpCommonOperation* packetOp;
 
     if(packet->getKind() == MSGKIND_CONNECT) {
@@ -39,14 +40,14 @@ void ManageHttpTcpSocketAtkFactory::build(Packet* packet) {
     controller->enqueueNSchedule(packetOp);
 }
 
-ManageHttpTcpSocketAtkFactory::ManageHttpTcpSocketAtkFactory(IController* controller) {
+ManageHttpTcpSocketFactory::ManageHttpTcpSocketFactory(IController* controller) {
     if(!dynamic_cast<HttpAttackerController*>(controller) && !dynamic_cast<HttpClientController*>(controller)) {
         throw std::invalid_argument("controller must be of type HttpAttackerController or HttpClientController");
     }
     this->controller = controller;
 }
 
-ManageHttpTcpSocketAtkFactory::~ManageHttpTcpSocketAtkFactory() {
+ManageHttpTcpSocketFactory::~ManageHttpTcpSocketFactory() {
     // TODO Auto-generated destructor stub
 }
 

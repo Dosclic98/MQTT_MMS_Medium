@@ -21,7 +21,7 @@
 using namespace inet;
 
 void SendHttpTcpDisconnectFactory::build(omnetpp::cEvent* event) {
-    auto* controller = dynamic_cast<HttpAttackerController*>(this->controller);
+    auto* controller = dynamic_cast<HttpClientController*>(this->controller);
     if(!controller && !(controller = dynamic_cast<HttpAttackerController*>(this->controller))) {
         throw std::invalid_argument("controller must be of type HttpAttackerController or HttpClientController");
     }
