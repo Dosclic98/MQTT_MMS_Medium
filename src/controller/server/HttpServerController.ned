@@ -22,6 +22,8 @@ simple HttpServerController {
 	    @display("i=block/cogwheel");
 
         volatile int serviceTime @unit(ms) = default(intuniform(2ms, 4ms));
+        // Defines the type of CFSM to use
+        volatile string cfsmType = default("historian"); // Can be either 'historian' or 'station'
 		
 		@signal[httpSerMsgSig]();
 	    @signal[httpSerCmdSig]();    

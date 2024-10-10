@@ -42,8 +42,13 @@ void HttpServerController::initialize() {
 
     controllerStatus = false;
 
-    // TODO implement FSM factory
-    this->fsmFactory = new HttpServerHistorianFSMFactory(this);
+    std::string cfsmType = par("cfsmType").str();
+    if(cfsmType == std::string("historian")) {
+        this->fsmFactory = new HttpServerHistorianFSMFactory(this);
+    } else if(cfsmType == std::string("station")) {
+        // TODO implement station computer FSM factory
+    }
+
     this->controlFSM = this->fsmFactory->build();
 }
 
