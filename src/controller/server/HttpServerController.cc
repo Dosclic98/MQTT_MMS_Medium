@@ -14,10 +14,10 @@
 // 
 
 #include "HttpServerController.h"
-
-#include "../fsm/factory/concrete/HttpServerHistorianFSMFactory.h"
 #include "../listener/MsgListener.h"
 #include "../listener/ResListener.h"
+#include "../fsm/factory/concrete/HttpServerHistorianFSMFactory.h"
+#include "../fsm/factory/concrete/HttpServerStationFSMFactory.h"
 
 using namespace inet;
 
@@ -42,11 +42,13 @@ void HttpServerController::initialize() {
 
     controllerStatus = false;
 
-    std::string cfsmType = par("cfsmType").str();
+    std::string cfsmType = par("cfsmType");
     if(cfsmType == std::string("historian")) {
         this->fsmFactory = new HttpServerHistorianFSMFactory(this);
     } else if(cfsmType == std::string("station")) {
-        // TODO implement station computer FSM factory
+        this->fsmFactory = new HttpServerStationFSMFactory(this);
+    } else {
+        throw std::invalid_argument("cfsmType must be either 'historian' or 'station'");
     }
 
     this->controlFSM = this->fsmFactory->build();
