@@ -47,7 +47,7 @@ class AttackGraph : public omnetpp::cModule, public IGraph {
 	        { "historianServer_remoteShellAND", NodeType::AND, AttackType::NOTSET, false, nullptr, { }, { "historianServer_remoteShell" } },
 	        { "historianServer_remoteShell", NodeType::STEP, AttackType::REMOTESHELL, false, nullptr, { }, { "historianServer_NodeOR"} },
 	        { "historianServer_NodeOR", NodeType::OR, AttackType::NOTSET, false, nullptr, { }, { "tomcatWebServer_bruteForce" } },
-	        { "tomcatWebServer_bruteForce", NodeType::STEP, AttackType::BRUTEFORCE, false, nullptr, { }, { "virtualEng_escapeHost" } },
+	        { "tomcatWebServer_bruteForce", NodeType::STEP, AttackType::BRUTEFORCE, false, nullptr, { "historianServer.httpClientController" }, { "virtualEng_escapeHost" } },
 	        { "virtualEng_escapeHost", NodeType::STEP, AttackType::ESCAPEHOST, false, nullptr, { }, { "stationComputer_shell" } },
 	        { "stationComputer_shell", NodeType::STEP, AttackType::SHELL, false, nullptr, { }, { "MMSclient_unsecCred", "MMSclient_modAuthProc" } },
 	        { "MMSclient_unsecCred", NodeType::STEP, AttackType::UNSECCRED, false, nullptr, { }, { "MMSclient_AND" } },

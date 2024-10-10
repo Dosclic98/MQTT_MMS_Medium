@@ -26,15 +26,16 @@
 #include "../../operation/factory/packet/concrete/ForwardMmsMessageToClientFactory.h"
 #include "../../operation/factory/event/concrete/SendTcpConnectAtkFactory.h"
 #include "../../operation/factory/event/concrete/SendHttpRequestFactory.h"
+#include "../../operation/factory/event/concrete/SendHttpRequestBruteforceFactory.h"
 #include "../../operation/factory/event/concrete/PlaceholderEventOperationFactory.h"
 #include "../../operation/factory/event/concrete/SendHttpTcpConnectFactory.h"
 #include "../../operation/factory/event/concrete/SendHttpTcpDisconnectFactory.h"
 #include "../../operation/factory/packet/concrete/PlaceholderPacketOperationFactory.h"
-#include "../../operation/factory/packet/concrete/ManageHttpTcpSocketAtkFactory.h"
 #include "../../operation/factory/event/concrete/SendTcpConnectFactory.h"
 #include "../../operation/factory/event/concrete/SendMmsDisconnectFactory.h"
 #include "../../operation/factory/event/concrete/SendMmsConnectFactory.h"
 #include "../../operation/factory/event/concrete/SendMmsRequestFactory.h"
+#include "../../operation/factory/packet/concrete/ManageHttpTcpSocketFactory.h"
 #include "../../utils/factories/http/HttpMessageFactory.h"
 
 using namespace inet;
@@ -193,11 +194,11 @@ void AttackNode::executeStep() {
 		                    EventMatchType::Ref,
 		                    atkController->connectTimeout);
 		            std::shared_ptr<ITransition> conConnected = std::make_shared<PacketTransition>(
-		                    new ManageHttpTcpSocketAtkFactory(atkController),
+		                    new ManageHttpTcpSocketFactory(atkController),
 		                    connectedState,
 		                    "kind == 1");
 		            std::shared_ptr<ITransition> conScanningRst = std::make_shared<PacketTransition>(
-		                    new ManageHttpTcpSocketAtkFactory(atkController),
+		                    new ManageHttpTcpSocketFactory(atkController),
 		                    scanningState,
 		                    "kind == 3");
 		            connectingTransitions.push_back(conScanning);
@@ -217,7 +218,7 @@ void AttackNode::executeStep() {
 
 		            std::vector<std::shared_ptr<ITransition>> disconnectingTransitions;
 		            std::shared_ptr<ITransition> disScanning = std::make_shared<PacketTransition>(
-                            new ManageHttpTcpSocketAtkFactory(atkController),
+                            new ManageHttpTcpSocketFactory(atkController),
                             scanningState,
                             "kind == 3");
 		            disconnectingTransitions.push_back(disScanning);
@@ -263,21 +264,21 @@ void AttackNode::executeStep() {
 		            startingState->setTransitions(startingTransitions);
 
 		            std::vector<std::shared_ptr<ITransition>> connectingTransitions;
-		            std::shared_ptr<ITransition> conScanning = std::make_shared<EventTransition>(
+		            std::shared_ptr<ITransition> conStarting = std::make_shared<EventTransition>(
                             new GenHttpTcpConnectTimeoutFactory(atkController),
                             startingState,
                             atkController->timeoutTimer,
                             EventMatchType::Ref,
                             atkController->connectTimeout);
 		            std::shared_ptr<ITransition> conStartingRst = std::make_shared<PacketTransition>(
-                            new ManageHttpTcpSocketAtkFactory(atkController),
+                            new ManageHttpTcpSocketFactory(atkController),
                             startingState,
                             "kind == 3");
 		            std::shared_ptr<ITransition> conConnected = std::make_shared<PacketTransition>(
-                            new ManageHttpTcpSocketAtkFactory(atkController),
+                            new ManageHttpTcpSocketFactory(atkController),
                             connectedState,
                             "kind == 1");
-		            connectingTransitions.push_back(conScanning);
+		            connectingTransitions.push_back(conStarting);
 		            connectingTransitions.push_back(conStartingRst);
 		            connectingTransitions.push_back(conConnected);
 		            connectingState->setTransitions(connectingTransitions);
@@ -320,6 +321,78 @@ void AttackNode::executeStep() {
 
 		            OpFSM* fsm = new OpFSM(controller, doneState, false);
                     atkController->getControlFSM()->merge(fsm);
+                    break;
+		        }
+		        case AttackType::BRUTEFORCE: {
+		            HttpClientController* cliController = static_cast<HttpClientController*>(controller);
+		            OpState* startingState = new OpState("STARTING");
+		            OpState* connectingState = new OpState("CONNECTING");
+		            OpState* connectedState = new OpState("CONNECTED");
+		            OpState* waitHttpRespState = new OpState("WAITFORHTTPRESP");
+		            OpState* doneState = new OpState("DONE");
+
+		            std::vector<std::shared_ptr<ITransition>> startingTransitions;
+		            std::shared_ptr<ITransition> startConning = std::make_shared<EventTransition>(
+		                    new SendHttpTcpConnectFactory(cliController),
+                            connectingState,
+                            cliController->startingTimer,
+                            EventMatchType::Ref,
+                            SimTime(20, SIMTIME_MS));
+		            startingTransitions.push_back(startConning);
+		            startingState->setTransitions(startingTransitions);
+
+		            std::vector<std::shared_ptr<ITransition>> connectingTransitions;
+                    std::shared_ptr<ITransition> conStarting = std::make_shared<EventTransition>(
+                            new GenHttpTcpConnectTimeoutFactory(cliController),
+                            startingState,
+                            cliController->timeoutTimer,
+                            EventMatchType::Ref,
+                            cliController->connectTimeout);
+                    std::shared_ptr<ITransition> conStartingRst = std::make_shared<PacketTransition>(
+                            new ManageHttpTcpSocketFactory(cliController),
+                            startingState,
+                            "kind == 3");
+                    std::shared_ptr<ITransition> conConnected = std::make_shared<PacketTransition>(
+                            new ManageHttpTcpSocketFactory(cliController),
+                            connectedState,
+                            "kind == 1");
+
+                    connectingTransitions.push_back(conStarting);
+                    connectingTransitions.push_back(conStartingRst);
+                    connectingTransitions.push_back(conConnected);
+                    connectingState->setTransitions(connectingTransitions);
+
+                    std::vector<std::shared_ptr<ITransition>> connectedTransitions;
+                    // TODO Revise the delay expression system using type const char* and parsing
+                    // the expression within the transition
+                    std::shared_ptr<ITransition> conResWait = std::make_shared<EventTransition>(
+                            new SendHttpRequestBruteforceFactory(cliController),
+                            waitHttpRespState,
+                            cliController->sendRequestTimer,
+                            EventMatchType::Ref,
+                            SimTime(1, SIMTIME_S));
+                    connectedTransitions.push_back(conResWait);
+                    connectedState->setTransitions(connectedTransitions);
+
+                    std::vector<std::shared_ptr<ITransition>> waitingTransitions;
+                    std::shared_ptr<ITransition> waitingDone = std::make_shared<PacketTransition>(
+                            new PlaceholderPacketOperationFactory(cliController),
+                            doneState,
+                            "content.result == 200",
+                            this);
+                    std::shared_ptr<ITransition> waitingConnected = std::make_shared<PacketTransition>(
+                            new PlaceholderPacketOperationFactory(cliController),
+                            connectedState,
+                            "content.result != 200");
+
+                    // Push waitingResponse --> done transition into canary
+                    completionCanary.insert({waitingDone.get(), false});
+                    waitingTransitions.push_back(waitingDone);
+                    waitingTransitions.push_back(waitingConnected);
+                    waitHttpRespState->setTransitions(waitingTransitions);
+
+                    OpFSM* fsm = new OpFSM(controller, startingState, false);
+                    cliController->getControlFSM()->merge(fsm);
                     break;
 		        }
 		    }
