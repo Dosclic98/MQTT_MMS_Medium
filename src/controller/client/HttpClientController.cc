@@ -17,7 +17,7 @@
 #include "../listener/MsgListener.h"
 #include "../listener/ResListener.h"
 #include "inet/networklayer/common/L3AddressResolver.h"
-//#include "../fsm/factory/concrete/HttpClientFSMFactory.h"
+#include "../fsm/factory/concrete/HttpClientFSMFactory.h"
 
 using namespace inet;
 
@@ -47,14 +47,15 @@ void HttpClientController::initialize() {
 
     controllerStatus = false;
 
-    // TODO Implement an HTTP client FSM factory
-    //this->fsmFactory = new HttpAttackerFSMFactory(this);
-    //this->controlFSM = this->fsmFactory->build();
+    // HTTP client FSM factory
+    this->fsmFactory = new HttpClientFSMFactory(this);
+    this->controlFSM = this->fsmFactory->build();
 }
 
 void HttpClientController::handleMessage(cMessage *msg) {
     if(msg == connectionTimer || msg == timeoutTimer ||
-            msg == disconnectionTimer || msg == sendRequestTimer) {
+            msg == disconnectionTimer || msg == sendRequestTimer ||
+            msg == startingTimer) {
         this->controlFSM->next(msg);
     } else {
         EV_INFO << "LOLLOSO\n";
@@ -126,5 +127,6 @@ HttpClientController::~HttpClientController() {
     cancelAndDelete(disconnectionTimer);
     cancelAndDelete(timeoutTimer);
     cancelAndDelete(sendRequestTimer);
+    cancelAndDelete(startingTimer);
     cancelAndDelete(thinkTimer);
 }

@@ -31,6 +31,7 @@ public:
     cMessage* disconnectionTimer = new cMessage("Disconnection Timer");
     cMessage* timeoutTimer = new cMessage("Timeout Timer");
     cMessage* sendRequestTimer = new cMessage("HTTP Request Timer");
+    cMessage* startingTimer = new cMessage("Starting connection");
 
     cMessage* thinkTimer = new cMessage("Think timer");
 
