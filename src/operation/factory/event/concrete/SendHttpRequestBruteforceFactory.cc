@@ -34,9 +34,12 @@ SendHttpRequestBruteforceFactory::~SendHttpRequestBruteforceFactory() {
 }
 
 void SendHttpRequestBruteforceFactory::build(omnetpp::cEvent* event) {
-    oss << "{username=\"" << username << "\",password=\"" << passwordVector[passwordIndex] << "\"";
-    const char* body = strdup(oss.str().c_str());
-    oss.clear();
+    if(passwordIndex >= passwordVector.size()) {
+        throw std::out_of_range("PasswordIndex out of range: The correct password was not in the dictionary");
+    }
+    std::string bodyStr =  std::string("{username:\"") + std::string(username) + std::string("\",password:\"") +
+            std::string(passwordVector[passwordIndex]) + std::string("\"}");
+    const char* body = strdup(bodyStr.c_str());
     Ptr<HttpRequestMessage> httpRequest = messageFactory.buildRequest("POST", "/api/login",
                                             true, 11, "text/json", sizeof(body), body);
     SendHttpRequest* oper = new SendHttpRequest(httpRequest);

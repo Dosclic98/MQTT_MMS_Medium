@@ -39,11 +39,11 @@ IFSM* HttpServerStationFSMFactory::build() {
     std::shared_ptr<ITransition> operativeOk = std::make_shared<PacketTransition>(
             new SendHttpResponseFactory(controller, 200),
             operativeState,
-            "content.method == 'POST' && content.targetUrl == '/api/login' && content.body == '{username=\"admin\",password=\"adminroot\"}'");
+            "content.method == 'POST' && content.targetUrl == '/api/login' && content.body == '{username:\"admin\",password:\"adminroot\"}'");
     std::shared_ptr<ITransition> operativeError = std::make_shared<PacketTransition>(
             new SendHttpResponseFactory(controller, 401),
             operativeState,
-            "content.method != 'POST' || content.targetUrl != '/api/login' || content.body != '{username=\"admin\",password=\"adminroot\"}'");
+            "content.method != 'POST' || content.targetUrl != '/api/login' || content.body != '{username:\"admin\",password:\"adminroot\"}'");
     operativeTransitions.push_back(operativeOk);
     operativeTransitions.push_back(operativeError);
     operativeState->setTransitions(operativeTransitions);

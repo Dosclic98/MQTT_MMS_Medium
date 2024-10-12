@@ -30,7 +30,7 @@ module HistorianServer {
         
     submodules:
         historianHostOperator: StandardHost {
-        	numApps = 1;
+        	numApps = 2;
         };
         
     	httpServerController: HttpServerController;   

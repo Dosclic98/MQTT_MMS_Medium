@@ -28,10 +28,9 @@ public:
     SendHttpRequestBruteforceFactory(IController* controller);
     virtual ~SendHttpRequestBruteforceFactory();
 protected:
-    std::ostringstream oss;
     HttpMessageFactory messageFactory;
     std::string username = "admin";
-    /*
+
     std::vector<std::string> passwordVector = {
         "admin", "password", "123456", "letmein", "qwerty", "welcome", "trustno1", "secret", "default", "access",
         "user", "guest", "changeme", "passw0rd", "root", "1234", "login", "abcd1234", "password1", "superuser",
@@ -80,10 +79,7 @@ protected:
         "securelogin2024", "routeraccesslogin", "guestpanelpassword", "cloudpasswordlogin", "readonlyguestlogin", "guestlocklogin", "readonlypasswordlogin", "adminpasswordlogin", "guestlockpassword", "readonlylockpassword",
         "guest123lock", "adminlockpassword", "adminloginlock", "guestloginlock", "adminpanelpassword", "publiclockpassword", "publicaccesspassword", "publicuserpassword", "publicguestpassword", "guestguestpassword"
     };
-    */
-    std::vector<std::string> passwordVector = {
-           "trustno1", "secret", "default", "adminroot"
-        };
+
     int passwordIndex;
 
     virtual void shufflePasswords(std::vector<std::string>& passwords);

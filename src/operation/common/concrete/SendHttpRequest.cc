@@ -27,9 +27,9 @@ SendHttpRequest::~SendHttpRequest() {
 }
 
 void SendHttpRequest::execute() {
-    auto* oper = dynamic_cast<HttpClientEvilOperator*>(operatorOwner);
+    auto* oper = dynamic_cast<HttpClientOperator*>(operatorOwner);
     if(oper == nullptr) {
-        // TODO Add cast to HttpClientOperator
+        oper = dynamic_cast<HttpClientEvilOperator*>(operatorOwner);
     }
     assert(oper != nullptr);
 
