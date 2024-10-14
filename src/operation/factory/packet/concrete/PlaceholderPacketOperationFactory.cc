@@ -29,4 +29,5 @@ PlaceholderPacketOperationFactory::~PlaceholderPacketOperationFactory() {
 void PlaceholderPacketOperationFactory::build(Packet* packet) {
     PlaceholderOperation* atkOp = new PlaceholderOperation();
     controller->enqueueNSchedule(atkOp);
+    delete packet;
 }

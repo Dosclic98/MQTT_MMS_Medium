@@ -54,5 +54,5 @@ void SendHttpResponseFactory::build(Packet* packet) {
         SendHttpResponse* oper = new SendHttpResponse(connId, resPayload);
         controller->enqueueNSchedule(oper);
     }
-
+    delete packet;
 }
