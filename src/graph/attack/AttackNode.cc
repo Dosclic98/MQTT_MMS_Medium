@@ -395,139 +395,144 @@ void AttackNode::executeStep() {
                     cliController->getControlFSM()->merge(fsm);
                     break;
 		        }
+		        case AttackType::CREDACC: {
+                    MmsAttackerController* atkController = static_cast<MmsAttackerController*>(controller);
+                    OpState* unconnectedState = new OpState("UNCONNECTED");
+                    OpState* opState = new OpState("OPERATIVE");
+
+                    std::vector<std::shared_ptr<ITransition>> unconnectedTransitions;
+                    std::shared_ptr<ITransition> unconCon = std::make_shared<EventTransition>(
+                            new SendTcpConnectAtkFactory(atkController),
+                            opState,
+                            new cMessage("TCPCONNECT", MSGKIND_CONNECT),
+                            EventMatchType::Kind,
+                            SimTime(1, SIMTIME_S),
+                            nullptr,
+                            this
+                        );
+                    // Push transitions into canary
+                    completionCanary.insert({unconCon.get(), false});
+                    unconnectedTransitions.push_back(unconCon);
+                    unconnectedState->setTransitions(unconnectedTransitions);
+
+                    OpFSM* fsm = new OpFSM(controller, unconnectedState, false);
+                    atkController->getControlFSM()->merge(fsm);
+		            break;
+		        }
+		        case AttackType::AITM: {
+                    MmsClientController* cliController = static_cast<MmsClientController*>(controller);
+
+                    OpState* operatingState = new OpState("OPERATING");
+                    OpState* terminatedState = new OpState("TERMINATED");
+                    OpState* atkConnectedState = new OpState("ATKCONNECTED");
+                    OpState* atkOperatingState = new OpState("ATKOPERATING");
+
+                    // Create the operating transitions (add disconnect)
+                    std::vector<std::shared_ptr<ITransition>> operatingTransitions;
+                    operatingTransitions.push_back(std::make_shared<EventTransition>(
+                            new SendMmsDisconnectFactory(cliController),
+                            terminatedState,
+                            new cMessage("SENDDISCONNECT", SEND_MMS_DISCONNECT),
+                            EventMatchType::Kind,
+                            SimTime(200, SIMTIME_MS)
+                    ));
+                    operatingState->setTransitions(operatingTransitions);
+
+
+                    std::vector<std::shared_ptr<ITransition>> terminatedTransitions;
+                    std::string* strConnAddr = new std::string("IncrementalTest.workstation.attackerOperator");
+                    terminatedTransitions.push_back(std::make_shared<EventTransition>(
+                            new SendTcpConnectFactory(cliController, strConnAddr),
+                            atkConnectedState,
+                            new cMessage("TCPCONNECT", SEND_TCP_CONNECT),
+                            EventMatchType::Kind,
+                            SimTime(200, SIMTIME_MS)
+                    ));
+                    terminatedState->setTransitions(terminatedTransitions);
+
+                    // Create connected transitions
+                    std::vector<std::shared_ptr<ITransition>> atkConnectedTransitions;
+                    atkConnectedTransitions.push_back(std::make_shared<EventTransition>(
+                            new SendMmsConnectFactory(cliController),
+                            atkOperatingState,
+                            new cMessage("SENDMEAS", SEND_MMS_CONNECT),
+                            EventMatchType::Kind,
+                            SimTime(20, SIMTIME_MS)
+                    ));
+                    atkConnectedState->setTransitions(atkConnectedTransitions);
+
+                    // Create the operating transitions
+                    std::vector<std::shared_ptr<ITransition>> atkOperatingTransitions;
+                    std::shared_ptr<ITransition>atkOpRead = std::make_shared<EventTransition>(
+                            new SendMmsRequestFactory(cliController),
+                            atkOperatingState,
+                            new cMessage("SENDREAD", SEND_MMS_READ),
+                            EventMatchType::Kind,
+                            SimTime(cliController->par("sendReadInterval")),
+                            cliController->par("sendReadInterval").getExpression(),
+                            this
+                    );
+                    atkOperatingTransitions.push_back(atkOpRead);
+                    std::shared_ptr<ITransition> atkOpCmd = std::make_shared<EventTransition>(
+                            new SendMmsRequestFactory(cliController),
+                            atkOperatingState,
+                            new cMessage("SENDCOMMAND", SEND_MMS_COMMAND),
+                            EventMatchType::Kind,
+                            SimTime(cliController->par("sendCommandInterval")),
+                            cliController->par("sendCommandInterval").getExpression(),
+                            this
+                    );
+                    atkOperatingTransitions.push_back(atkOpCmd);
+                    // Push transitions into canary
+                    completionCanary.insert({atkOpRead.get(), false});
+                    completionCanary.insert({atkOpCmd.get(), false});
+                    atkOperatingState->setTransitions(atkOperatingTransitions);
+
+                    OpFSM* fsm = new OpFSM(controller, operatingState, false);
+
+                    cliController->getControlFSM()->merge(fsm);
+                    break;
+		        }
+		        case AttackType::UNAUTHCMDMSG: {
+                    MmsAttackerController* atkController = static_cast<MmsAttackerController*>(controller);
+                    OpState* opState = new OpState("OPERATIVE");
+
+                    std::vector<std::shared_ptr<ITransition>> operativeTransitions;
+                    std::shared_ptr<ITransition> opToSer = std::make_shared<PacketTransition>(
+                            new ForwardMmsMessageToServerFactory(atkController),
+                            opState,
+                            "content.messageKind == 0 || content.messageKind == 2", // messageKind == MMSKind::CONNECT || messageKind == MMSKind::GENREQ
+                            this
+                        );
+                    operativeTransitions.push_back(opToSer);
+                    // Push transition into canary
+                    completionCanary.insert({opToSer.get(), false});
+                    opState->setTransitions(operativeTransitions);
+                    OpFSM* fsm = new OpFSM(controller, opState, false);
+                    atkController->getControlFSM()->merge(fsm);
+		            break;
+		        }
+		        case AttackType::SPOOFREPMSG: {
+                    MmsAttackerController* atkController = static_cast<MmsAttackerController*>(controller);
+                    OpState* opState = new OpState("OPERATIVE");
+
+                    std::vector<std::shared_ptr<ITransition>> operativeTransitions;
+                    std::shared_ptr<ITransition> opToCli = std::make_shared<PacketTransition>(
+                            new ForwardMmsMessageToClientFactory(atkController),
+                            opState,
+                            "content.messageKind == 1 || content.messageKind == 3", // messageKind == MMSKind::MEASURE || messageKind == MMSKind::GENRESP
+                            this
+                        );
+                    operativeTransitions.push_back(opToCli);
+                    // Push transition into canary
+                    completionCanary.insert({opToCli.get(), false});
+                    opState->setTransitions(operativeTransitions);
+                    OpFSM* fsm = new OpFSM(controller, opState, false);
+                    atkController->getControlFSM()->merge(fsm);
+		        }
+		        default:
+		            EV_INFO << "No action defined for the activated attack step\n";
 		    }
-
-/*
-			switch(this->attackType) {
-				case AttackType::ACCESS: {
-					MmsAttackerController* atkController = static_cast<MmsAttackerController*>(controller);
-					OpState* unconnectedState = new OpState("UNCONNECTED");
-					OpState* opState = new OpState("OPERATIVE");
-
-					std::vector<std::shared_ptr<ITransition>> unconnectedTransitions;
-					std::shared_ptr<ITransition> unconCon = std::make_shared<EventTransition>(
-							new SendTcpConnectAtkFactory(atkController),
-							opState,
-							new cMessage("TCPCONNECT", MSGKIND_CONNECT),
-							EventMatchType::Kind,
-							SimTime(1, SIMTIME_S),
-							nullptr,
-							this
-						);
-					// Push transitions into canary
-					completionCanary.insert({unconCon.get(), false});
-					unconnectedTransitions.push_back(unconCon);
-					unconnectedState->setTransitions(unconnectedTransitions);
-
-					OpFSM* fsm = new OpFSM(controller, unconnectedState, false);
-					atkController->getControlFSM()->merge(fsm);
-					break;
-				}
-				case AttackType::ADVINTHEMID: {
-					MmsClientController* cliController = static_cast<MmsClientController*>(controller);
-
-					OpState* operatingState = new OpState("OPERATING");
-					OpState* terminatedState = new OpState("TERMINATED");
-					OpState* atkConnectedState = new OpState("ATKCONNECTED");
-					OpState* atkOperatingState = new OpState("ATKOPERATING");
-
-					// Create the operating transitions (add disconnect)
-					std::vector<std::shared_ptr<ITransition>> operatingTransitions;
-					operatingTransitions.push_back(std::make_shared<EventTransition>(
-							new SendMmsDisconnectFactory(cliController),
-							terminatedState,
-							new cMessage("SENDDISCONNECT", SEND_MMS_DISCONNECT),
-							EventMatchType::Kind,
-							SimTime(1, SIMTIME_S)
-					));
-					operatingState->setTransitions(operatingTransitions);
-
-
-					std::vector<std::shared_ptr<ITransition>> terminatedTransitions;
-					std::string* strConnAddr = new std::string("IncrementalTest.attacker.attackerOperator");
-					terminatedTransitions.push_back(std::make_shared<EventTransition>(
-							new SendTcpConnectFactory(cliController, strConnAddr),
-							atkConnectedState,
-							new cMessage("TCPCONNECT", SEND_TCP_CONNECT),
-							EventMatchType::Kind,
-							SimTime(1, SIMTIME_S)
-					));
-					terminatedState->setTransitions(terminatedTransitions);
-
-					// Create connected transitions
-					std::vector<std::shared_ptr<ITransition>> atkConnectedTransitions;
-					atkConnectedTransitions.push_back(std::make_shared<EventTransition>(
-							new SendMmsConnectFactory(cliController),
-							atkOperatingState,
-							new cMessage("SENDMEAS", SEND_MMS_CONNECT),
-							EventMatchType::Kind,
-							SimTime(1, SIMTIME_S)
-					));
-					atkConnectedState->setTransitions(atkConnectedTransitions);
-
-					// Create the operating transitions
-					std::vector<std::shared_ptr<ITransition>> atkOperatingTransitions;
-					std::shared_ptr<ITransition>atkOpRead = std::make_shared<EventTransition>(
-							new SendMmsRequestFactory(cliController),
-							atkOperatingState,
-							new cMessage("SENDREAD", SEND_MMS_READ),
-							EventMatchType::Kind,
-							SimTime(cliController->par("sendReadInterval")),
-							cliController->par("sendReadInterval").getExpression(),
-							this
-					);
-					atkOperatingTransitions.push_back(atkOpRead);
-					std::shared_ptr<ITransition> atkOpCmd = std::make_shared<EventTransition>(
-							new SendMmsRequestFactory(cliController),
-							atkOperatingState,
-							new cMessage("SENDCOMMAND", SEND_MMS_COMMAND),
-							EventMatchType::Kind,
-							SimTime(cliController->par("sendCommandInterval")),
-							cliController->par("sendCommandInterval").getExpression(),
-							this
-					);
-					atkOperatingTransitions.push_back(atkOpCmd);
-					// Push transitions into canary
-					completionCanary.insert({atkOpRead.get(), false});
-					completionCanary.insert({atkOpCmd.get(), false});
-					atkOperatingState->setTransitions(atkOperatingTransitions);
-
-					OpFSM* fsm = new OpFSM(controller, operatingState, false);
-
-					cliController->getControlFSM()->merge(fsm);
-					break;
-				}
-				case AttackType::WRITEOP: {
-					MmsAttackerController* atkController = static_cast<MmsAttackerController*>(controller);
-					OpState* opState = new OpState("OPERATIVE");
-
-					std::vector<std::shared_ptr<ITransition>> operativeTransitions;
-					std::shared_ptr<ITransition> opToCli = std::make_shared<PacketTransition>(
-							new ForwardMmsMessageToClientFactory(atkController),
-							opState,
-							"content.messageKind == 1 || content.messageKind == 3", // messageKind == MMSKind::MEASURE || messageKind == MMSKind::GENRESP
-							this
-						);
-					operativeTransitions.push_back(opToCli);
-					std::shared_ptr<ITransition> opToSer = std::make_shared<PacketTransition>(
-							new ForwardMmsMessageToServerFactory(atkController),
-							opState,
-							"content.messageKind == 0 || content.messageKind == 2", // messageKind == MMSKind::CONNECT || messageKind == MMSKind::GENREQ
-							this
-						);
-					operativeTransitions.push_back(opToSer);
-					// Push transitions into canary
-					completionCanary.insert({opToCli.get(), false});
-					completionCanary.insert({opToSer.get(), false});
-					opState->setTransitions(operativeTransitions);
-					OpFSM* fsm = new OpFSM(controller, opState, false);
-					atkController->getControlFSM()->merge(fsm);
-					break;
-				}
-				default:
-					EV << "No action defined for the activated attack step\n";
-			}
-*/
 		}
 	}
 	if(this->nodeType == NodeType::END) {
