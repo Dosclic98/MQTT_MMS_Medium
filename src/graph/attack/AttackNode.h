@@ -26,6 +26,7 @@ namespace inet {
 #define KIND_NOTIFY_COMPLETED 1
 
 class ITransition;
+class DBNLogger;
 
 enum NodeType {
 	AND = 0,
@@ -59,7 +60,8 @@ enum AttackType {
 
 class AttackNode : public omnetpp::cSimpleModule, public INode{
   protected:
-    virtual void initialize() override;
+    virtual void initialize(int stage) override;
+    virtual int numInitStages() const override;
     virtual void handleMessage(omnetpp::cMessage *msg) override;
     virtual void refreshDisplay() const override;
     virtual std::vector<AttackNode*> getParents();
@@ -106,6 +108,8 @@ class AttackNode : public omnetpp::cSimpleModule, public INode{
     // Map <K, V> of <ITransition, boolean> that records if a certain transition has been
     // traversed to implement a time-to-completion statistic for the attack step
     std::map<ITransition*, bool> completionCanary;
+
+    DBNLogger* dbnLogger;
     virtual bool isActive();
 };
 

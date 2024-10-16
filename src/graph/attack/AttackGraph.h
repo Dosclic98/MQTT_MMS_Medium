@@ -35,6 +35,9 @@ struct NodeContent {
 };
 
 class AttackGraph : public omnetpp::cModule, public IGraph {
+  public:
+    virtual std::map<std::string, AttackNode*> getNodesMap() { return nodesMap; }
+
   protected:
 	std::map<std::string, AttackNode*> nodesMap;
 	NodeContent nodes[21] = {

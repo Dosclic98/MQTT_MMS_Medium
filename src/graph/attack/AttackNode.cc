@@ -37,26 +37,36 @@
 #include "../../operation/factory/event/concrete/SendMmsRequestFactory.h"
 #include "../../operation/factory/packet/concrete/ManageHttpTcpSocketFactory.h"
 #include "../../utils/factories/http/HttpMessageFactory.h"
+#include "../../utils/logger/dbn/DBNLogger.h"
 
 using namespace inet;
 
 Define_Module(AttackNode);
 
-void AttackNode::initialize() {
-	// By default an AttackNode is not completed
-	completedState = false;
-	complTimeSignal = registerSignal("complTimeSignal");
-	startTimeSignal = registerSignal("startTimeSignal");
-	endTimeSignal = registerSignal("endTimeSignal");
-    if(this->isActive()) {
-    	if(this->getNodeType() == NodeType::BEGIN || this->getNodeType() == NodeType::DEFENSE) {
-    	    stepStart = simTime();
-    		scheduleCompletionDelay();
-    	} else {
-    		throw std::invalid_argument("A node of type different from BEGIN or DEFENSE is active on initialization");
-    	}
+void AttackNode::initialize(int stage) {
+    if(stage == 0) {
+        // By default an AttackNode is not completed
+        completedState = false;
+        complTimeSignal = registerSignal("complTimeSignal");
+        startTimeSignal = registerSignal("startTimeSignal");
+        endTimeSignal = registerSignal("endTimeSignal");
+
+        if(this->isActive()) {
+            if(this->getNodeType() == NodeType::BEGIN || this->getNodeType() == NodeType::DEFENSE) {
+                stepStart = simTime();
+                scheduleCompletionDelay();
+            } else {
+                throw std::invalid_argument("A node of type different from BEGIN or DEFENSE is active on initialization");
+            }
+        }
+        // If a defense is not active we do not emit anything as completion time signal
+    } else if(stage == INITSTAGE_LAST) {
+        dbnLogger = check_and_cast<DBNLogger*>(this->getModuleByPath(".^.dbnLogger"));
     }
-    // If a defense is not active we do not emit anything as completion time signal
+}
+
+int AttackNode::numInitStages() const {
+    return 23;
 }
 
 // TODO Maybe implement node deactivation in the future
@@ -66,6 +76,8 @@ void AttackNode::handleMessage(omnetpp::cMessage *msg) {
     		delete msg;
         	// The current attack step has been completed completion delay has expired so the attack node is completed (notify all children)
     		this->completedState = true;
+    		// Notify DBN logger that this node has been activated
+    		dbnLogger->notifyActivation(this);
         	notifyCompletion();
         	// Emit completion time statistic
         	emit(complTimeSignal, simTime() - this->stepStart);
@@ -370,7 +382,7 @@ void AttackNode::executeStep() {
                             waitHttpRespState,
                             cliController->sendRequestTimer,
                             EventMatchType::Ref,
-                            SimTime(1, SIMTIME_S));
+                            SimTime(50, SIMTIME_MS));
                     connectedTransitions.push_back(conResWait);
                     connectedState->setTransitions(connectedTransitions);
 

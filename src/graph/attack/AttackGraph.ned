@@ -16,6 +16,7 @@
 package tx_medium_exp.graph.attack;
 
 import tx_medium_exp.graph.attack.AttackNode;
+import tx_medium_exp.utils.logger.dbn.DBNLogger;
 
 module AttackGraph {
     parameters:
@@ -24,4 +25,5 @@ module AttackGraph {
         
     submodules:
         adjList[0]: AttackNode;
+        dbnLogger: DBNLogger;
 }
