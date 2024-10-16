@@ -58,7 +58,6 @@ void HttpClientController::handleMessage(cMessage *msg) {
             msg == startingTimer) {
         this->controlFSM->next(msg);
     } else {
-        EV_INFO << "LOLLOSO\n";
         if(msg == thinkTimer) {
             if(!operationQueue.isEmpty()) {
                 IOperation* op = check_and_cast<IOperation*>(operationQueue.pop());
