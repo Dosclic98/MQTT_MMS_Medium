@@ -163,6 +163,7 @@ void OpFSM::merge(IFSM* other) {
 	// For each state and for each transition check
 	// that the arrival state is correctly referenced
 	std::map<std::string, IState*> checkStates = this->getStatesMap();
+
 	for(std::pair<std::string, IState*> checkPair : checkStates) {
 	    std::vector<std::shared_ptr<ITransition>> checkTransitions = checkPair.second->getTransitions();
 	    for(std::shared_ptr<ITransition> checkTrans : checkTransitions) {
@@ -172,8 +173,10 @@ void OpFSM::merge(IFSM* other) {
 	        if(checkStates.find(checkStateName) != checkStates.end() &&
 	                checkStates[checkStateName] != checkTrans->getArrivalState()) {
 	            checkTrans->setArrivalState(checkStates[checkStateName]);
+	            assert(toDelete.find(checkStates[checkStateName]) == toDelete.end());
 	        }
 	    }
+	    checkPair.second->setTransitions(checkTransitions);
 	}
 
 	// Merge dormancy updater maps
@@ -192,6 +195,7 @@ void OpFSM::merge(IFSM* other) {
 
 	// For each transition within the CFSM check that it is correctly referenced in the dormancyUpdater if present
 	std::set<IState*> newStates = this->getStates();
+
 	for(IState* state : newStates) {
 	    std::vector<std::shared_ptr<ITransition>> newTransitions = state->getTransitions();
 	    for(std::shared_ptr<ITransition> newTrans : newTransitions) {
@@ -211,7 +215,8 @@ void OpFSM::merge(IFSM* other) {
 	// Delete the merged states
 	for(IState* delState : toDelete) {
 	    EV << delState->getName() << "\n";
-	    delete delState;
+	    // TODO Understand why old state deletion causes an Heisenbug
+	    //delete delState;
 	}
 
 	// When the merge is completed schedule the new events
