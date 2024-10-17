@@ -27,7 +27,6 @@ void DBNLogger::initialize(int stage) {
     if(stage == INITSTAGE_LAST - 1) {
         // Initialize logger after the AG has been intialized
         std::string fileName = par("fileName").stdstringValue();
-        logFile.open(this->path + fileName);
 
         cEnvir* ev = getSimulation()->getActiveEnvir();
         int runNumber = ev->getConfigEx()->getActiveRunNumber();
@@ -37,8 +36,8 @@ void DBNLogger::initialize(int stage) {
         EV_INFO << runNumber << "\n";
 
         if(runNumber == 0) {
+            logFile.open(this->path + fileName);
             const std::map<std::string, AttackNode*>& nodesMap = ag->getNodesMap();
-            logFile.clear();
             simtime_t simTimeLimit = SimTime::parse(ev->getConfig()->getConfigValue("sim-time-limit"));
             int numSteps = simTimeLimit / deltaT;
             for(std::pair<std::string, AttackNode*> elem : nodesMap) {
@@ -47,6 +46,8 @@ void DBNLogger::initialize(int stage) {
                 }
             }
             logFile << "\n";
+        } else {
+            logFile.open(this->path + fileName, std::ios_base::app);
         }
 
     }
