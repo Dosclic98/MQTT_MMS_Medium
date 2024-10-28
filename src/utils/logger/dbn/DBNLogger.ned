@@ -19,6 +19,7 @@ package tx_medium_exp.utils.logger.dbn;
 simple DBNLogger {
 	parameters:
 	    @class("inet::DBNLogger");
+	    @display("i=block/cogwheel");
     	string fileName = default("dbnLogs.csv");   
     	double deltaT @unit(s) = default(5s);  
 }

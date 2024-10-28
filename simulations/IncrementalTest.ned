@@ -38,26 +38,26 @@ network IncrementalTest
 {
     parameters:
         volatile int numMmsServers = default(1);
-        @display("bgb=1177,673");
+        @display("bgb=1000,673");
     submodules:
         attackGraph: AttackGraph {
-            @display("p=54,121");
+            @display("p=51.668747,171.245");
         }
         controllerBinder: ControllerBinder {
-            @display("p=54,38");
+            @display("p=53.144997,63.47875");
         }
         binder: Binder {
 
-            @display("p=166,38");
+            @display("p=186.00749,63.47875");
         }
         configurator: Ipv4NetworkConfigurator {
-            @display("p=54,204");
+            @display("p=53.144997,270.15375");
         }
         carrierAggregation: CarrierAggregation {
-            @display("p=54,378;is=s");
+            @display("p=51.668747,445.82748;is=s");
         }
         channelControl: LteChannelControl {
-            @display("p=53,293;is=s");
+            @display("p=53.144997,358.72873;is=s");
         }
         stationComputer: StationComputer {
             numMmsServers = parent.numMmsServers;
