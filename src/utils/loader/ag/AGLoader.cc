@@ -13,22 +13,24 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package tx_medium_exp.graph.attack;
+#include "AGLoader.h"
+#include <fstream>
+#include "../../../lib/nlohmann-json/single_include/nlohmann/json.hpp"
 
-import tx_medium_exp.graph.attack.AttackNode;
-import tx_medium_exp.utils.logger.dbn.DBNLogger;
-import tx_medium_exp.utils.loader.ag.AGLoader;
+using namespace inet;
+using json = nlohmann::json;
 
-module AttackGraph
-{
-    parameters:
-        @display("i=block/network2");
-        @class("inet::AttackGraph");
+Define_Module(AGLoader);
 
-    submodules:
-        adjList[0]: AttackNode;
-        dbnLogger: DBNLogger;
-        agLoader: AGLoader {
-            @display("p=30,99");
-        }
+void AGLoader::initialize() {
+    // Initialize logger after the AG has been intialized
+    std::string path = par("path").stdstringValue();
+    std::string fileName = par("fileName").stdstringValue();
+
+    std::ifstream f(path + fileName);
+    json data = json::parse(f);
+}
+
+void AGLoader::handleMessage(cMessage *msg) {
+    // TODO - Generated method body
 }

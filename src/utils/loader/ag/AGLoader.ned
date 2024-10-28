@@ -13,22 +13,12 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package tx_medium_exp.graph.attack;
+package tx_medium_exp.utils.loader.ag;
 
-import tx_medium_exp.graph.attack.AttackNode;
-import tx_medium_exp.utils.logger.dbn.DBNLogger;
-import tx_medium_exp.utils.loader.ag.AGLoader;
-
-module AttackGraph
-{
+simple AGLoader {
     parameters:
-        @display("i=block/network2");
-        @class("inet::AttackGraph");
-
-    submodules:
-        adjList[0]: AttackNode;
-        dbnLogger: DBNLogger;
-        agLoader: AGLoader {
-            @display("p=30,99");
-        }
+        @class("inet::AGLoader");
+	    @display("i=block/cogwheel");
+	    string path = default("");
+    	string fileName = default("attackGraph.json");
 }

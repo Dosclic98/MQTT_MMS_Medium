@@ -13,22 +13,21 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package tx_medium_exp.graph.attack;
+#ifndef __MQTT_MMS_MEDIUM_AGLOADER_H_
+#define __MQTT_MMS_MEDIUM_AGLOADER_H_
 
-import tx_medium_exp.graph.attack.AttackNode;
-import tx_medium_exp.utils.logger.dbn.DBNLogger;
-import tx_medium_exp.utils.loader.ag.AGLoader;
+#include <omnetpp.h>
 
-module AttackGraph
-{
-    parameters:
-        @display("i=block/network2");
-        @class("inet::AttackGraph");
+namespace inet {
 
-    submodules:
-        adjList[0]: AttackNode;
-        dbnLogger: DBNLogger;
-        agLoader: AGLoader {
-            @display("p=30,99");
-        }
-}
+using namespace omnetpp;
+
+class AGLoader : public cSimpleModule {
+  protected:
+    virtual void initialize() override;
+    virtual void handleMessage(cMessage *msg) override;
+};
+
+} // namespace inet;
+
+#endif
