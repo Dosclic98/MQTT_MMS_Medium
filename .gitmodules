@@ -1,0 +1,4 @@
+[submodule "src/lib/nlohmann-json"]
+	path = src/lib/nlohmann-json
+	url = https://github.com/Dosclic98/json.git
+	branch = submodule
