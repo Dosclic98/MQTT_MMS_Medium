@@ -14,6 +14,7 @@
 // 
 
 #include "AttackGraph.h"
+#include "../../utils/loader/ag/AGLoader.h"
 
 using namespace inet;
 
@@ -28,6 +29,13 @@ void AttackGraph::initialize(int stage) {
 
 		omnetpp::cModuleType* nodeType = omnetpp::cModuleType::get("tx_medium_exp.graph.attack.AttackNode");
 
+	    // Initialize logger after the AG has been intialized
+	    std::string path = par("path").stdstringValue();
+	    std::string fileName = par("fileName").stdstringValue();
+
+	    AGLoader agLoader = AGLoader(path, fileName);
+	    nodes = agLoader.load();
+
 		// Initialize nodes
 		for(NodeContent nodeContent : nodes) {
 			this->setSubmoduleVectorSize(vectorName, ++vectorSize);
@@ -38,9 +46,9 @@ void AttackGraph::initialize(int stage) {
 			nodeAttack->setState(nodeContent.state);
 			nodeAttack->setAttackType(nodeContent.attackType);
 			// If the activationDelayExpr is nullptr the default(0) is used
-			if(nodeContent.completionDelayExpr != nullptr) {
+			if(nodeContent.completionDelayExpr != std::string("")) {
 				omnetpp::cDynamicExpression* activationDelayExpr = new omnetpp::cDynamicExpression();
-				activationDelayExpr->parse(nodeContent.completionDelayExpr);
+				activationDelayExpr->parse(nodeContent.completionDelayExpr.c_str());
 				nodeAttack->par(activationDelayParName).setExpression(activationDelayExpr);
 			} else {
 				if(nodeContent.nodeType == NodeType::BEGIN || nodeContent.nodeType == NodeType::DEFENSE) {
@@ -51,7 +59,7 @@ void AttackGraph::initialize(int stage) {
 			nodeAttack->finalizeParameters();
 			nodeAttack->buildInside();
 			// Set display name and display string
-			nodeAttack->setDisplayName(nodeContent.displayName);
+			nodeAttack->setDisplayName(nodeContent.displayName.c_str());
 			omnetpp::cDisplayString& dispStr = nodeAttack->getDisplayString();
 			dispStr.parse(AttackNode::displayStrings[nodeContent.nodeType].c_str());
 

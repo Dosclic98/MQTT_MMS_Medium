@@ -17,18 +17,17 @@ package tx_medium_exp.graph.attack;
 
 import tx_medium_exp.graph.attack.AttackNode;
 import tx_medium_exp.utils.logger.dbn.DBNLogger;
-import tx_medium_exp.utils.loader.ag.AGLoader;
 
 module AttackGraph
 {
     parameters:
         @display("i=block/network2");
         @class("inet::AttackGraph");
+        
+        string path = default("");
+		string fileName = default("attackGraph.json");
 
     submodules:
         adjList[0]: AttackNode;
         dbnLogger: DBNLogger;
-        agLoader: AGLoader {
-            @display("p=30,99");
-        }
 }

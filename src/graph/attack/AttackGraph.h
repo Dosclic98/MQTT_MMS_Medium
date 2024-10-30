@@ -18,21 +18,10 @@
 
 #include <omnetpp.h>
 #include "../IGraph.h"
+#include "NodeDefs.h"
 #include "AttackNode.h"
 
-
-
 namespace inet {
-
-struct NodeContent {
-	const char* displayName;
-	NodeType nodeType;
-	AttackType attackType;
-	bool state;
-	const char* completionDelayExpr;
-	std::vector<std::string> targetControllerList;
-	std::vector<std::string> children;
-};
 
 class AttackGraph : public omnetpp::cModule, public IGraph {
   public:
@@ -40,28 +29,29 @@ class AttackGraph : public omnetpp::cModule, public IGraph {
 
   protected:
 	std::map<std::string, AttackNode*> nodesMap;
-	NodeContent nodes[21] = {
-	        { "workStation_compromise", NodeType::BEGIN, AttackType::NOTSET, true, "uniform(2,4)", { }, { "DMZ_scanIP", "historianServer_remoteShellAND" } },
-	        { "DMZ_scanIP", NodeType::STEP, AttackType::SCANIP, false, nullptr, { "workstation.httpAttackerController" }, { "historian_scanVuln" } },
-	        { "historian_scanVuln", NodeType::STEP, AttackType::SCANVULN, false, nullptr, { "workstation.httpAttackerController" }, { "historian_remoteSrvc" } },
-	        { "historian_remoteSrvc", NodeType::STEP, AttackType::REMOTESRVC, false, "truncnormal(10, 2)", { }, { "historianServer_shell" } },
-	        { "historianServer_shell", NodeType::STEP, AttackType::SHELL, false, "truncnormal(8, 1)", { }, { "historianServer_NodeOR", "historianServer_addSSHKey" } },
-	        { "historianServer_addSSHKey", NodeType::STEP, AttackType::ADDSSHKEY, false, "truncnormal(9, 3)", { }, { "historianServer_remoteShellAND", "historianServer_addSSHKey" } },
-	        { "historianServer_remoteShellAND", NodeType::AND, AttackType::NOTSET, false, nullptr, { }, { "historianServer_remoteShell" } },
-	        { "historianServer_remoteShell", NodeType::STEP, AttackType::REMOTESHELL, false, "truncnormal(5, 1)", { }, { "historianServer_NodeOR"} },
-	        { "historianServer_NodeOR", NodeType::OR, AttackType::NOTSET, false, nullptr, { }, { "tomcatWebServer_bruteForce" } },
-	        { "tomcatWebServer_bruteForce", NodeType::STEP, AttackType::BRUTEFORCE, false, nullptr, { "historianServer.httpClientController" }, { "virtualEng_escapeHost" } },
-	        { "virtualEng_escapeHost", NodeType::STEP, AttackType::ESCAPEHOST, false, "truncnormal(10, 2) + exponential(60)", { }, { "stationComputer_shell" } },
-	        { "stationComputer_shell", NodeType::STEP, AttackType::SHELL, false, "truncnormal(8, 1)", { }, { "MMSclient_unsecCred", "MMSclient_modAuthProc" } },
-	        { "MMSclient_unsecCred", NodeType::STEP, AttackType::UNSECCRED, false, "truncnormal(15, 3)", { }, { "MMSclient_AND" } },
-	        { "MMSclient_modAuthProc", NodeType::STEP, AttackType::MODAUTHPROC, false, "truncnormal(15, 3)", { }, { "MMSclient_AND" } },
-	        { "MMSclient_AND", NodeType::AND, AttackType::NOTSET, false, nullptr, { }, { "MMSclient_credAcc" } },
-	        { "MMSclient_credAcc", NodeType::STEP, AttackType::CREDACC, false, nullptr, { "workstation.attackerController[0]" }, { "MMSTLS_AITM" } },
-	        { "MMSTLS_AITM", NodeType::STEP, AttackType::AITM, false, nullptr, { "stationComputer.mmsClientController[0]" }, { "MMS_unauthCmdMsg", "MMSclient_spoofRepMsg" } },
-	        { "MMS_unauthCmdMsg", NodeType::STEP, AttackType::UNAUTHCMDMSG, false, nullptr, { "workstation.attackerController[0]" }, { "IED_DERfailureOR" } },
-	        { "MMSclient_spoofRepMsg", NodeType::STEP, AttackType::SPOOFREPMSG, false, nullptr, { "workstation.attackerController[0]" }, { "IED_DERfailureOR" } },
-	        { "IED_DERfailureOR", NodeType::OR, AttackType::NOTSET, false, nullptr, { }, { "IED_DERfailure" } },
-	        { "IED_DERfailure", NodeType::END, AttackType::NOTSET, false, nullptr, { }, { } },
+	std::vector<NodeContent> nodes;
+	//NodeContent nodes[21] = {
+	//        { "workStation_compromise", NodeType::BEGIN, AttackType::NOTSET, true, "uniform(2,4)", { }, { "DMZ_scanIP", "historianServer_remoteShellAND" } },
+	//        { "DMZ_scanIP", NodeType::STEP, AttackType::SCANIP, false, "", { "workstation.httpAttackerController" }, { "historian_scanVuln" } },
+	//        { "historian_scanVuln", NodeType::STEP, AttackType::SCANVULN, false, "", { "workstation.httpAttackerController" }, { "historian_remoteSrvc" } },
+	//        { "historian_remoteSrvc", NodeType::STEP, AttackType::REMOTESRVC, false, "truncnormal(10, 2)", { }, { "historianServer_shell" } },
+	//        { "historianServer_shell", NodeType::STEP, AttackType::SHELL, false, "truncnormal(8, 1)", { }, { "historianServer_NodeOR", "historianServer_addSSHKey" } },
+	//        { "historianServer_addSSHKey", NodeType::STEP, AttackType::ADDSSHKEY, false, "truncnormal(9, 3)", { }, { "historianServer_remoteShellAND", "historianServer_addSSHKey" } },
+	//        { "historianServer_remoteShellAND", NodeType::AND, AttackType::NOTSET, false, "", { }, { "historianServer_remoteShell" } },
+	//        { "historianServer_remoteShell", NodeType::STEP, AttackType::REMOTESHELL, false, "truncnormal(5, 1)", { }, { "historianServer_NodeOR"} },
+	//        { "historianServer_NodeOR", NodeType::OR, AttackType::NOTSET, false, "", { }, { "tomcatWebServer_bruteForce" } },
+	//        { "tomcatWebServer_bruteForce", NodeType::STEP, AttackType::BRUTEFORCE, false, "", { "historianServer.httpClientController" }, { "virtualEng_escapeHost" } },
+	//        { "virtualEng_escapeHost", NodeType::STEP, AttackType::ESCAPEHOST, false, "truncnormal(10, 2) + exponential(60)", { }, { "stationComputer_shell" } },
+	//        { "stationComputer_shell", NodeType::STEP, AttackType::SHELL, false, "truncnormal(8, 1)", { }, { "MMSclient_unsecCred", "MMSclient_modAuthProc" } },
+	//        { "MMSclient_unsecCred", NodeType::STEP, AttackType::UNSECCRED, false, "truncnormal(15, 3)", { }, { "MMSclient_AND" } },
+	//       { "MMSclient_modAuthProc", NodeType::STEP, AttackType::MODAUTHPROC, false, "truncnormal(15, 3)", { }, { "MMSclient_AND" } },
+	//      { "MMSclient_AND", NodeType::AND, AttackType::NOTSET, false, "", { }, { "MMSclient_credAcc" } },
+	//      { "MMSclient_credAcc", NodeType::STEP, AttackType::CREDACC, false, "", { "workstation.attackerController[0]" }, { "MMSTLS_AITM" } },
+	//      { "MMSTLS_AITM", NodeType::STEP, AttackType::AITM, false, "", { "stationComputer.mmsClientController[0]" }, { "MMS_unauthCmdMsg", "MMSclient_spoofRepMsg" } },
+	//      { "MMS_unauthCmdMsg", NodeType::STEP, AttackType::UNAUTHCMDMSG, false, "", { "workstation.attackerController[0]" }, { "IED_DERfailureOR" } },
+	//      { "MMSclient_spoofRepMsg", NodeType::STEP, AttackType::SPOOFREPMSG, false, "", { "workstation.attackerController[0]" }, { "IED_DERfailureOR" } },
+	//      { "IED_DERfailureOR", NodeType::OR, AttackType::NOTSET, false, "", { }, { "IED_DERfailure" } },
+	//     { "IED_DERfailure", NodeType::END, AttackType::NOTSET, false, "", { }, { } },
 
 			// { "NetworkBegin", NodeType::BEGIN, AttackType::NOTSET, true, "uniform(2,4)", { }, { "Networkaccess" } },
 			// { "Networkaccess", NodeType::STEP, AttackType::ACCESS, false, nullptr, { "attacker.attackerController[0]", "attacker.attackerController[1]" }, { "ChanneladvInTheMid" } },
@@ -71,7 +61,7 @@ class AttackGraph : public omnetpp::cModule, public IGraph {
 			// { "MMSServerspoRepMes", NodeType::STEP, AttackType::SPOOFREPMES, false, nullptr, { }, { "IEDpowSysacc" } },
 			// { "IEDpowSysacc", NodeType::OR, AttackType::NOTSET, false, nullptr, { }, { "PowerSystemEnd" } },
 			// { "PowerSystemEnd", NodeType::END, AttackType::NOTSET, false, nullptr, { }, { } }
-	};
+	//};
 
     virtual void initialize(int stage) override;
     virtual int numInitStages() const override;

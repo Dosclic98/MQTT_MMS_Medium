@@ -19,6 +19,7 @@
 #include <omnetpp.h>
 #include "../../controller/IController.h"
 #include "../INode.h"
+#include "NodeDefs.h"
 
 namespace inet {
 
@@ -27,36 +28,6 @@ namespace inet {
 
 class ITransition;
 class DBNLogger;
-
-enum NodeType {
-	AND = 0,
-	OR = 1,
-	BEGIN = 2,
-	END = 3,
-	DEFENSE = 4,
-	STEP = 5
-};
-
-// A kind of attack for each attack step type
-enum AttackType {
-	NOTSET = -1,
-	COMPROMISE = 0,
-	SCANIP = 1,
-	SCANVULN = 2,
-	REMOTESRVC = 3,
-	SHELL = 4,
-	ADDSSHKEY = 5,
-	REMOTESHELL = 6,
-	BRUTEFORCE = 7,
-	ESCAPEHOST = 8,
-	MODAUTHPROC = 9,
-	UNSECCRED = 10,
-	CREDACC = 11,
-	AITM = 12,
-	UNAUTHCMDMSG = 13,
-	SPOOFREPMSG = 14,
-	DERFAILURE = 15
-};
 
 class AttackNode : public omnetpp::cSimpleModule, public INode{
   protected:
