@@ -1,0 +1,33 @@
+{
+    "attackGraph": [
+        {
+            "name": "DMZ_scanIP",
+            "targetControllers": ["workstation.httpAttackerController"]
+        },
+        {
+            "name": "historian_scanVuln",
+            "targetControllers": ["workstation.httpAttackerController"]
+        },
+        {
+            "name": "tomcatWebServer_bruteForce",
+            "targetControllers": ["historianServer.httpClientController"]
+        },
+        {
+            "name": "MMSclient_credAcc",
+            "targetControllers": ["workstation.attackerController[0]"]
+        },
+        {
+            "name": "MMSTLS_AITM",
+            "targetControllers": ["stationComputer.mmsClientController[0]"]
+        },
+        {
+            "name": "MMS_unauthCmdMsg",
+            "targetControllers": ["workstation.attackerController[0]"]
+        },
+        {
+            "name": "MMSclient_spoofRepMsg",
+            "targetControllers": ["workstation.attackerController[0]"]
+        }
+    ]
+}
+

@@ -13,21 +13,28 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-#ifndef __MQTT_MMS_MEDIUM_AGLOADER_H_
-#define __MQTT_MMS_MEDIUM_AGLOADER_H_
+#ifndef UTILS_LOADER_AG_AGLOADER_H_
+#define UTILS_LOADER_AG_AGLOADER_H_
 
 #include <omnetpp.h>
+#include "../../../graph/attack/NodeDefs.h"
+#include <fstream>
+#include "../../../lib/nlohmann-json/single_include/nlohmann/json.hpp"
 
 namespace inet {
 
-using namespace omnetpp;
+using json = nlohmann::json;
 
-class AGLoader : public cSimpleModule {
-  protected:
-    virtual void initialize() override;
-    virtual void handleMessage(cMessage *msg) override;
+class AGLoader {
+public:
+    AGLoader(std::string& path, std::string& fileName);
+    virtual std::vector<NodeContent> load();
+    virtual ~AGLoader();
+private:
+    json agData;
+    json conMapData;
 };
 
-} // namespace inet;
+}; // namespace inet
 
-#endif
+#endif /* UTILS_LOADER_AG_AGLOADER_H_ */
