@@ -33,8 +33,8 @@ void DBNLogger::initialize(int stage) {
         ag = static_cast<AttackGraph*>(this->getParentModule());
         deltaT = par("deltaT").doubleValue();
 
-        EV_INFO << runNumber << "\n";
-
+        // If it is the run 0 then clear the DBN log file
+        // and initialize the header
         if(runNumber == 0) {
             logFile.open(this->path + fileName);
             const std::map<std::string, AttackNode*>& nodesMap = ag->getNodesMap();
@@ -55,10 +55,6 @@ void DBNLogger::initialize(int stage) {
 
 void DBNLogger::notifyActivation(AttackNode* node) {
     nodeActivationMap[node] = simTime();
-}
-
-void DBNLogger::handleMessage(cMessage *msg) {
-
 }
 
 int DBNLogger::numInitStages() const {

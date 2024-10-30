@@ -39,7 +39,7 @@ class DBNLogger : public cSimpleModule {
     std::map<AttackNode*, simtime_t> nodeActivationMap;
 
     virtual void initialize(int stage) override;
-    virtual void handleMessage(cMessage *msg) override;
+    virtual void handleMessage(cMessage *msg) override {}
     virtual void finish() override;
     virtual int numInitStages() const override;
 };
