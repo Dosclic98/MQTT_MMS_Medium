@@ -1,0 +1,248 @@
+{
+  "attackGraph": [
+    {
+      "name": "workStation_compromise",
+      "attackType": 0,
+      "childNodes": [
+        "historianServer_remoteShell",
+        "DMZ_scanIP"
+      ],
+      "state": true,
+      "delayExpr": "0.0",
+      "nodeType": 2
+    },
+    {
+      "name": "DMZ_scanIP",
+      "attackType": 1,
+      "childNodes": [
+        "historian_scanVuln"
+      ],
+      "state": false,
+      "delayExpr": "0.0",
+      "nodeType": 5
+    },
+    {
+      "name": "historian_scanVuln",
+      "attackType": 2,
+      "childNodes": [
+        "historian_remoteSrvc"
+      ],
+      "state": false,
+      "delayExpr": "0.0",
+      "nodeType": 5
+    },
+    {
+      "name": "historian_remoteSrvc",
+      "attackType": 3,
+      "childNodes": [
+        "historianServer_shell"
+      ],
+      "state": false,
+      "delayExpr": "0.0",
+      "nodeType": 5
+    },
+    {
+      "name": "historianServer_shell",
+      "attackType": 4,
+      "childNodes": [
+        "historianServer_addSSHkey",
+        "historianServer_NodeOR1"
+      ],
+      "state": false,
+      "delayExpr": "0.0",
+      "nodeType": 5
+    },
+    {
+      "name": "historianServer_addSSHkey",
+      "attackType": 5,
+      "childNodes": [
+        "historianServer_remoteShell"
+      ],
+      "state": false,
+      "delayExpr": "0.0",
+      "nodeType": 5
+    },
+    {
+      "name": "historianServer_remoteShell",
+      "attackType": 6,
+      "childNodes": [
+        "historianServer_NodeOR1"
+      ],
+      "state": false,
+      "delayExpr": "0.0",
+      "nodeType": 5
+    },
+    {
+      "name": "historianServer_NodeOR1",
+      "attackType": -1,
+      "childNodes": [
+        "tomcatWebServer_bruteForce"
+      ],
+      "state": false,
+      "delayExpr": "",
+      "nodeType": 1
+    },
+    {
+      "name": "tomcatWebServer_bruteForce",
+      "attackType": 7,
+      "childNodes": [
+        "virtualEng_escapeHost"
+      ],
+      "state": false,
+      "delayExpr": "0.0",
+      "nodeType": 5
+    },
+    {
+      "name": "virtualEng_escapeHost",
+      "attackType": 8,
+      "childNodes": [
+        "stationComputer_shell"
+      ],
+      "state": false,
+      "delayExpr": "0.0",
+      "nodeType": 5
+    },
+    {
+      "name": "stationComputer_shell",
+      "attackType": 4,
+      "childNodes": [
+        "MMSclient_modAuthProc",
+        "MMSclient_unsecCred"
+      ],
+      "state": false,
+      "delayExpr": "0.0",
+      "nodeType": 5
+    },
+    {
+      "name": "MMSclient_modAuthProc",
+      "attackType": 9,
+      "childNodes": [
+        "MMSclient_AND52"
+      ],
+      "state": false,
+      "delayExpr": "0.0",
+      "nodeType": 5
+    },
+    {
+      "name": "MMSclient_unsecCred",
+      "attackType": 10,
+      "childNodes": [
+        "MMSclient_AND52"
+      ],
+      "state": false,
+      "delayExpr": "0.0",
+      "nodeType": 5
+    },
+    {
+      "name": "MMSclient_AND52",
+      "attackType": -1,
+      "childNodes": [
+        "MMSclient_credAcc"
+      ],
+      "state": false,
+      "delayExpr": "",
+      "nodeType": 0
+    },
+    {
+      "name": "MMSclient_credAcc",
+      "attackType": 11,
+      "childNodes": [
+        "MMSTLS1_AITM",
+        "MMSTLS2_AITM"
+      ],
+      "state": false,
+      "delayExpr": "0.0",
+      "nodeType": 5
+    },
+    {
+      "name": "MMSTLS1_AITM",
+      "attackType": 12,
+      "childNodes": [
+        "MMSTLS1_unauthCmdMsg",
+        "MMSclient_spoofRepMsg"
+      ],
+      "state": false,
+      "delayExpr": "0.0",
+      "nodeType": 5
+    },
+    {
+      "name": "MMSTLS1_unauthCmdMsg",
+      "attackType": 13,
+      "childNodes": [
+        "IED1_DERfailureOR",
+        "IED2_DERfailureOR"
+      ],
+      "state": false,
+      "delayExpr": "0.0",
+      "nodeType": 5
+    },
+    {
+      "name": "MMSclient_spoofRepMsg",
+      "attackType": 14,
+      "childNodes": [
+        "IED1_DERfailureOR",
+        "IED2_DERfailureOR"
+      ],
+      "state": false,
+      "delayExpr": "0.0",
+      "nodeType": 5
+    },
+    {
+      "name": "MMSTLS2_AITM",
+      "attackType": 12,
+      "childNodes": [
+        "MMSTLS2_unauthCmdMsg"
+      ],
+      "state": false,
+      "delayExpr": "0.0",
+      "nodeType": 5
+    },
+    {
+      "name": "MMSTLS2_unauthCmdMsg",
+      "attackType": 13,
+      "childNodes": [
+        "IED1_DERfailureOR",
+        "IED2_DERfailureOR"
+      ],
+      "state": false,
+      "delayExpr": "0.0",
+      "nodeType": 5
+    },
+    {
+      "name": "IED1_DERfailureOR",
+      "attackType": -1,
+      "childNodes": [
+        "IED1_DERfailure"
+      ],
+      "state": false,
+      "delayExpr": "",
+      "nodeType": 1
+    },
+    {
+      "name": "IED1_DERfailure",
+      "attackType": 15,
+      "childNodes": [],
+      "state": false,
+      "delayExpr": "0.0",
+      "nodeType": 3
+    },
+    {
+      "name": "IED2_DERfailureOR",
+      "attackType": -1,
+      "childNodes": [
+        "IED2_DERfailure"
+      ],
+      "state": false,
+      "delayExpr": "",
+      "nodeType": 1
+    },
+    {
+      "name": "IED2_DERfailure",
+      "attackType": 15,
+      "childNodes": [],
+      "state": false,
+      "delayExpr": "0.0",
+      "nodeType": 5
+    }
+  ]
+}
