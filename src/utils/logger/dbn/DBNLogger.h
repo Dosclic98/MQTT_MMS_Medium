@@ -31,7 +31,6 @@ class DBNLogger : public cSimpleModule {
   public:
     virtual void notifyActivation(AttackNode* node);
   protected:
-    std::string path = "logs/";
     std::ofstream logFile;
     AttackGraph* ag;
     simtime_t deltaT;
@@ -40,6 +39,7 @@ class DBNLogger : public cSimpleModule {
 
     virtual void initialize(int stage) override;
     virtual void handleMessage(cMessage *msg) override {}
+    virtual void createFoldersInPath(std::string& path);
     virtual void finish() override;
     virtual int numInitStages() const override;
 };

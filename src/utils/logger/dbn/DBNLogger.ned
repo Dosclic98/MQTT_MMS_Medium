@@ -20,6 +20,7 @@ simple DBNLogger {
 	parameters:
 	    @class("inet::DBNLogger");
 	    @display("i=block/cogwheel");
-    	string fileName = default("dbnLogs.csv");   
+    	string fileNamePrefix = default("dbnLogs");   
+    	string pathPrefix = default("logs");
     	double deltaT @unit(s) = default(5s);  
 }

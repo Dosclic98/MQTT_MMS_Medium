@@ -25,32 +25,35 @@ Define_Module(DBNLogger);
 
 void DBNLogger::initialize(int stage) {
     if(stage == INITSTAGE_LAST - 1) {
-        // Initialize logger after the AG has been intialized
-        std::string fileName = par("fileName").stdstringValue();
-
         cEnvir* ev = getSimulation()->getActiveEnvir();
         int runNumber = ev->getConfigEx()->getActiveRunNumber();
+
+        // Initialize logger after the AG has been intialized
+        std::string fileName = par("fileNamePrefix").stdstringValue() + std::string("-#") + std::to_string(runNumber) + std::string(".csv");
+
         ag = static_cast<AttackGraph*>(this->getParentModule());
         deltaT = par("deltaT").doubleValue();
 
-        // If it is the run 0 then clear the DBN log file
-        // and initialize the header
-        if(runNumber == 0) {
-            logFile.open(this->path + fileName);
-            const std::map<std::string, AttackNode*>& nodesMap = ag->getNodesMap();
-            simtime_t simTimeLimit = SimTime::parse(ev->getConfig()->getConfigValue("sim-time-limit"));
-            int numSteps = simTimeLimit / deltaT;
-            for(std::pair<std::string, AttackNode*> elem : nodesMap) {
-                for(int i = 0; i < numSteps; i++) {
-                    logFile << elem.first << "_" << i << ",";
-                }
-            }
-            logFile << "\n";
-        } else {
-            logFile.open(this->path + fileName, std::ios_base::app);
-        }
+        // Append the specific folder based on the run number at the path.
+        std::string path = par("pathPrefix").stdstringValue() + std::string("/run") + std::to_string(runNumber) + std::string("/");
 
+        createFoldersInPath(path);
+        // Initialize the header
+        logFile.open(path + fileName);
+        const std::map<std::string, AttackNode*>& nodesMap = ag->getNodesMap();
+        simtime_t simTimeLimit = SimTime::parse(ev->getConfig()->getConfigValue("sim-time-limit"));
+        int numSteps = simTimeLimit / deltaT;
+        for(std::pair<std::string, AttackNode*> elem : nodesMap) {
+            for(int i = 0; i < numSteps; i++) {
+                logFile << elem.first << "_" << i << ",";
+            }
+        }
+        logFile << "\n";
     }
+}
+
+void DBNLogger::createFoldersInPath(std::string& path) {
+    fs::create_directories(path); // create folders in path
 }
 
 void DBNLogger::notifyActivation(AttackNode* node) {
