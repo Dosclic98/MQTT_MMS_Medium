@@ -446,7 +446,7 @@ void AttackNode::executeStep() {
                             terminatedState,
                             new cMessage("SENDDISCONNECT", SEND_MMS_DISCONNECT),
                             EventMatchType::Kind,
-                            SimTime(200, SIMTIME_MS)
+                            SimTime(2, SIMTIME_S)
                     ));
                     operatingState->setTransitions(operatingTransitions);
 
@@ -458,7 +458,7 @@ void AttackNode::executeStep() {
                             atkConnectedState,
                             new cMessage("TCPCONNECT", SEND_TCP_CONNECT),
                             EventMatchType::Kind,
-                            SimTime(200, SIMTIME_MS)
+                            SimTime(3, SIMTIME_S)
                     ));
                     terminatedState->setTransitions(terminatedTransitions);
 
@@ -469,7 +469,7 @@ void AttackNode::executeStep() {
                             atkOperatingState,
                             new cMessage("SENDMEAS", SEND_MMS_CONNECT),
                             EventMatchType::Kind,
-                            SimTime(20, SIMTIME_MS)
+                            SimTime(100, SIMTIME_MS)
                     ));
                     atkConnectedState->setTransitions(atkConnectedTransitions);
 
