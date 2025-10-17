@@ -45,7 +45,13 @@ void DBNLogger::initialize(int stage) {
         int numSteps = simTimeLimit / deltaT;
         for(std::pair<std::string, AttackNode*> elem : nodesMap) {
             for(int i = 0; i < numSteps; i++) {
-                logFile << elem.first << "_" << i << ",";
+                if(i == 0) {
+                    logFile << elem.first << ",";
+                } else if(i < numSteps-1) {
+                    logFile << elem.first << "_" << i << ",";
+                } else {
+                    logFile << elem.first << "_" << i;
+                }
             }
         }
         logFile << "\n";
@@ -77,8 +83,13 @@ void DBNLogger::finish() {
         }
         for(int i = 0; i < numSteps; i++) {
             simtime_t timeSliceTime = deltaT * (i+1);
-            int currNodeValue = timeSliceTime < nodeActivationTime ? 1 : 2;
-            logFile << currNodeValue << ",";
+            // Write N for "not completed" and C for "completed"
+            char currNodeValue = timeSliceTime < nodeActivationTime ? 'N' : 'C';
+            if(i < numSteps-1) {
+                logFile << currNodeValue << ",";
+            } else {
+                logFile << currNodeValue;
+            }
         }
     }
     logFile << "\n";
