@@ -1,216 +1,248 @@
 {
   "attackGraph": [
     {
+      "name": "workStation_compromise",
       "attackType": 0,
       "childNodes": [
-        "historianServer_remoteShellAND",
+        "historianServer_remoteShell",
         "DMZ_scanIP"
       ],
-      "name": "workStation_compromise",
       "state": true,
-      "delayExpr": "uniform(2,4)",
+      "delayExpr": "0.0",
       "nodeType": 2
     },
     {
+      "name": "DMZ_scanIP",
       "attackType": 1,
       "childNodes": [
         "historian_scanVuln"
       ],
-      "name": "DMZ_scanIP",
       "state": false,
-      "delayExpr": "",
+      "delayExpr": "0.0",
       "nodeType": 5
     },
     {
+      "name": "historian_scanVuln",
       "attackType": 2,
       "childNodes": [
         "historian_remoteSrvc"
       ],
-      "name": "historian_scanVuln",
       "state": false,
-      "delayExpr": "",
+      "delayExpr": "0.0",
       "nodeType": 5
     },
     {
+      "name": "historian_remoteSrvc",
       "attackType": 3,
       "childNodes": [
         "historianServer_shell"
       ],
-      "name": "historian_remoteSrvc",
       "state": false,
-      "delayExpr": "truncnormal(10, 2)",
+      "delayExpr": "0.0",
       "nodeType": 5
     },
     {
+      "name": "historianServer_shell",
       "attackType": 4,
       "childNodes": [
-        "historianServer_NodeOR1",
-        "historianServer_addSSHkey"
+        "historianServer_addSSHkey",
+        "historianServer_NodeOR1"
       ],
-      "name": "historianServer_shell",
       "state": false,
-      "delayExpr": "truncnormal(8, 1)",
+      "delayExpr": "0.0",
       "nodeType": 5
     },
     {
-      "attackType": 5,
-      "childNodes": [
-        "historianServer_remoteShellAND"
-      ],
       "name": "historianServer_addSSHkey",
-      "state": false,
-      "delayExpr": "truncnormal(9, 3)",
-      "nodeType": 5
-    },
-    {
-      "attackType": -1,
+      "attackType": 5,
       "childNodes": [
         "historianServer_remoteShell"
       ],
-      "name": "historianServer_remoteShellAND",
       "state": false,
-      "delayExpr": "",
-      "nodeType": 0
+      "delayExpr": "0.0",
+      "nodeType": 5
     },
     {
+      "name": "historianServer_remoteShell",
       "attackType": 6,
       "childNodes": [
         "historianServer_NodeOR1"
       ],
-      "name": "historianServer_remoteShell",
       "state": false,
-      "delayExpr": "truncnormal(5, 1)",
+      "delayExpr": "0.0",
       "nodeType": 5
     },
     {
+      "name": "historianServer_NodeOR1",
       "attackType": -1,
       "childNodes": [
         "tomcatWebServer_bruteForce"
       ],
-      "name": "historianServer_NodeOR1",
       "state": false,
       "delayExpr": "",
       "nodeType": 1
     },
     {
+      "name": "tomcatWebServer_bruteForce",
       "attackType": 7,
       "childNodes": [
         "virtualEng_escapeHost"
       ],
-      "name": "tomcatWebServer_bruteForce",
       "state": false,
-      "delayExpr": "",
+      "delayExpr": "0.0",
       "nodeType": 5
     },
     {
+      "name": "virtualEng_escapeHost",
       "attackType": 8,
       "childNodes": [
         "stationComputer_shell"
       ],
-      "name": "virtualEng_escapeHost",
       "state": false,
-      "delayExpr": "truncnormal(10, 2) + exponential(60)",
+      "delayExpr": "0.0",
       "nodeType": 5
     },
     {
+      "name": "stationComputer_shell",
       "attackType": 4,
       "childNodes": [
-        "MMSclient1_modAuthProc",
-        "MMSclient1_unsecCred"
+        "MMSclient_modAuthProc",
+        "MMSclient_unsecCred"
       ],
-      "name": "stationComputer_shell",
       "state": false,
-      "delayExpr": "truncnormal(8, 1)",
+      "delayExpr": "0.0",
       "nodeType": 5
     },
     {
+      "name": "MMSclient_modAuthProc",
       "attackType": 9,
       "childNodes": [
-        "MMSclient1_AND52"
+        "MMSclient_AND52"
       ],
-      "name": "MMSclient1_modAuthProc",
       "state": false,
-      "delayExpr": "truncnormal(15, 3)",
+      "delayExpr": "0.0",
       "nodeType": 5
     },
     {
+      "name": "MMSclient_unsecCred",
       "attackType": 10,
       "childNodes": [
-        "MMSclient1_AND52"
+        "MMSclient_AND52"
       ],
-      "name": "MMSclient1_unsecCred",
       "state": false,
-      "delayExpr": "truncnormal(15, 3)",
+      "delayExpr": "0.0",
       "nodeType": 5
     },
     {
+      "name": "MMSclient_AND52",
       "attackType": -1,
       "childNodes": [
-        "MMSclient1_credAcc"
+        "MMSclient_credAcc"
       ],
-      "name": "MMSclient1_AND52",
       "state": false,
       "delayExpr": "",
       "nodeType": 0
     },
     {
+      "name": "MMSclient_credAcc",
       "attackType": 11,
       "childNodes": [
-        "MMSserver1_AITM"
+        "MMSTLS1_AITM",
+        "MMSTLS2_AITM"
       ],
-      "name": "MMSclient1_credAcc",
       "state": false,
-      "delayExpr": "",
+      "delayExpr": "0.0",
       "nodeType": 5
     },
     {
+      "name": "MMSTLS1_AITM",
       "attackType": 12,
       "childNodes": [
-        "MMSserver1_unauthCmdMsg",
-        "MMSserver1_spoofRepMsg"
+        "MMSTLS1_unauthCmdMsg",
+        "MMSclient_spoofRepMsg"
       ],
-      "name": "MMSserver1_AITM",
       "state": false,
-      "delayExpr": "",
+      "delayExpr": "0.0",
       "nodeType": 5
     },
     {
+      "name": "MMSTLS1_unauthCmdMsg",
       "attackType": 13,
       "childNodes": [
-        "MMSserver1_NodeAND23"
+        "IED1_DERfailureOR",
+        "IED2_DERfailureOR"
       ],
-      "name": "MMSserver1_unauthCmdMsg",
       "state": false,
-      "delayExpr": "",
+      "delayExpr": "0.0",
       "nodeType": 5
     },
     {
+      "name": "MMSclient_spoofRepMsg",
       "attackType": 14,
       "childNodes": [
-        "MMSserver1_NodeAND23"
+        "IED1_DERfailureOR",
+        "IED2_DERfailureOR"
       ],
-      "name": "MMSserver1_spoofRepMsg",
       "state": false,
-      "delayExpr": "",
+      "delayExpr": "0.0",
       "nodeType": 5
     },
     {
+      "name": "MMSTLS2_AITM",
+      "attackType": 12,
+      "childNodes": [
+        "MMSTLS2_unauthCmdMsg"
+      ],
+      "state": false,
+      "delayExpr": "0.0",
+      "nodeType": 5
+    },
+    {
+      "name": "MMSTLS2_unauthCmdMsg",
+      "attackType": 13,
+      "childNodes": [
+        "IED1_DERfailureOR",
+        "IED2_DERfailureOR"
+      ],
+      "state": false,
+      "delayExpr": "0.0",
+      "nodeType": 5
+    },
+    {
+      "name": "IED1_DERfailureOR",
       "attackType": -1,
       "childNodes": [
         "IED1_DERfailure"
       ],
-      "name": "MMSserver1_NodeAND23",
       "state": false,
       "delayExpr": "",
-      "nodeType": 0
+      "nodeType": 1
     },
     {
+      "name": "IED1_DERfailure",
       "attackType": 15,
       "childNodes": [],
-      "name": "IED1_DERfailure",
+      "state": false,
+      "delayExpr": "0.0",
+      "nodeType": 3
+    },
+    {
+      "name": "IED2_DERfailureOR",
+      "attackType": -1,
+      "childNodes": [
+        "IED2_DERfailure"
+      ],
       "state": false,
       "delayExpr": "",
-      "nodeType": 3
+      "nodeType": 1
+    },
+    {
+      "name": "IED2_DERfailure",
+      "attackType": 15,
+      "childNodes": [],
+      "state": false,
+      "delayExpr": "0.0",
+      "nodeType": 5
     }
   ]
 }
