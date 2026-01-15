@@ -551,6 +551,7 @@ void AttackNode::executeStep() {
 		// The attack has been completed
 	    emit(complTimeSignal, simTime() - this->stepStart);
 	    emit(endTimeSignal, simTime());
+	    dbnLogger->notifyActivation(this);
 	    this->endSimulation();
 	}
 }

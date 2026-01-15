@@ -63,9 +63,7 @@ network IncrementalTest
             numMmsServers = parent.numMmsServers;
             @display("p=157,514");
         }
-        server[numMmsServers]: Mms5GServer {
-            @display("p=907.89374,513.735");
-        }
+        server[numMmsServers]: Mms5GServer;
         workstation: MmsWiredAttacker {
             numMmsServers = parent.numMmsServers;
             @display("p=553,55");

@@ -43,14 +43,16 @@ void DBNLogger::initialize(int stage) {
         const std::map<std::string, AttackNode*>& nodesMap = ag->getNodesMap();
         simtime_t simTimeLimit = SimTime::parse(ev->getConfig()->getConfigValue("sim-time-limit"));
         int numSteps = simTimeLimit / deltaT;
+        const auto last = prev(nodesMap.end());
         for(std::pair<std::string, AttackNode*> elem : nodesMap) {
+            bool isLast = elem.first == last->first;
             for(int i = 0; i < numSteps; i++) {
                 if(i == 0) {
                     logFile << elem.first << ",";
-                } else if(i < numSteps-1) {
-                    logFile << elem.first << "_" << i << ",";
-                } else {
+                } else if(i == numSteps-1 && isLast) {
                     logFile << elem.first << "_" << i;
+                } else {
+                    logFile << elem.first << "_" << i << ",";
                 }
             }
         }
@@ -74,21 +76,24 @@ void DBNLogger::finish() {
     cEnvir* ev = getSimulation()->getActiveEnvir();
     const std::map<std::string, AttackNode*>& nodesMap = ag->getNodesMap();
     simtime_t simTimeLimit = SimTime::parse(ev->getConfig()->getConfigValue("sim-time-limit"));
-
+    const auto last = prev(nodesMap.end());
     for(std::pair<std::string, AttackNode*> elem : nodesMap) {
+        bool isLast = elem.first == last->first;
         int numSteps = simTimeLimit / deltaT;
         simtime_t nodeActivationTime = simTimeLimit;
+        bool isActivated = false;
         if(nodeActivationMap.find(elem.second) != nodeActivationMap.end()) {
             nodeActivationTime = nodeActivationMap[elem.second];
+            isActivated = true;
         }
         for(int i = 0; i < numSteps; i++) {
             simtime_t timeSliceTime = deltaT * (i+1);
             // Write N for "not completed" and C for "completed"
-            char currNodeValue = timeSliceTime < nodeActivationTime ? 'N' : 'C';
-            if(i < numSteps-1) {
-                logFile << currNodeValue << ",";
-            } else {
+            char currNodeValue = (timeSliceTime >= nodeActivationTime && isActivated) ? 'C' : 'N';
+            if(i == numSteps-1 && isLast) {
                 logFile << currNodeValue;
+            } else {
+                logFile << currNodeValue << ",";
             }
         }
     }

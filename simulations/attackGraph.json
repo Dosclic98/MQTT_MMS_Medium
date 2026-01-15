@@ -109,7 +109,7 @@
       ],
       "name": "virtualEng_escapeHost",
       "state": false,
-      "delayExpr": "truncnormal(10, 2) + exponential(60)",
+      "delayExpr": "truncnormal(10, 2) + exponential(10)",
       "nodeType": 5
     },
     {
