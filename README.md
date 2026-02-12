@@ -1,4 +1,4 @@
-# MQTT_MMS_Medium — Simulation Model (Paper)
+# Attack Graph driven Discrete Event Simulation for security assessment in Power Systems — Simulation Model - SIGSIM-PADS 2026
 
 This repository contains the OMNeT++ simulation model executed by the experiments in the [`dbn-sim-learning`](https://github.com/Dosclic98/dbn-sim-learning) project.
 
